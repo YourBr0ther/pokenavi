@@ -41,6 +41,39 @@ function Get-PK3SubstructureOrder {
     return $permutations[$order]
 }
 
+# Get the Gender of the Pokemon
+function Get-PokemonGenderRatio {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$PokemonName
+    )
+
+    # Make a request to the PokeAPI species endpoint
+    $speciesUrl = "https://pokeapi.co/api/v2/pokemon-species/$PokemonName"
+    $speciesData = Invoke-RestMethod -Uri $speciesUrl
+
+    # Extract the gender data from the species data
+    $genderUrl = "https://pokeapi.co/api/v2/gender/"
+    $gendersData = Invoke-RestMethod -Uri $genderUrl
+
+    # Find the gender entry for the specific Pokémon
+    $pokemonGenderData = $gendersData.results |
+        Where-Object { ($_.pokemon_species_details | Where-Object { $_.pokemon_species.name -eq $PokemonName }).Count -gt 0 }
+
+    # Calculate the gender ratio
+    $pokemonSpeciesDetails = $pokemonGenderData.pokemon_species_details |
+        Where-Object { $_.pokemon_species.name -eq $PokemonName }
+
+    $femaleProbability = $pokemonSpeciesDetails.probability
+    $femaleRatio = $femaleProbability * 100
+    $maleRatio = 100 - $femaleRatio
+
+    return @{
+        Male = $maleRatio
+        Female = $femaleRatio
+    }
+}
+
 # START SCRIPT BODY
 try {
     $pokemonExport = ".\testing\Char.pk3"
@@ -76,7 +109,8 @@ $s = [ordered]@{
 $personalityValue = [BitConverter]::ToUInt32($($pk3Data[0..3]), 0)
 $substructureOrder = Get-PK3SubstructureOrder -PersonalityValue $personalityValue
 
-Write-Host "Order: $substructureOrder"
+$genderRatios = Get-PokemonGenderRatio -PokemonName "pikachu"
+$genderRatios
 
 $d = $pk3Data[31..81]
 
@@ -142,16 +176,6 @@ $miscellanoeous = [ordered]@{
     
 }
 
-$moves
-$growth
-$EVs
-$miscellanoeous
-
-# Write-Host "Growth: $gOffset"
-# Write-Host "Attack: $aOffset"
-# Write-Host "EVs: $eOffset"
-# Write-Host "Misc: $mOffset"
-
 $pokemon = [PSCustomObject]@{
     NationalPokedexNumber = $s.NationalPokedexNumber
     Species               = $s.Species
@@ -168,22 +192,22 @@ $pokemon = [PSCustomObject]@{
     Abilities             = @('', '')
     Moves                 = @('', '', '', '')
     Level                 = $pk3Data[84]
-    ExperiencePoints      = 0
+    ExperiencePoints      = $growth.Experience
     IndividualValues      = @{
-        HP             = 0
-        Attack         = 0
-        Defense        = 0
-        SpecialAttack  = 0
-        SpecialDefense = 0
-        Speed          = 0
+        HP             = $miscellanoeous.'HP IV'
+        Attack         = $miscellanoeous.'Attack IV'
+        Defense        = $miscellanoeous.'Defense IV'
+        SpecialAttack  = $miscellanoeous.'Special Attack IV'
+        SpecialDefense = $miscellanoeous.'Special Defense IV'
+        Speed          = $miscellanoeous.'Speed IV'
     }
     EffortValues          = @{
-        HP             = 0
-        Attack         = 0
-        Defense        = 0
-        SpecialAttack  = 0
-        SpecialDefense = 0
-        Speed          = 0
+        HP             = $EVs.'HP EV'
+        Attack         = $EVs.'Attack EV'
+        Defense        = $EVs.'Defense EV'
+        SpecialAttack  = $EVs.'Special Attack EV'
+        SpecialDefense = $EVs.'Special Defense EV'
+        Speed          = $EVs.'Speed EV'
     }
     Nature                = ''
     HeldItem              = ''
@@ -193,7 +217,7 @@ $pokemon = [PSCustomObject]@{
         TrainerID = [BitConverter]::ToUInt16($pk3Data, 4)
         SecretID  = 0
     }
-    Friendship            = 0
+    Friendship            = $growth.Friendship
     Nickname              = $nickname
     ShinyStatus           = $false
     BallCaught            = ''
