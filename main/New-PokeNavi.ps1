@@ -14,7 +14,8 @@ function Get-ChatGPTString {
 
     param (
         [Parameter(Mandatory = $true)]
-        [PSCustomObject]$pokemon
+        [PSCustomObject]$pokemon,
+        [string]$MBTIType
     )
 
     $string = "
@@ -149,7 +150,11 @@ function Get-MBTIPokemonType {
 }
 
 # Usage example with the previously created $pokemon object:
-$MBTIType = Get-MBTIPokemonType -pokemon $pokemon
+#$MBTIType = Get-MBTIPokemonType -pokemon $pokemon
+$MBTIType = "INFP"
 
 # Generate a ChatGPT string
-$string = Get-ChatGPTString -pokemon $pokemon
+$string = Get-ChatGPTString -pokemon $pokemon -MBTIType $MBTIType
+
+New-Item -ItemType File -Path .\"$($pokemon.Species)_string.txt" -Force | Out-Null
+Set-Content -Path ".\Charmeleon_string.txt" -Value $string -Force
