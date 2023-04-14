@@ -147,7 +147,7 @@ $s = [ordered]@{
 
     NationalPokedexNumber  = $stats.id
     Species                = $culture.TextInfo.ToTitleCase($stats.species.name)
-    Type1                  = $stats.types.type.name
+    Type1                  = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($stats.types.type.name)
     Type2                  = ""
     'HP Base'              = "$($stats.stats[0].base_stat)"
     'Attack Base'          = "$($stats.stats[1].base_stat)"
@@ -237,6 +237,7 @@ $miscellaneous = [ordered]@{
     
 }
 
+$pokemon = ""
 $pokemon = [PSCustomObject]@{
     NationalPokedexNumber = $s.NationalPokedexNumber
     Species               = $s.Species
