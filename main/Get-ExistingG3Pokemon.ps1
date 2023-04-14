@@ -220,9 +220,9 @@ $EVs = [ordered]@{
         
 $ivBytes = $d[$($mOffset + 4)..$($mOffset + 7)]
 $ivValue = [BitConverter]::ToUInt32($ivBytes, 0)
-$originsBytes = $d[$($mOffset + 2)..$($mOffset + 3)]
-$originsValue = [BitConverter]::ToUInt32($originsBytes, 0)
-$originsValue -band 0x1F
+# $originsBytes = $d[$($mOffset + 2)..$($mOffset + 3)]
+# $originsValue = [BitConverter]::ToUInt32($originsBytes, 0)
+# $originsValue -band 0x1F
 $miscellaneous = [ordered]@{
             
     "Pokerus Status"     = "$($d[$($mOffset+0)])"
@@ -288,4 +288,4 @@ $pokemon = [PSCustomObject]@{
     Raw                   = $pk3Data
 }
 
-#$pokemon
+$pokemon | ConvertTo-Json | Out-File -FilePath ".\$($pokemon.Species).json"
