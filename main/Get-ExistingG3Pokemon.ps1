@@ -26,7 +26,7 @@ function Get-PokemonStats {
 # Get the Substructure Order
 function Get-PK3SubstructureOrder {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [uint32]$PersonalityValue
     )
 
@@ -78,38 +78,79 @@ $substructureOrder = Get-PK3SubstructureOrder -PersonalityValue $personalityValu
 
 Write-Host "Order: $substructureOrder"
 
-$data = $pk3Data[31..81]
+$d = $pk3Data[31..81]
 
 $i = 0
 foreach ($letter in [char[]]$substructureOrder) {
 
-    if ($letter -eq "A") { $gOffset = $i  }
-    if ($letter -eq "B") { $aOffset = $i  }
-    if ($letter -eq "C") { $eOffset = $i  }
-    if ($letter -eq "D") { $mOffset = $i  }
+    if ($letter -eq "A") { $gOffset = $i }
+    if ($letter -eq "B") { $aOffset = $i }
+    if ($letter -eq "C") { $eOffset = $i }
+    if ($letter -eq "D") { $mOffset = $i }
 
-    $i++
+    $i += 13
 }
 
-Write-Host "Growth: $gOffset"
-Write-Host "Attack: $aOffset"
-Write-Host "EVs: $eOffset"
-Write-Host "Misc: $mOffset"
+$moves = [ordered]@{
 
+    "Move 1"    = "$($d[$($aOffset+0)])"
+    "Move 2"    = "$($d[$($aOffset+2)])"
+    "Move 3"    = "$($d[$($aOffset+4)])"
+    "Move 4"    = "$($d[$($aOffset+6)])"
+    "Move 1 PP" = "$($d[$($aOffset+8)])"
+    "Move 2 PP" = "$($d[$($aOffset+9)])"
+    "Move 3 PP" = "$($d[$($aOffset+10)])"
+    "Move 4 PP" = "$($d[$($aOffset+11)])"
+    
+}
+                
+$growth = [ordered]@{
+    
+    "Species"    = "$($d[$($gOffset+0)..$($gOffset+1)])"
+    "Item Held"  = "$($d[$($gOffset+2)..$($gOffset+3)])"
+    "Experience" = "$([BitConverter]::ToUInt32($($d[$($gOffset+4)..$($gOffset+7)]), 0))"
+    "PP Bonus"   = "$($d[$($gOffset+8)..$($gOffset+9)])"
+    "Friendship" = "$($d[$($gOffset+10)])"
+    "Unknown"    = "$($d[$($gOffset+11)..$($gOffset+12)])"
+    
+}
+        
+$EVs = [ordered]@{
+    
+    "HP EV"              = "$($d[$($eOffset+0)])"
+    "Attack EV"          = "$($d[$($eOffset+1)])"
+    "Defense EV"         = "$($d[$($eOffset+2)])"
+    "Speed EV"           = "$($d[$($eOffset+3)])"
+    "Special Attack EV"  = "$($d[$($eOffset+4)])"
+    "Special Defense EV" = "$($d[$($eOffset+5)])"
+    
+}
+        
+$ivBytes = $d[$($mOffset+4)..$($mOffset+7)]
+$ivValue = [BitConverter]::ToUInt32($ivBytes, 0)
+$miscellanoeous = [ordered]@{
+            
+    "Pokerus Status"     = "$($d[$($mOffset+0)])"
+    "Met Location"       = "$($d[$($mOffset+1)])"
+    "Origins Info"       = "$($d[$($mOffset+2)..$($mOffset+3)])"
+    "HP IV"              = "$($ivValue -band 0x1F)"
+    "Attack IV"          = "$(($ivValue -shr 5) -band 0x1F)"
+    "Defense IV"         = "$(($ivValue -shr 10) -band 0x1F)"
+    "Speed IV"           = "$(($ivValue -shr 15) -band 0x1F)"
+    "Special Attack IV"  = "$(($ivValue -shr 20) -band 0x1F)"
+    "Special Defense IV" = "$(($ivValue -shr 25) -band 0x1F)"
+    
+}
 
+$moves
+$growth
+$EVs
+$miscellanoeous
 
-# PV
-# Get the Data set
-# Determine the order
-# determine the finder offset
-
-# for position 1, it is A, so A's offset is 0
-# for position 2, it is C, so C's offset is 13
-# for position 3, it is D, so D's office is 27
-# for position 4, it is B, so B's offset is 30
-
-
-
+# Write-Host "Growth: $gOffset"
+# Write-Host "Attack: $aOffset"
+# Write-Host "EVs: $eOffset"
+# Write-Host "Misc: $mOffset"
 
 $pokemon = [PSCustomObject]@{
     NationalPokedexNumber = $s.NationalPokedexNumber
