@@ -44,7 +44,7 @@ function Get-PK3SubstructureOrder {
 # Get the Gender of the Pokemon
 function Get-PokemonGenderRatio {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$PokemonName
     )
 
@@ -58,20 +58,76 @@ function Get-PokemonGenderRatio {
 
     # Find the gender entry for the specific Pokémon
     $pokemonGenderData = $gendersData.results |
-        Where-Object { ($_.pokemon_species_details | Where-Object { $_.pokemon_species.name -eq $PokemonName }).Count -gt 0 }
+    Where-Object { ($_.pokemon_species_details | Where-Object { $_.pokemon_species.name -eq $PokemonName }).Count -gt 0 }
 
     # Calculate the gender ratio
     $pokemonSpeciesDetails = $pokemonGenderData.pokemon_species_details |
-        Where-Object { $_.pokemon_species.name -eq $PokemonName }
+    Where-Object { $_.pokemon_species.name -eq $PokemonName }
 
     $femaleProbability = $pokemonSpeciesDetails.probability
     $femaleRatio = $femaleProbability * 100
     $maleRatio = 100 - $femaleRatio
 
     return @{
-        Male = $maleRatio
+        Male   = $maleRatio
         Female = $femaleRatio
     }
+}
+
+function Get-MoveName {
+    param (
+        [Parameter(Mandatory = $true)]
+        [int]$id
+    )
+
+    # Set the API endpoint URL for the move with ID 1 (Pound)
+    $url = "https://pokeapi.co/api/v2/move/$id"
+
+    # Make a GET request to the API endpoint and store the response
+    $response = Invoke-RestMethod -Uri $url -Method Get
+
+    # Extract the move name from the response
+    $moveName = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($response.name.Replace("-", " "))
+
+    return $moveName
+}
+
+function Get-AbilityName {
+    param (
+        [Parameter(Mandatory = $true)]
+        [int]$id
+    )
+
+    # Set the API endpoint URL for the ability with ID 1 (Stench)
+    $url = "https://pokeapi.co/api/v2/ability/$id"
+
+    # Make a GET request to the API endpoint and store the response
+    $response = Invoke-RestMethod -Uri $url -Method Get
+
+    # Extract the ability name from the response
+    $ability_name = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($response.name.Replace("-", " "))
+
+    return $ability_name
+
+}
+
+function Get-NatureName {
+    param (
+        [Parameter(Mandatory = $true)]
+        [int]$id
+    )
+
+    # Set the API endpoint URL for the nature with ID 1 (Hardy)
+$url = "https://pokeapi.co/api/v2/nature/1"
+
+# Make a GET request to the API endpoint and store the response
+$response = Invoke-RestMethod -Uri $url -Method Get
+
+# Extract the nature name from the response
+$nature_name = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($response.name.Replace("-", " "))
+
+return $nature_name
+
 }
 
 # START SCRIPT BODY
@@ -89,11 +145,16 @@ $stats = Get-PokemonStats -id $speciesIndex
 
 $s = [ordered]@{
 
-    NationalPokedexNumber = $stats.id
-    Species               = $culture.TextInfo.ToTitleCase($stats.species.name)
-    Type1                 = $stats.types.type.name
-    Type2                 = ""
-
+    NationalPokedexNumber  = $stats.id
+    Species                = $culture.TextInfo.ToTitleCase($stats.species.name)
+    Type1                  = $stats.types.type.name
+    Type2                  = ""
+    'HP Base'              = "$($stats.stats[0].base_stat)"
+    'Attack Base'          = "$($stats.stats[1].base_stat)"
+    'Defense Base'         = "$($stats.stats[2].base_stat)"
+    'Special Attack Base'  = "$($stats.stats[3].base_stat)"
+    'Special Defense Base' = "$($stats.stats[4].base_stat)"
+    'Speed Base'           = "$($stats.stats[5].base_stat)"
 }
 
 #$tempNickname = $pk3Data[8..17]
@@ -108,9 +169,6 @@ $s = [ordered]@{
 
 $personalityValue = [BitConverter]::ToUInt32($($pk3Data[0..3]), 0)
 $substructureOrder = Get-PK3SubstructureOrder -PersonalityValue $personalityValue
-
-$genderRatios = Get-PokemonGenderRatio -PokemonName "pikachu"
-$genderRatios
 
 $d = $pk3Data[31..81]
 
@@ -127,10 +185,10 @@ foreach ($letter in [char[]]$substructureOrder) {
 
 $moves = [ordered]@{
 
-    "Move 1"    = "$($d[$($aOffset+0)])"
-    "Move 2"    = "$($d[$($aOffset+2)])"
-    "Move 3"    = "$($d[$($aOffset+4)])"
-    "Move 4"    = "$($d[$($aOffset+6)])"
+    "Move 1"    = "$(Get-MoveName -id $($d[$($aOffset+0)]))"
+    "Move 2"    = "$(Get-MoveName -id $($d[$($aOffset+2)]))"
+    "Move 3"    = "$(Get-MoveName -id $($d[$($aOffset+4)])) "
+    "Move 4"    = "$(Get-MoveName -id $($d[$($aOffset+6)]))"
     "Move 1 PP" = "$($d[$($aOffset+8)])"
     "Move 2 PP" = "$($d[$($aOffset+9)])"
     "Move 3 PP" = "$($d[$($aOffset+10)])"
@@ -160,9 +218,12 @@ $EVs = [ordered]@{
     
 }
         
-$ivBytes = $d[$($mOffset+4)..$($mOffset+7)]
+$ivBytes = $d[$($mOffset + 4)..$($mOffset + 7)]
 $ivValue = [BitConverter]::ToUInt32($ivBytes, 0)
-$miscellanoeous = [ordered]@{
+$originsBytes = $d[$($mOffset + 2)..$($mOffset + 3)]
+$originsValue = [BitConverter]::ToUInt32($originsBytes, 0)
+$originsValue -band 0x1F
+$miscellaneous = [ordered]@{
             
     "Pokerus Status"     = "$($d[$($mOffset+0)])"
     "Met Location"       = "$($d[$($mOffset+1)])"
@@ -182,24 +243,24 @@ $pokemon = [PSCustomObject]@{
     Type1                 = $s.Type1
     Type2                 = $s.Type2
     BaseStats             = @{
-        HP             = 0
-        Attack         = 0
-        Defense        = 0
-        SpecialAttack  = 0
-        SpecialDefense = 0
-        Speed          = 0
+        HP             = $s.'HP Base'
+        Attack         = $s.'Attack Base'
+        Defense        = $s.'Defense Base'
+        SpecialAttack  = $s.'Special Attack Base'
+        SpecialDefense = $s.'Special Defense Base'
+        Speed          = $s.'Speed Base'
     }
     Abilities             = @('', '')
-    Moves                 = @('', '', '', '')
+    Moves                 = @($moves."Move 1", $moves."Move 2", $moves."Move 3", $moves."Move 4")
     Level                 = $pk3Data[84]
     ExperiencePoints      = $growth.Experience
     IndividualValues      = @{
-        HP             = $miscellanoeous.'HP IV'
-        Attack         = $miscellanoeous.'Attack IV'
-        Defense        = $miscellanoeous.'Defense IV'
-        SpecialAttack  = $miscellanoeous.'Special Attack IV'
-        SpecialDefense = $miscellanoeous.'Special Defense IV'
-        Speed          = $miscellanoeous.'Speed IV'
+        HP             = $miscellaneous.'HP IV'
+        Attack         = $miscellaneous.'Attack IV'
+        Defense        = $miscellaneous.'Defense IV'
+        SpecialAttack  = $miscellaneous.'Special Attack IV'
+        SpecialDefense = $miscellaneous.'Special Defense IV'
+        Speed          = $miscellaneous.'Speed IV'
     }
     EffortValues          = @{
         HP             = $EVs.'HP EV'
@@ -209,7 +270,7 @@ $pokemon = [PSCustomObject]@{
         SpecialDefense = $EVs.'Special Defense EV'
         Speed          = $EVs.'Speed EV'
     }
-    Nature                = ''
+    Nature                = Get-NatureName -id $($personalityValue % 25)
     HeldItem              = ''
     Gender                = ''
     OriginalTrainer       = @{
@@ -223,6 +284,7 @@ $pokemon = [PSCustomObject]@{
     BallCaught            = ''
     Ribbons               = @('', '')
     Markings              = @('', '')
+    Raw                   = $pk3Data
 }
 
 #$pokemon
