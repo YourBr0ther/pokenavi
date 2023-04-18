@@ -6,19 +6,17 @@ function New-ChatGPTPrompt {
     param (
         [Parameter(Mandatory = $false)]
         [string]$prompt,
-        [bool]$firstRun
+        [bool]$firstRun,
+        [array]$history
     )
-
-    if ($firstRun) {$prompt = Get-Content -path ".\Charmeleon_string.txt"}
 
     $Headers = @{
         "Content-Type"  = "application/json"
         "Authorization" = "Bearer $($OPENAI_API_KEY)"
-
     }
     $Body = @{
         "model"       = "gpt-3.5-turbo"
-        "messages"    = @(@{
+        "messages"    = $history + @(@{
                 "role"    = "user"
                 "content" = "$prompt"
             })
@@ -27,17 +25,35 @@ function New-ChatGPTPrompt {
 
     $response = Invoke-WebRequest -Uri "https://api.openai.com/v1/chat/completions" -Method "POST" -Headers $Headers -Body $Body
 
-    if ($firstRun) { return $($response.Content | ConvertFrom-Json).choices.message.content } else { return $($response.Content | ConvertFrom-Json).choices.message.content}
-
+    return $($response.Content | ConvertFrom-Json).choices.message.content
 }
 
-New-ChatGPTPrompt -firstRun $true
+$conversationHistory = @(@{
+    "role" = "system"
+    "content" = Get-Content -path ".\Charmeleon_string.txt"
+})
+
+$firstPrompt = Get-Content -path ".\Charmeleon_string.txt"
+$conversationHistory += @(@{
+    "role" = "user"
+    "content" = $firstPrompt
+})
+
+New-ChatGPTPrompt -firstRun $true -history $conversationHistory
 
 do {
-    $prompt = Read-Host "Q:"
+    $prompt = Read-Host "Q"
+    $conversationHistory += @(@{
+        "role" = "user"
+        "content" = $prompt
+    })
 
     if ($prompt -ne "Good Night") {
-        $completion = New-ChatGPTPrompt -prompt $prompt
+        $completion = New-ChatGPTPrompt -prompt $prompt -history $conversationHistory
         Write-Output $completion
+        $conversationHistory += @(@{
+            "role" = "assistant"
+            "content" = $completion
+        })
     }
 } until ($prompt -eq "Good Night")
