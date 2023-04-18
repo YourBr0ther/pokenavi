@@ -4,10 +4,8 @@ Clear-Host
 $scriptLocation = "C:\Scripts\PokeNavi"
 Set-Location -Path $scriptLocation
 
-# Create proper name casing
-$culture = [System.Globalization.CultureInfo]::CurrentCulture
-
 # FUNCTIONs
+# Pull all default stats from PokeAPI
 function Get-PokemonStats {
 
     param (
@@ -30,48 +28,16 @@ function Get-PK3SubstructureOrder {
         [uint32]$PersonalityValue
     )
 
-    $order = $PersonalityValue % 4
+    $order = ($PersonalityValue % 6) - 1
+    Write-Host $order
     $permutations = @(
-        "ABCD", "ABDC", "ACBD", "ACDB", "ADBC", "ADCB",
-        "BACD", "BADC", "BCAD", "BCDA", "BDAC", "BDCA",
-        "CABD", "CADB", "CBAD", "CBDA", "CDAB", "CDBA",
-        "DABC", "DACB", "DBAC", "DBCA", "DCAB", "DCBA"
+        "GAEM", "GAME", "GEAM", "GEMA", "GMAE", "GMEA",
+        "AGEM", "AGME", "AEGM", "AEMG", "AMGE", "AMEG",
+        "EGAM", "EGMA", "EAGM", "EAMG", "EMGA", "EMAG",
+        "MGAE", "MGEA", "MAGE", "MAEG", "MEGA", "MEAG"
     )
 
     return $permutations[$order]
-}
-
-# Get the Gender of the Pokemon
-function Get-PokemonGenderRatio {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$PokemonName
-    )
-
-    # Make a request to the PokeAPI species endpoint
-    $speciesUrl = "https://pokeapi.co/api/v2/pokemon-species/$PokemonName"
-    $speciesData = Invoke-RestMethod -Uri $speciesUrl
-
-    # Extract the gender data from the species data
-    $genderUrl = "https://pokeapi.co/api/v2/gender/"
-    $gendersData = Invoke-RestMethod -Uri $genderUrl
-
-    # Find the gender entry for the specific Pokémon
-    $pokemonGenderData = $gendersData.results |
-    Where-Object { ($_.pokemon_species_details | Where-Object { $_.pokemon_species.name -eq $PokemonName }).Count -gt 0 }
-
-    # Calculate the gender ratio
-    $pokemonSpeciesDetails = $pokemonGenderData.pokemon_species_details |
-    Where-Object { $_.pokemon_species.name -eq $PokemonName }
-
-    $femaleProbability = $pokemonSpeciesDetails.probability
-    $femaleRatio = $femaleProbability * 100
-    $maleRatio = 100 - $femaleRatio
-
-    return @{
-        Male   = $maleRatio
-        Female = $femaleRatio
-    }
 }
 
 function Get-MoveName {
@@ -146,7 +112,7 @@ $stats = Get-PokemonStats -id $speciesIndex
 $s = [ordered]@{
 
     NationalPokedexNumber  = $stats.id
-    Species                = $culture.TextInfo.ToTitleCase($stats.species.name)
+    Species                 = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($stats.species.name)
     Type1                  = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($stats.types.type.name)
     Type2                  = ""
     'HP Base'              = "$($stats.stats[0].base_stat)"
@@ -170,34 +136,43 @@ $s = [ordered]@{
 $personalityValue = [BitConverter]::ToUInt32($($pk3Data[0..3]), 0)
 $substructureOrder = Get-PK3SubstructureOrder -PersonalityValue $personalityValue
 
+Write-Host "PV: $personalityValue"
+Write-Host "Substructure Order: $substructureOrder"
+
 $d = $pk3Data[31..81]
 
 $i = 0
 foreach ($letter in [char[]]$substructureOrder) {
 
-    if ($letter -eq "A") { $gOffset = $i }
-    if ($letter -eq "B") { $aOffset = $i }
-    if ($letter -eq "C") { $eOffset = $i }
-    if ($letter -eq "D") { $mOffset = $i }
+    if ($letter -eq "G") { $gOffset = $i }
+    if ($letter -eq "A") { $aOffset = $i }
+    if ($letter -eq "E") { $eOffset = $i }
+    if ($letter -eq "M") { $mOffset = $i }
 
-    $i += 13
+    $i += 12
 }
+
+Write-Host "Growth Offset: $gOffset"
+Write-Host "Attack Offset: $aOffset"
+Write-Host "EVs Offset: $eOffset"
+Write-Host "Misc Offset: $mOffset"
+Write-Host ""
 
 $moves = [ordered]@{
 
-    "Move 1"    = "$(Get-MoveName -id $($d[$($aOffset+0)]))"
-    "Move 2"    = "$(Get-MoveName -id $($d[$($aOffset+2)]))"
-    "Move 3"    = "$(Get-MoveName -id $($d[$($aOffset+4)])) "
-    "Move 4"    = "$(Get-MoveName -id $($d[$($aOffset+6)]))"
-    "Move 1 PP" = "$($d[$($aOffset+8)])"
-    "Move 2 PP" = "$($d[$($aOffset+9)])"
-    "Move 3 PP" = "$($d[$($aOffset+10)])"
-    "Move 4 PP" = "$($d[$($aOffset+11)])"
+    "Move 1"    = "$(Get-MoveName -id $($d[$($aOffset+1)]))"
+    "Move 2"    = "$(Get-MoveName -id $($d[$($aOffset+3)]))"
+    "Move 3"    = "$(Get-MoveName -id $($d[$($aOffset+5)])) "
+    "Move 4"    = "$(Get-MoveName -id $($d[$($aOffset+7)]))"
+    "Move 1 PP" = "$($d[$($aOffset+9)])"
+    "Move 2 PP" = "$($d[$($aOffset+10)])"
+    "Move 3 PP" = "$($d[$($aOffset+11)])"
+    "Move 4 PP" = "$($d[$($aOffset+12)])"
     
 }
                 
 $growth = [ordered]@{
-    
+        
     "Species"    = "$($d[$($gOffset+0)..$($gOffset+1)])"
     "Item Held"  = "$($d[$($gOffset+2)..$($gOffset+3)])"
     "Experience" = "$([BitConverter]::ToUInt32($($d[$($gOffset+4)..$($gOffset+7)]), 0))"
@@ -209,33 +184,44 @@ $growth = [ordered]@{
         
 $EVs = [ordered]@{
     
-    "HP EV"              = "$($d[$($eOffset+0)])"
-    "Attack EV"          = "$($d[$($eOffset+1)])"
-    "Defense EV"         = "$($d[$($eOffset+2)])"
-    "Speed EV"           = "$($d[$($eOffset+3)])"
+    "HP EV"              = "$($d[$($eOffset+1)])"
+    "Attack EV"          = "$($d[$($eOffset+2)])"
+    "Defense EV"         = "$($d[$($eOffset+3)])"
     "Special Attack EV"  = "$($d[$($eOffset+4)])"
     "Special Defense EV" = "$($d[$($eOffset+5)])"
+    "Speed EV"           = "$($d[$($eOffset+6)])"
     
 }
         
-$ivBytes = $d[$($mOffset + 4)..$($mOffset + 7)]
+$ivBytes = $d[$($mOffset + 5)..$($mOffset + 8)]
 $ivValue = [BitConverter]::ToUInt32($ivBytes, 0)
-# $originsBytes = $d[$($mOffset + 2)..$($mOffset + 3)]
-# $originsValue = [BitConverter]::ToUInt32($originsBytes, 0)
-# $originsValue -band 0x1F
 $miscellaneous = [ordered]@{
-            
-    "Pokerus Status"     = "$($d[$($mOffset+0)])"
-    "Met Location"       = "$($d[$($mOffset+1)])"
-    "Origins Info"       = "$($d[$($mOffset+2)..$($mOffset+3)])"
+        
+    "Pokerus Status"     = "$($d[$($mOffset+1)])"
+    "Met Location"       = "$($d[$($mOffset+2)])"
+    "Origins Info"       = "$($d[$($mOffset+3)..$($mOffset+4)])"
     "HP IV"              = "$($ivValue -band 0x1F)"
     "Attack IV"          = "$(($ivValue -shr 5) -band 0x1F)"
     "Defense IV"         = "$(($ivValue -shr 10) -band 0x1F)"
     "Speed IV"           = "$(($ivValue -shr 15) -band 0x1F)"
     "Special Attack IV"  = "$(($ivValue -shr 20) -band 0x1F)"
     "Special Defense IV" = "$(($ivValue -shr 25) -band 0x1F)"
-    
+
 }
+
+function BytesToId([Byte[]]$bytes) {
+    $dword = [BitConverter]::ToUInt32($bytes, 0)
+    return $dword -band 0xFFFF
+}
+
+$trainerId = BytesToId $pk3Data[4..7]
+
+function BytesToId([Byte[]]$bytes) {
+    $dword = [BitConverter]::ToUInt32($bytes, 0)
+    return $dword -shr 16
+}
+
+$secretId = BytesToId $pk3Data[4..7]
 
 $pokemon = ""
 $pokemon = [PSCustomObject]@{
@@ -276,8 +262,8 @@ $pokemon = [PSCustomObject]@{
     Gender                = ''
     OriginalTrainer       = @{
         Name      = $trainerName
-        TrainerID = [BitConverter]::ToUInt16($pk3Data, 4)
-        SecretID  = 0
+        TrainerID = $trainerId
+        SecretID  = $secretId
     }
     Friendship            = $growth.Friendship
     Nickname              = $nickname
