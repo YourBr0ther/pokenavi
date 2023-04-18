@@ -18,9 +18,8 @@ To-Do
 Missing Attributes
 * Abilities
 * Hidden Abilities
-* Held Item 
+* Held Item
 * Gender
-* Trainer Secret 
 * Ribbons
 * Ball Caught
 * Shiny Status

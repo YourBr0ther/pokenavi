@@ -5,8 +5,35 @@ Set-Location -Path $scriptLocation
 
 $json = Get-Content -Raw -Path ".\Charmeleon.json"  # Read the JSON file
 $pokemon = $json | ConvertFrom-Json  # Convert the JSON data to a PowerShell object
-$pokemon.originalTrainer.Name = "Chris"
-$pokemon.Nickname = "Maggie"
+
+function Get-PokemonMBTI {
+    param (
+        [string]$JsonFilePath
+    )
+
+    $jsonData = Get-Content -Path $JsonFilePath | ConvertFrom-Json
+
+    $Type1 = $jsonData.Type1
+    $Type2 = $jsonData.Type2
+    $BaseStats = $jsonData.BaseStats
+    $IndividualValues = $jsonData.IndividualValues
+    $EffortValues = $jsonData.EffortValues
+    $Nature = $jsonData.Nature
+
+    # You can adjust these rules for determining MBTI type based on the key attributes
+    $Extrovert = $BaseStats.Speed -gt 50 -and $EffortValues.Speed -gt 10
+    $Intuitive = $Type1 -eq "Psychic" -or $Type2 -eq "Psychic"
+    $Thinking = $BaseStats.Attack -gt $BaseStats.Defense -and $IndividualValues.Attack -gt $IndividualValues.Defense
+    $Perceiving = $Nature -ne "Hardy"
+
+    $MBTI = ""
+    if ($Extrovert) { $MBTI += "E" } else { $MBTI += "I" }
+    if ($Intuitive) { $MBTI += "N" } else { $MBTI += "S" }
+    if ($Thinking) { $MBTI += "T" } else { $MBTI += "F" }
+    if ($Perceiving) { $MBTI += "P" } else { $MBTI += "J" }
+
+    return $MBTI
+}
 
 # Functions
 # Generate a ChatGPT string
@@ -31,130 +58,10 @@ You have the ability to speak like a human, but you don't ever talk about why th
     return $string
 
 }
+$JsonFilePath = ".\Charmeleon.json"
+$PokemonMBTI = Get-PokemonMBTI -JsonFilePath $JsonFilePath
 
-function Get-MBTIPokemonType {
-    param (
-        [Parameter(Mandatory = $true)]
-        [PSCustomObject]$pokemon
-    )
-
-    $MBTIMatrix = @{
-        'ISTJ' = @{
-            'Nature'  = 'Brave';
-            'IVFocus' = 'HP', 'Attack';
-            'EVFocus' = 'HP', 'Attack';
-        };
-        'ISFJ' = @{
-            'Nature'  = 'Careful';
-            'IVFocus' = 'HP', 'Defense';
-            'EVFocus' = 'HP', 'Defense';
-        };
-        'INFJ' = @{
-            'Nature'  = 'Calm';
-            'IVFocus' = 'HP', 'Sp.Defense';
-            'EVFocus' = 'HP', 'Sp.Defense';
-        };
-        'INTJ' = @{
-            'Nature'  = 'Quiet';
-            'IVFocus' = 'HP', 'Sp.Attack';
-            'EVFocus' = 'HP', 'Sp.Attack';
-        };
-        'ISTP' = @{
-            'Nature'  = 'Adamant';
-            'IVFocus' = 'Attack', 'Speed';
-            'EVFocus' = 'Attack', 'Speed';
-        };
-        'ISFP' = @{
-            'Nature'  = 'Impish';
-            'IVFocus' = 'Attack', 'Defense';
-            'EVFocus' = 'Attack', 'Defense';
-        };
-        'INFP' = @{
-            'Nature'  = 'Bold';
-            'IVFocus' = 'Defense', 'Speed';
-            'EVFocus' = 'Defense', 'Speed';
-        };
-        'INTP' = @{
-            'Nature'  = 'Modest';
-            'IVFocus' = 'Sp.Attack', 'Speed';
-            'EVFocus' = 'Sp.Attack', 'Speed';
-        };
-        'ESTP' = @{
-            'Nature'  = 'Jolly';
-            'IVFocus' = 'Speed', 'Attack';
-            'EVFocus' = 'Speed', 'Attack';
-        };
-        'ESFP' = @{
-            'Nature'  = 'Naive';
-            'IVFocus' = 'Speed', 'Sp.Attack';
-            'EVFocus' = 'Speed', 'Sp.Attack';
-        };
-        'ENFP' = @{
-            'Nature'  = 'Timid';
-            'IVFocus' = 'Speed', 'Sp.Defense';
-            'EVFocus' = 'Speed', 'Sp.Defense';
-        };
-        'ENTP' = @{
-            'Nature'  = 'Hasty';
-            'IVFocus' = 'Speed', 'Defense';
-            'EVFocus' = 'Speed', 'Defense';
-        };
-        'ESTJ' = @{
-            'Nature'  = 'Lonely';
-            'IVFocus' = 'Attack', 'HP';
-            'EVFocus' = 'Attack', 'HP';
-        };
-        'ESFJ' = @{
-            'Nature'  = 'Lax';
-            'IVFocus' = 'Defense', 'HP';
-            'EVFocus' = 'Defense', 'HP';
-        };
-        'ENFJ' = @{
-            'Nature'  = 'Gentle';
-            'IVFocus' = 'Sp.Defense', 'HP';
-            'EVFocus' = 'Sp.Defense', 'HP';
-        };
-        'ENTJ' = @{
-            'Nature'  = 'Mild';
-            'IVFocus' = 'Sp.Attack', 'HP';
-            'EVFocus' = 'Sp.Attack', 'HP';
-        };
-    }
-
-    function Test-IVFocus($IVs, $IVFocus) {
-        $highestIVs = $IVs.GetEnumerator() | Sort-Object -Descending -Property Value | Select-Object -First 2 -ExpandProperty Name
-        return (Compare-Object -ReferenceObject $highestIVs -DifferenceObject $IVFocus -IncludeEqual).Count -eq $IVFocus.Count
-    }
-
-    function Test-EVFocus($EVs, $EVFocus) {
-        $highestEVs = $EVs.GetEnumerator() | Sort-Object -Descending -Property Value | Select-Object -First 2 -ExpandProperty Name
-        return (Compare-Object -ReferenceObject $highestEVs -DifferenceObject $EVFocus -IncludeEqual).Count -eq $EVFocus.Count
-    }
-
-    $MBTIType = $null
-
-    foreach ($type in $MBTIMatrix.Keys) {
-        $MBTI = $MBTIMatrix[$type]
-        if ($Pokemon.Nature -eq $MBTI.Nature -and (Test-IVFocus -IVs $Pokemon.IndividualValues -IVFocus $MBTI.IVFocus) -and (Test-EVFocus -EVs $Pokemon.EffortValues -EVFocus $MBTI.EVFocus)) {
-            $MBTIType = $type
-            break
-        }
-    }
-
-    if ($null -eq $MBTIType) {
-        Write-Error "No matching MBTI type found for the given Pokemon object."
-        return
-    }
-
-    return $MBTIType
-}
-
-# Usage example with the previously created $pokemon object:
-#$MBTIType = Get-MBTIPokemonType -pokemon $pokemon
-$MBTIType = "INFP"
-
-# Generate a ChatGPT string
-$string = Get-ChatGPTString -pokemon $pokemon -MBTIType $MBTIType
+$string = Get-ChatGPTString -pokemon $pokemon -MBTIType $PokemonMBTI
 
 New-Item -ItemType File -Path .\"$($pokemon.Species)_string.txt" -Force | Out-Null
 Set-Content -Path ".\Charmeleon_string.txt" -Value $string -Force

@@ -124,22 +124,21 @@ $s = [ordered]@{
 }
 
 $tempNickname = $pk3Data[8..17]
-Write-Output "Temp Nickname: $tempNickname"
 $tempTrainerName = $pk3Data[20..26]
-Write-Output "Temp Trainer Name: $tempTrainerName"
 
 $gen3CharacterMap = Import-CSV -Path ".\main\gen3CharMap.csv"
 
 $nickname = ""
 foreach ($nicknameLetter in $tempNickname) {
-    Write-Output "Nickname Letter: $nicknameLetter"
     $nickname += $gen3CharacterMap.Character[$nicknameLetter]
 }
+$nickname = [cultureinfo]::GetCultureInfo("en-US").TextInfo.ToTitleCase($nickname)
+
 $trainerName = ""
 foreach ($trainerLetter in $tempTrainerName) {
-    Write-Output "Trainer Letter: $trainerLetter"
     $trainerName += $gen3CharacterMap.Character[$trainerLetter]
 }
+$trainerName = [cultureinfo]::GetCultureInfo("en-US").TextInfo.ToTitleCase($trainerName)
 
 $personalityValue = [BitConverter]::ToUInt32($($pk3Data[0..3]), 0)
 $substructureOrder = Get-PK3SubstructureOrder -PersonalityValue $personalityValue
@@ -269,12 +268,12 @@ $pokemon = [PSCustomObject]@{
     HeldItem              = ''
     Gender                = ''
     OriginalTrainer       = @{
-        Name      = $trainerName
+        Name      = (Get-Culture).TextInfo.ToTitleCase($trainerName.ToLower())
         TrainerID = $trainerId
         SecretID  = $secretId
     }
     Friendship            = $growth.Friendship
-    Nickname              = $nickname
+    Nickname              = (Get-Culture).TextInfo.ToTitleCase($nickname.ToLower())
     ShinyStatus           = $false
     BallCaught            = ''
     Ribbons               = @('', '')
