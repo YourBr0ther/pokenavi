@@ -33,14 +33,6 @@ $conversationHistory = @(@{
     "content" = Get-Content -path ".\Charmeleon_string.txt"
 })
 
-$firstPrompt = Get-Content -path ".\Charmeleon_string.txt"
-$conversationHistory += @(@{
-    "role" = "user"
-    "content" = $firstPrompt
-})
-
-New-ChatGPTPrompt -firstRun $true -history $conversationHistory
-
 do {
     $prompt = Read-Host "Q"
     $conversationHistory += @(@{
