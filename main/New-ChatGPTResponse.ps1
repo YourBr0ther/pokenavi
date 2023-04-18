@@ -1,50 +1,43 @@
 Clear-Host
 
-function Query-ChatGPT {
-    param(
-        [string]$apiKey,
+$OPENAI_API_KEY = Get-Content -Path ".\api.txt"
+
+function New-ChatGPTPrompt {
+    param (
+        [Parameter(Mandatory = $false)]
         [string]$prompt,
-        [int]$maxTokens = 50,
-        [double]$temperature = 0.5
+        [bool]$firstRun
     )
 
-    $baseUrl = "https://api.openai.com/v1/chat/completions"
+    if ($firstRun) {$prompt = Get-Content -path ".\Charmeleon_string.txt"}
 
-    # Set up the request headers
-    $headers = @{
-        "Content-Type" = "application/json"
-        "Authorization" = "Bearer $apiKey"
+    $Headers = @{
+        "Content-Type"  = "application/json"
+        "Authorization" = "Bearer $($OPENAI_API_KEY)"
+
     }
-
-    # Set up the request body
-    $body = @{
-        prompt = $prompt
-        max_tokens = $maxTokens
-        temperature = $temperature
+    $Body = @{
+        "model"       = "gpt-3.5-turbo"
+        "messages"    = @(@{
+                "role"    = "user"
+                "content" = "$prompt"
+            })
+        "temperature" = 0.7
     } | ConvertTo-Json
 
-    # Send the HTTP request and parse the response JSON
-    $response = Invoke-RestMethod -Uri $baseUrl -Method Post -Headers $headers -Body $body
-    $completion = $response.choices[0].text
+    $response = Invoke-WebRequest -Uri "https://api.openai.com/v1/chat/completions" -Method "POST" -Headers $Headers -Body $Body
 
-    # Output the completion
-    Write-Output $completion
+    if ($firstRun) { return $($response.Content | ConvertFrom-Json).choices.message.content } else { return $($response.Content | ConvertFrom-Json).choices.message.content}
+
 }
 
-$promptFilePath = ".\Charmeleon_string.txt"
-$prompt = Get-Content $promptFilePath -Raw
-
-$apiKeyFilePath = ".\api.txt"
-$apiKey = Get-Content $apiKeyFilePath -Raw
-
-$completion = Query-ChatGPT -apiKey $apiKey -prompt $prompt
-Write-Output $completion
+New-ChatGPTPrompt -firstRun $true
 
 do {
-    $prompt = Read-Host "Enter your prompt:"
+    $prompt = Read-Host "Q:"
 
-    if ($prompt -ne "Exit") {
-        $completion = Query-ChatGPT -apiKey $apiKey -prompt $prompt
+    if ($prompt -ne "Good Night") {
+        $completion = New-ChatGPTPrompt -prompt $prompt
         Write-Output $completion
     }
-} until ($prompt -eq "Exit")
+} until ($prompt -eq "Good Night")
