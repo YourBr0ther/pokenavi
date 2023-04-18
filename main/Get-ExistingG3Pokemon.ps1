@@ -84,15 +84,15 @@ function Get-NatureName {
     )
 
     # Set the API endpoint URL for the nature with ID 1 (Hardy)
-$url = "https://pokeapi.co/api/v2/nature/1"
+    $url = "https://pokeapi.co/api/v2/nature/1"
 
-# Make a GET request to the API endpoint and store the response
-$response = Invoke-RestMethod -Uri $url -Method Get
+    # Make a GET request to the API endpoint and store the response
+    $response = Invoke-RestMethod -Uri $url -Method Get
 
-# Extract the nature name from the response
-$nature_name = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($response.name.Replace("-", " "))
+    # Extract the nature name from the response
+    $nature_name = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($response.name.Replace("-", " "))
 
-return $nature_name
+    return $nature_name
 
 }
 
@@ -112,7 +112,7 @@ $stats = Get-PokemonStats -id $speciesIndex
 $s = [ordered]@{
 
     NationalPokedexNumber  = $stats.id
-    Species                 = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($stats.species.name)
+    Species                = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($stats.species.name)
     Type1                  = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($stats.types.type.name)
     Type2                  = ""
     'HP Base'              = "$($stats.stats[0].base_stat)"
@@ -123,15 +123,23 @@ $s = [ordered]@{
     'Speed Base'           = "$($stats.stats[5].base_stat)"
 }
 
-#$tempNickname = $pk3Data[8..17]
-#$tempTrainerName = $pk3Data[20..26]
-# $gen3CharacterMap = @(
-#     ' ', 'À', 'Á', 'Â', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'こ', 'Î', 'Ï', 'Ò', 'Ó', 'Ô', 'Œ', 'Ù', 'Ú', 'Û', 'Ñ', 'ß', 'à', 'á', 'ね', 'Ç', 'È', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ò', 'ó', 'ô', 'œ', 'ù', 'ú', 'û', 'ñ', 'º', 'ª', '⒅', '&', '+', 'あ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'ゃ', '=', 'ょ', 'が', 'ぎ', 'ぐ', 'げ', 'ご', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ', 'だ', 'ぢ', 'づ', 'で', 'ど', 'ば', 'び', 'ぶ', 'べ', 'ぼ', 'ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ', 'っ', '¿', '¡', '⒆', '⒇', 'オ', 'カ', 'キ', 'ク', 'ケ', 'Í', 'コ', 'サ', 'ス', 'セ', 'ソ', 'タ', 'チ', 'ツ', 'テ', 'ト', 'ナ', 'ニ', 'ヌ', 'â', 'ノ', 'ハ', 'ヒ', 'フ', 'ヘ', 'ホ', 'í', 'ミ', 'ム', 'メ', 'モ', 'ヤ', 'ユ', 'ヨ', 'ラ', 'リ', 'ル', 'レ', 'ロ', 'ワ', 'ヲ', 'ン', 'ァ', 'ィ', 'ゥ', 'ェ', 'ォ', 'ャ', 'ュ', 'ョ', 'ガ', 'ギ', 'グ', 'ゲ', 'ゴ', 'ザ', 'ジ', 'ズ', 'ゼ', 'ゾ', 'ダ', 'ヂ', 'ヅ', 'デ', 'ド', 'バ', 'ビ', 'ブ', 'ベ', 'ボ', 'パ', 'ピ', 'プ', 'ペ', 'ポ', 'ッ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '!', '?', '.', '-', '・', '⑬', '“', '”', '‘', '’', '♂', '♀', '$', ',', '⑧', '/', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', ':', 'Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü'
-# )
-# $nickname = ""
-# foreach ($nicknameLetter in $tempNickname) { $nickname += $gen3CharacterMap[$nicknameLetter - 1] }
-# $trainerName = ""
-# foreach ($trainerLetter in $tempTrainerName) { $trainerName += $gen3CharacterMap[$trainerLetter - 1] }
+$tempNickname = $pk3Data[8..17]
+Write-Output "Temp Nickname: $tempNickname"
+$tempTrainerName = $pk3Data[20..26]
+Write-Output "Temp Trainer Name: $tempTrainerName"
+
+$gen3CharacterMap = Import-CSV -Path ".\main\gen3CharMap.csv"
+
+$nickname = ""
+foreach ($nicknameLetter in $tempNickname) {
+    Write-Output "Nickname Letter: $nicknameLetter"
+    $nickname += $gen3CharacterMap.Character[$nicknameLetter]
+}
+$trainerName = ""
+foreach ($trainerLetter in $tempTrainerName) {
+    Write-Output "Trainer Letter: $trainerLetter"
+    $trainerName += $gen3CharacterMap.Character[$trainerLetter]
+}
 
 $personalityValue = [BitConverter]::ToUInt32($($pk3Data[0..3]), 0)
 $substructureOrder = Get-PK3SubstructureOrder -PersonalityValue $personalityValue
