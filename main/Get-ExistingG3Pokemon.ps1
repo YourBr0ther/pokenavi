@@ -221,6 +221,30 @@ function Get-PokemonMarkings {
     return $pokemonMarkings
 }
 
+function Get-PokemonRibbons {
+    param (
+        [int]$ribbonData
+    )
+
+    # Define an array of ribbons
+    $ribbons = @("Cool", "Beauty", "Cute", "Smart", "Tough", "Champion", "Winning", "Victory", "Artist", "Effort", "Battle Champion", "Regional Champion", "National Champion", "Country", "National", "Earth", "World")
+
+    # Create an empty array to store the ribbons for the current Pokemon
+    $pokemonRibbons = @()
+
+    # Iterate through each ribbon
+    for ($i = 0; $i -lt $ribbons.Length; $i++) {
+        # Check if the current bit is set in the ribbon data
+        if ($ribbonData -band (1 -shl $i)) {
+            # If the bit is set, add the ribbon to the array of Pokemon ribbons
+            $pokemonRibbons += $ribbons[$i]
+        }
+    }
+
+    # Return the array of Pokemon ribbons
+    return $pokemonRibbons
+}
+
 # START SCRIPT BODY
 try {
     $pokemonExport = ".\testing\CHARMELEON.pk3"
@@ -334,6 +358,7 @@ $miscellaneous = [ordered]@{
     "Pokerus Status"     = "$($d[$($mOffset+1)])"
     "Met Location"       = "$($d[$($mOffset+2)])"
     "Origins Info"       = "$($d[$($mOffset+3)..$($mOffset+4)])"
+    "Ribbon Data"        = "$($d[$($mOffset+9)..$($mOffset+12)])"
     "HP IV"              = "$($ivValue -band 0x1F)"
     "Attack IV"          = "$(($ivValue -shr 5) -band 0x1F)"
     "Defense IV"         = "$(($ivValue -shr 10) -band 0x1F)"
@@ -342,6 +367,8 @@ $miscellaneous = [ordered]@{
     "Special Defense IV" = "$(($ivValue -shr 25) -band 0x1F)"
 
 }
+
+$ribbons = Get-PokemonRibbons -ribbonData $([BitConverter]::ToUInt32($($d[$($mOffset+9)..$($mOffset+12)]), 0))
 
 $heldItem = Get-HeldItem -heldItemIndex $($growth.'Item Held'[2])
 
@@ -407,7 +434,7 @@ $pokemon = [PSCustomObject]@{
     Nickname              = (Get-Culture).TextInfo.ToTitleCase($nickname.ToLower())
     ShinyStatus           = $isShiny
     BallCaught            = $pokeball
-    Ribbons               = @('', '')
+    Ribbons               = $ribbons
     Markings              = Get-PokemonMarkings -markingsData $pk3Data[27]
     Raw                   = $pk3Data
 }
