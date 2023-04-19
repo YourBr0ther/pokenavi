@@ -17,7 +17,6 @@ To-Do
 
 Missing Attributes
 * Ribbons
-* Ball Caught
 * Markings
 
 Thoughts
