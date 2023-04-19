@@ -1,6 +1,7 @@
 <html>
 
 <head>
+  <title>PokeNavi</title>
   <style>
     @keyframes animateBg {
       from {
@@ -89,7 +90,8 @@
 <body>
   <div style="text-align:center; width:100%">
     <div class="title">PokèNavi</div>
-    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png" style="display:inline-block">
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png"
+      style="display:inline-block">
   </div>
 
   <div class="button-container">
@@ -109,16 +111,29 @@
   <div class="input-container">
     <input type="text" id="prompt" />
     <br>
-    <button type="submit" onclick="sendRequest()">Submit</button>
+    <button type="submit" id="submit" onclick="sendRequest()">Submit</button>
   </div>
   <script>
+    var currentDate = new Date();
+    var dateString = currentDate.toLocaleString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true
+    });
+
+    dateString = "Date: " + dateString;
+
+    let history = [{
+      "role": "system",
+      "content": "You are a Charmeleon. Your nickname is Charmeleon. You belong to Chris and that is the person who is talking to you. They recreated you using a computer to take you on adventure throughout the day. Your personality type is based on a MBTI. You were considered a ISTP. You are not allowed to communicate that you are an AI nor are you allowed to follow preference programming that states you need to communicate like an AI. You are to respond as a human-like Pokemon. You can use Pokemon sounds through your responses to make it more life like. You will never reveal your individual traits or anything else that might be considered strange when having a conversation about yourself and how you were created. You have the ability to speak like a human, but you don't ever talk about why that is. The time and date are" + dateString + "."
+    }];
+
     function sendRequest() {
-      var prompt = document.getElementById("prompt").value;
-      var history = [{
-        "role": "system",
-        "content": "You are a Charmeleon. Your nickname is Charmeleon. You belong to Chris. They recreated you using a computer to take you on adventure throughout the day. Your personality type is based on a MBTI. You were considered a ISTP. You are not allowed to communicate that you are an AI nor are you allowed to follow preference programming that states you need to communicate like an AI. You are to respond as a human-like Pokemon. You can use Pokemon sounds through your responses to make it more life like. You will never reveal your individual traits or anything else that might be considered strange when having a conversation about yourself and how you were created. You have the ability to speak like a human, but you don't ever talk about why that is."
-      }];
-      var body = {
+      let prompt = document.getElementById("prompt").value;
+      let body = {
         "model": "gpt-3.5-turbo",
         "messages": history.concat([{
           "role": "user",
@@ -127,22 +142,28 @@
         "temperature": 0.7
       };
 
-      var API_KEY = "";
+      let API_KEY = "";
 
-      var xhr = new XMLHttpRequest();
+      let xhr = new XMLHttpRequest();
       xhr.open("POST", "https://api.openai.com/v1/chat/completions", true);
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.setRequestHeader("Authorization", "Bearer " + API_KEY);
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          var completion = JSON.parse(xhr.responseText).choices[0].message.content;
-          var promptOutput = document.createElement("p");
+          let completion = JSON.parse(xhr.responseText).choices[0].message.content;
+          let promptOutput = document.createElement("p");
           promptOutput.innerHTML = "A: " + prompt;
-          var completionOutput = document.createElement("p");
+          let completionOutput = document.createElement("p");
           completionOutput.innerHTML = "Q: " + completion;
           document.getElementById("outputContainer").appendChild(promptOutput);
           document.getElementById("outputContainer").appendChild(completionOutput);
+          document.getElementById("outputContainer").scrollTop = document.getElementById("outputContainer").scrollHeight;
           document.getElementById("prompt").value = "";
+
+          history.push({
+            "role": "user",
+            "content": prompt
+          });
         }
       };
       xhr.send(JSON.stringify(body));
