@@ -117,12 +117,8 @@ function Get-HeldItem {
         [string]$heldItemIndex
     )
 
-    Write-Host $heldItemIndex
-
     $apiUrl = "https://pokeapi.co/api/v2/item/$heldItemIndex"
     $response = Invoke-RestMethod -Uri $apiUrl
-
-    Write-Host $response
 
     return $((Get-Culture).TextInfo.ToTitleCase($response.name).Replace("-", " "))
 
@@ -173,6 +169,56 @@ function Get-PokemonGender {
         return "Male"
     }
     
+}
+
+function Get-Pokeball {
+    param (
+        [int]$originsByte
+    )
+
+    $pokeballIndex = ($originsByte -band 0x7800) -shr 11
+
+    switch ($pokeballIndex) {
+        0 { return "Poke Ball" }
+        1 { return "Great Ball" }
+        2 { return "Ultra Ball" }
+        3 { return "Master Ball" }
+        4 { return "Safari Ball" }
+        5 { return "Level Ball" }
+        6 { return "Lure Ball" }
+        7 { return "Moon Ball" }
+        8 { return "Friend Ball" }
+        9 { return "Love Ball" }
+        10 { return "Heavy Ball" }
+        11 { return "Fast Ball" }
+        12 { return "Sport Ball" }
+        13 { return "Premier Ball" }
+        default { return "Unknown" }
+    }
+}
+
+function Get-PokemonMarkings {
+    param (
+        [int]$markingsData
+    )
+
+    # Define an array of markings
+    $markings = @("Circle", "Square", "Triangle", "Heart")
+
+    # Create an empty array to store the markings for the current Pokemon
+    $pokemonMarkings = @()
+
+    # Iterate through each marking
+    for ($i = 0; $i -lt $markings.Length; $i++) {
+        # Check if the current bit is set in the markings data
+        if ($markingsData -band (1 -shl $i)) {
+            # If the bit is set, add the marking to the array of Pokemon markings
+            $pokemonMarkings += $markings[$i]
+        }
+    }
+
+    # Return the array of Pokemon markings
+    return $pokemonMarkings
 }
 
 # START SCRIPT BODY
@@ -313,6 +359,8 @@ function BytesToId([Byte[]]$bytes) {
 
 $secretId = BytesToId $pk3Data[4..7]
 
+$pokeball = Get-Pokeball -originsByte "$($miscellaneous.'Origins Info'[3])$($miscellaneous.'Origins Info'[3])"
+
 $pokemon = ""
 $pokemon = [PSCustomObject]@{
     NationalPokedexNumber = $s.NationalPokedexNumber
@@ -358,9 +406,9 @@ $pokemon = [PSCustomObject]@{
     Friendship            = $growth.Friendship
     Nickname              = (Get-Culture).TextInfo.ToTitleCase($nickname.ToLower())
     ShinyStatus           = $isShiny
-    BallCaught            = ''
+    BallCaught            = $pokeball
     Ribbons               = @('', '')
-    Markings              = @('', '')
+    Markings              = Get-PokemonMarkings -markingsData $pk3Data[27]
     Raw                   = $pk3Data
 }
 

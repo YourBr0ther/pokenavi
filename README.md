@@ -17,7 +17,6 @@ To-Do
 
 Missing Attributes
 * Ribbons
-* Markings
 
 Thoughts
  * A html page that shows your prompts
