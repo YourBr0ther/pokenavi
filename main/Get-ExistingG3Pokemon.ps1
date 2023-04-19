@@ -84,7 +84,7 @@ function Get-NatureName {
     )
 
     # Set the API endpoint URL for the nature with ID 1 (Hardy)
-    $url = "https://pokeapi.co/api/v2/nature/1"
+    $url = "https://pokeapi.co/api/v2/nature/$id"
 
     # Make a GET request to the API endpoint and store the response
     $response = Invoke-RestMethod -Uri $url -Method Get
@@ -96,9 +96,93 @@ function Get-NatureName {
 
 }
 
+function Get-ShinyValue {
+    param (
+        [int]$TID,
+        [int]$SID,
+        [int64]$PV
+    )
+
+    # Split the Personality Value into two 16-bit values
+    $PV_High = ($PV -shr 16) -band 0xFFFF
+    $PV_Low = $PV -band 0xFFFF
+
+    # Calculate the shiny value
+    $XOR = ($TID -bxor $SID) -bxor ($PV_High -bxor $PV_Low)
+    $SV = $XOR -shr 3
+
+    return $SV
+}
+
+$ShinyValue = Get-ShinyValue -TID $TrainerID -SID $SecretID -PV $PersonalityValue
+if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
+
+
+function Get-HeldItem {
+    param (
+        [int64]$PV
+    )
+
+    # Extract the held item index from the Personality Value
+    $heldItemIndex = $PV -shr 24
+
+    $apiUrl = "https://pokeapi.co/api/v2/item/$heldItemIndex"
+    $response = Invoke-RestMethod -Uri $apiUrl
+
+    return $response.name
+
+}
+
+function Get-PokemonGender {
+    param (
+        [Parameter(Mandatory = $true)]
+        [int]$PersonalityValue
+    )
+
+    $apiUrl = "https://pokeapi.co/api/v2/gender/female"
+    $response = Invoke-RestMethod -Uri $apiUrl
+
+    $allFemalePokemon = $response.pokemon_species_details
+    for ($i = 0; $i -le $allFemalePokemon.count; $i++) {
+
+        if ($($s.Species) -eq $($response.pokemon_species_details[$i].pokemon_species.name)) {$FemaleRatio = $($response.pokemon_species_details[$i].rate/8); break}
+
+    }
+
+    # Get last 2 digits of PID in decimal form
+    $decimalValue = $PersonalityValue % 256
+
+    # Define gender thresholds
+    $genderThresholds = @{
+        '12.5%' = 30
+        '25%'   = 63
+        '50%'   = 126
+        '75%'   = 190
+    }
+
+    # Determine gender threshold based on female ratio
+    $genderThreshold = $null
+    switch ($FemaleRatio) {
+        0.125 { $genderThreshold = $genderThresholds['12.5%'] }
+        0.25  { $genderThreshold = $genderThresholds['25%'] }
+        0.5   { $genderThreshold = $genderThresholds['50%'] }
+        0.75  { $genderThreshold = $genderThresholds['75%'] }
+        default {
+            throw "Invalid female ratio specified. Please use a valid value: 0.125, 0.25, 0.5, or 0.75."
+        }
+    }
+
+    if ($decimalValue -le $genderThreshold) {
+        return "Female"
+    } else {
+        return "Male"
+    }
+    
+}
+
 # START SCRIPT BODY
 try {
-    $pokemonExport = ".\testing\Char.pk3"
+    $pokemonExport = ".\testing\CHARMELEON.pk3"
     if (Test-Path -Path $pokemonExport) { Write-Host "Pokemon exist. Importing now" } else { Write-Host "There was a problem importing the Pokemon" } 
     $pk3Data = [System.IO.File]::ReadAllBytes($pokemonExport)
 }
@@ -265,8 +349,8 @@ $pokemon = [PSCustomObject]@{
         Speed          = $EVs.'Speed EV'
     }
     Nature                = Get-NatureName -id $($personalityValue % 25)
-    HeldItem              = ''
-    Gender                = ''
+    HeldItem              = $HeldItem
+    Gender                = Get-PokemonGender -PersonalityValue $PersonalityValue
     OriginalTrainer       = @{
         Name      = (Get-Culture).TextInfo.ToTitleCase($trainerName.ToLower())
         TrainerID = $trainerId
@@ -274,7 +358,7 @@ $pokemon = [PSCustomObject]@{
     }
     Friendship            = $growth.Friendship
     Nickname              = (Get-Culture).TextInfo.ToTitleCase($nickname.ToLower())
-    ShinyStatus           = $false
+    ShinyStatus           = $isShiny
     BallCaught            = ''
     Ribbons               = @('', '')
     Markings              = @('', '')
