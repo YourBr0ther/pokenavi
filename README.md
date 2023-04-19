@@ -26,12 +26,12 @@ Missing Attributes
 * Markings
 
 Thoughts
-A html page that shows your prompts
-It can look like a simple cell phone menu screen
-It can check the weather and display what to wear
-It can remember basic facts like who people are in your life
-It can tell you your daily schedule
-It can help you pick different pokemon to display
-It can allow the Pokemon to enter dream mode
-It can allow play basic music for you from YouTube
-It can look up web searches via Bard or Google
+ * A html page that shows your prompts
+ * It can look like a simple cell phone menu screen
+ * It can check the weather and display what to wear
+ * It can remember basic facts like who people are in your life
+ * It can tell you your daily schedule
+ * It can help you pick different pokemon to display
+ * It can allow the Pokemon to enter dream mode
+ * It can allow play basic music for you from YouTube
+ * It can look up web searches via Bard or Google
