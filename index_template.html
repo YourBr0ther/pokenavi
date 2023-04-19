@@ -24,10 +24,12 @@
     }
 
     .title {
-      font-size: 36px;
-      font-weight: bold;
       text-align: center;
-      margin-top: 20px;
+    }
+
+    .logo {
+      display: inline-block;
+      vertical-align: middle;
     }
 
     .bordered-window {
@@ -85,7 +87,11 @@
 </head>
 
 <body>
-  <div class="title">PokèNavi</div>
+  <div style="text-align:center; width:100%">
+    <div class="title">PokèNavi</div>
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png" style="display:inline-block">
+  </div>
+
   <div class="button-container">
     <button style="float:left; margin-left: 0;">Menu</button>
     <button style="width: 80px; margin-left: auto; margin-right: auto;">Switch</button>
@@ -93,10 +99,11 @@
   </div>
   <br>
   <div class="bordered-window">
-    <div class="output-container">
-      <p id="prompt-output"></p>
-      <p id="completionOutput"></p>
+    <div class="output-container" id="outputContainer"
+      style="overflow-y:scroll; height:300px; width:calc(100% + 10px); margin-left: -5px; text-align: left;">
     </div>
+  </div>
+  </div>
   </div>
   <br>
   <div class="input-container">
@@ -129,7 +136,12 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           var completion = JSON.parse(xhr.responseText).choices[0].message.content;
-          document.getElementById("completionOutput").innerHTML = completion;
+          var promptOutput = document.createElement("p");
+          promptOutput.innerHTML = "A: " + prompt;
+          var completionOutput = document.createElement("p");
+          completionOutput.innerHTML = "Q: " + completion;
+          document.getElementById("outputContainer").appendChild(promptOutput);
+          document.getElementById("outputContainer").appendChild(completionOutput);
           document.getElementById("prompt").value = "";
         }
       };
@@ -142,7 +154,6 @@
         document.getElementById("submit").click();
       }
     });
-
   </script>
 
 </html>
