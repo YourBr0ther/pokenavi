@@ -108,10 +108,6 @@ function Get-ShinyValue {
     return $SV
 }
 
-$ShinyValue = Get-ShinyValue -TID $TrainerID -SID $SecretID -PV $PersonalityValue
-if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
-
-
 function Get-HeldItem {
     param (
         [string]$heldItemIndex
@@ -246,6 +242,11 @@ function Get-PokemonRibbons {
 }
 
 # START SCRIPT BODY
+
+$ShinyValue = Get-ShinyValue -TID $TrainerID -SID $SecretID -PV $PersonalityValue
+if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
+
+
 try {
     $pokemonExport = ".\testing\CHARMELEON.pk3"
     if (Test-Path -Path $pokemonExport) { Write-Host "Pokemon exist. Importing now" } else { Write-Host "There was a problem importing the Pokemon" } 
