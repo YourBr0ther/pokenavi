@@ -6,7 +6,6 @@ function New-ChatGPTPrompt {
     param (
         [Parameter(Mandatory = $false)]
         [string]$prompt,
-        [bool]$firstRun,
         [array]$history
     )
 
@@ -42,7 +41,8 @@ do {
 
     if ($prompt -ne "Good Night") {
         $completion = New-ChatGPTPrompt -prompt $prompt -history $conversationHistory
-        Write-Output $completion
+        Write-Output "A: $completion"
+        Write-Host ""
         $conversationHistory += @(@{
             "role" = "assistant"
             "content" = $completion
