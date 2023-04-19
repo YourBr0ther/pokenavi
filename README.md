@@ -19,10 +19,8 @@ Missing Attributes
 * Abilities
 * Hidden Abilities
 * Held Item
-* Gender
 * Ribbons
 * Ball Caught
-* Shiny Status
 * Markings
 
 Thoughts
