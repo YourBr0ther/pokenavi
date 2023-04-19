@@ -16,7 +16,6 @@ To-Do
 * Determine experience points for usage
 
 Missing Attributes
-* Ribbons
 
 Thoughts
  * A html page that shows your prompts
