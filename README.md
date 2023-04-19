@@ -16,8 +16,6 @@ To-Do
 * Determine experience points for usage
 
 Missing Attributes
-* Abilities
-* Hidden Abilities
 * Held Item
 * Ribbons
 * Ball Caught

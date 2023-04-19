@@ -58,22 +58,16 @@ function Get-MoveName {
     return $moveName
 }
 
-function Get-AbilityName {
+function Get-HiddenAbility {
     param (
         [Parameter(Mandatory = $true)]
-        [int]$id
+        [int]$PersonalityValue
     )
 
-    # Set the API endpoint URL for the ability with ID 1 (Stench)
-    $url = "https://pokeapi.co/api/v2/ability/$id"
+    $binary = [System.Convert]::ToString($PersonalityValue, 2)
+    $lastDigit = $binary[-1]
 
-    # Make a GET request to the API endpoint and store the response
-    $response = Invoke-RestMethod -Uri $url -Method Get
-
-    # Extract the ability name from the response
-    $ability_name = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($response.name.Replace("-", " "))
-
-    return $ability_name
+    if ($lastDigit -eq 1 ) { return $true} else {return $false}
 
 }
 
@@ -205,6 +199,8 @@ $s = [ordered]@{
     'Special Attack Base'  = "$($stats.stats[3].base_stat)"
     'Special Defense Base' = "$($stats.stats[4].base_stat)"
     'Speed Base'           = "$($stats.stats[5].base_stat)"
+    'Ability 1' = $stats.abilities[0].ability.name
+    'Ability 2' = $stats.abilities[1].ability.name
 }
 
 $tempNickname = $pk3Data[8..17]
@@ -328,7 +324,7 @@ $pokemon = [PSCustomObject]@{
         SpecialDefense = $s.'Special Defense Base'
         Speed          = $s.'Speed Base'
     }
-    Abilities             = @('', '')
+    Abilities             = @("$((Get-Culture).TextInfo.ToTitleCase($s.'Ability 1').Replace("-", " "))", "$(if (Get-HiddenAbility -PersonalityValue $PersonalityValue) { $((Get-Culture).TextInfo.ToTitleCase($s.'Ability 2').Replace("-", " "))})")
     Moves                 = @($moves."Move 1", $moves."Move 2", $moves."Move 3", $moves."Move 4")
     Level                 = $pk3Data[84]
     ExperiencePoints      = $growth.Experience
