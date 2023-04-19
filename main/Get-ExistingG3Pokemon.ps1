@@ -114,16 +114,17 @@ if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
 
 function Get-HeldItem {
     param (
-        [int64]$PV
+        [string]$heldItemIndex
     )
 
-    # Extract the held item index from the Personality Value
-    $heldItemIndex = $PV -shr 24
+    Write-Host $heldItemIndex
 
     $apiUrl = "https://pokeapi.co/api/v2/item/$heldItemIndex"
     $response = Invoke-RestMethod -Uri $apiUrl
 
-    return $response.name
+    Write-Host $response
+
+    return $((Get-Culture).TextInfo.ToTitleCase($response.name).Replace("-", " "))
 
 }
 
@@ -296,6 +297,8 @@ $miscellaneous = [ordered]@{
 
 }
 
+$heldItem = Get-HeldItem -heldItemIndex $($growth.'Item Held'[2])
+
 function BytesToId([Byte[]]$bytes) {
     $dword = [BitConverter]::ToUInt32($bytes, 0)
     return $dword -band 0xFFFF
@@ -345,7 +348,7 @@ $pokemon = [PSCustomObject]@{
         Speed          = $EVs.'Speed EV'
     }
     Nature                = Get-NatureName -id $($personalityValue % 25)
-    HeldItem              = $HeldItem
+    HeldItem              = $heldItem
     Gender                = Get-PokemonGender -PersonalityValue $PersonalityValue
     OriginalTrainer       = @{
         Name      = (Get-Culture).TextInfo.ToTitleCase($trainerName.ToLower())

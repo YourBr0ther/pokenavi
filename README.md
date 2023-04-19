@@ -16,7 +16,6 @@ To-Do
 * Determine experience points for usage
 
 Missing Attributes
-* Held Item
 * Ribbons
 * Ball Caught
 * Markings
