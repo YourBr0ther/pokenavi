@@ -7,17 +7,19 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 To-Do
 * Add Type2 attribute
 * Fix DATA block order
+* Add all PokeDex entries into character profile
+* Add X amount of previous conversations into logging
+* Decide on final server code and front-end code
 * Define the manager prompt
 * Define the memory management
 * Define the bot spawners
 * Create idle bot responses
 * Define the governor bot
-* Design the Navi screen
+* Design the Navi screen (working on it)
 * Add logging
 * Determine experience points for usage
 
 Thoughts
- * A html page that shows your prompts
  * It can look like a simple cell phone menu screen
  * It can check the weather and display what to wear
  * It can remember basic facts like who people are in your life
