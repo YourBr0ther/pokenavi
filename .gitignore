@@ -1,2 +1,6 @@
 api.txt
 __pycach__
+node_modules
+Nodejs
+package-lock.json
+package.json
