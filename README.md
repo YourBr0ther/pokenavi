@@ -10,7 +10,7 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 * Fix DATA blocks [G.A.M.E.]
 
 ### Server-side
-* Decide between Flask, Express, or Django
+* Decide between Flask, Express, or Django or Pode
 * Securely store the API string
 * Interactive with ChatGPT API securely and present to HTML
 * Save X previous conversations to DB
