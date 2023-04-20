@@ -103,9 +103,9 @@
   </div>
 
   <div class="button-container">
-    <button style="float:left; margin-left: 0;">Menu</button>
-    <button style="width: 80px; margin-left: auto; margin-right: auto;">Switch</button>
-    <button style="float:right; margin-right: 0;">Restart</button>
+    <button id="menu" style="float:left; margin-left: 0;">Menu</button>
+    <button id="switch" style="width: 80px; margin-left: auto; margin-right: auto;">Switch</button>
+    <button id="restart" onclick="location.reload()" style="float:right; margin-right: 0;">Restart</button>
   </div>
   <br>
   <div class="bordered-window">
@@ -119,13 +119,44 @@
   <div class="input-container">
     <input type="text" id="prompt" />
     <br>
-    <button type="submit" id="submit" onclick="sendRequest()">Submit</button>
+    <button type="submit" id="submit">Submit</button>
   </div>
   <script>
 
-    function sendRequest(
+    const submitBtn = document.getElementById('submit')
+    const menuBtn = document.getElementById('menu')
+    const restartBtn = document.getElementById('restart')
 
-    )
+    const baseUrl = 'http://localhost:8080/'
+
+    submitBtn.addEventListener('click', getPrompt)
+    async function getPrompt(e) {
+      e.preventDefault()
+      const res = await fetch(baseUrl + 'info/prompt?query=blank',
+        {
+          method: 'GET'
+        })
+      console.log(res)
+      const data = await res.json()
+      input.value = data.infos
+
+    }
+    async function postResponse() {
+      e.preventDefault()
+      if (input.value == '') {return}
+      const res = await fetch(baseUrl + 'prompt?query=blank',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": 'application/json'
+          },
+          body: JSON.stringify({
+            parcel: input.value
+
+          })
+
+        })
+    }
 
   </script>
 
