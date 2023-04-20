@@ -13,14 +13,11 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 * Fix DATA blocks [G.A.M.E.]
 
 ### Server-side
-* Decide between Flask, Express, or Django or Pode
-* Securely store the API string
-* Interactive with ChatGPT API securely and present to HTML
+* Interactive with ChatGPT API and present to frontend
 * Save X previous conversations to DB
 * Add logging
 
 ### Front-end
-* Enable the Restart buttton
 * Enable the Switch button [Charmeleon, Mankey, Pidgey]
 * Switch to GIF instead of Sprite for Pokemon Rasters
 * Figure out why the fonts aren't working
@@ -29,15 +26,9 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 * Anchor the HTML elements correctly
 
 ### Personality Profiles
-* Age [Level]
-* Gender
-* PokeDex Entries
-* Nature
-* Types
-* Held Items
-* Marketings *[?]*
+* Update the PersonalitySheet with more rules
 
-### Conscious Bot Creation
+### Conscious Bot Creation [PokeCORE]
 * Brain [Parent]
   * Id [Instincts]
   * Ego [Reality]
@@ -45,6 +36,7 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 * Memory Cell
 
 ### Skill Roadmap
+ * Release version 1.0.0
  * Check Weather
  * Check Calendar
  * Allow Pokemon to dream
