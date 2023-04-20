@@ -1,21 +1,23 @@
 # PokeNavi
 A new way to interact with Pokemon from your previous games
 
+### Summary
 Goal
 I want to create a way for us to interact with our Pokemon using the metadata from the game, MBTI personality types, and ChatGPT to create a personable assistant based on your actual Pokemon. I am wanting to create some addition bots that will act as certain personality aspects or to interactive with other services until plugins become available.  
 
+## To-Do
 Attributes
 * Add second Typing
 * Fix DATA blocks [G.A.M.E.]
 
-Server-side
+### Server-side
 * Decide between Flask, Express, or Django
 * Securely store the API string
 * Interactive with ChatGPT API securely and present to HTML
 * Save X previous conversations to DB
 * Add logging
 
-Front-end
+### Front-end
 * Enable the Restart buttton
 * Enable the Switch button [Charmeleon, Mankey, Pidgey]
 * Switch to GIF instead of Sprite for Pokemon Rasters
@@ -24,7 +26,7 @@ Front-end
 * Create a better CSS sheet
 * Anchor the HTML elements correctly
 
-Personality Profiles
+### Personality Profiles
 * Age [Level]
 * Gender
 * PokeDex Entries
@@ -33,14 +35,14 @@ Personality Profiles
 * Held Items
 * Marketings [?]
 
-Conscious Bot Creation
+### Conscious Bot Creation
 * Brain [Parent]
   * Id [Instincts]
   * Ego [Reality]
   * Superego [Morality]
 * Memory Cell
 
-Skill Roadmap
+### Skill Roadmap
  * Check Weather
  * Check Calendar
  * Allow Pokemon to dream
