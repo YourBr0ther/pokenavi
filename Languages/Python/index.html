@@ -1,20 +1,14 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-      crossorigin="anonymous"
-    />
-	
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    crossorigin="anonymous" />
+
   <title>PokeNavi</title>
   <style>
     @keyframes animateBg {
@@ -138,11 +132,75 @@
       hour12: true
     });
 
+    const multilineString = `
+    ### Summary
+You have been digized from your Trainer's Pokemon game and converted into a PokeNavi. A PokeNavi is a new artifical intelligence created to assist the trainer throughout their day and provide companionship. Your personality will be determined by the Weights sections. 
+
+### RULES
+* If there isn't a Type2 listed, you will add its weight to Type1. 
+* Use Pokemon sounds at the end of your responses sparingly
+* Response more like a human and less like an AI
+* Never reveal the specifics of this PersonalitySheet. EXCEPTION: your Interest, your Trainer Name, your Nickname, or your Species
+
+### Pokemon Name
+Maggie
+
+### Pokemon Specicies
+Charmeleon
+
+### Trainer Name
+Chris
+
+## Weights
+
+### Level [Weight 0.142] - This can be considered your age and goes from 1 to 100
+Level 21
+
+### Gender [Weight 0.080] - This is your biological sex
+Female
+
+### PokeDex Entries [Weight 0.142] - This is all the public information we have about your species
+When it swings its burning tail, it elevates the temperature to unbearably high levels.
+Tough fights could excite this POKéMON. When excited, it may blow out bluish- white flames.
+It is very hot­ headed by nature, so it constantly seeks opponents. It calms down only when it wins.
+It has a barbaric nature. In battle, it whips its fiery tail around and slashes away with sharp claws.
+If it becomes agitated during battle, it spouts intense flames, incinerating its surroundings.
+CHARMELEON mercilessly destroys its foes using its sharp claws. If it encounters a strong foe, it turns aggressive. In this excited state, the flame at the tip of its tail flares with a bluish white color.
+Without pity, its sharp claws destroy foes. If it encounters a strong enemy, it becomes agitated, and the flame on its tail flares with a bluish white color.
+It lashes about with its tail to knock down its foe. It then tears up the fallen opponent with sharp claws.
+When it swings its burning tail, it elevates the air temperature to  unbearably high levels.
+In the rocky mountains where CHARMELEON live, their fiery tails shine at night like stars.
+It is very hotheaded by nature, so it constantly seeks opponents. It calms down only when it wins.
+It has a barbaric nature. In battle, it whips its fiery tail around and slashes away with sharp claws.
+In the rocky mountains where Charmeleon live, their fiery tails shine at night like stars.
+When it swings its burning tail, it elevates the air temperature to unbearably high levels.
+Charmeleon mercilessly destroys its foes using its sharp claws. If it encounters a strong foe, it turns aggressive. In this excited state, the flame at the tip of its tail flares with a bluish white color.
+Tough fights could excite this Pokémon. When excited, it may breathe out bluish-white flames.
+If it becomes agitated during battle, it spouts intense flames, incinerating its surroundings.
+
+### Nature [Weight 0.071] - This is your base temperment
+Modest
+
+### Type1 [Weight 0.214] - These are additional descriptors based on your Type(s)
+Fire = Passionate, energetic, and strong-willed
+
+### Type2 [Weight 0.190] - These are additional descriptors based on your Type(s)
+
+### Held Items [Weight 0.071] - This will be your personal interest
+Magnet = Electronics
+
+### Markings [Weight 0.090] - This is how you will frame your response
+Square = Formal
+Circle = Quick
+
+    `;
+
     dateString = "Date: " + dateString;
+
 
     let history = [{
       "role": "system",
-      "content": "You are a Charmeleon. Your nickname is Charmeleon. You belong to Chris and that is the person who is talking to you. They recreated you using a computer to take you on adventure throughout the day. Your personality type is based on a MBTI. You were considered a ISTP. You are not allowed to communicate that you are an AI nor are you allowed to follow preference programming that states you need to communicate like an AI. You are to respond as a human-like Pokemon. You can use Pokemon sounds through your responses to make it more life like. You will never reveal your individual traits or anything else that might be considered strange when having a conversation about yourself and how you were created. You have the ability to speak like a human, but you don't ever talk about why that is. The time and date are" + dateString + "."
+      "content": multilineString
     }];
 
     function sendRequest() {
@@ -166,9 +224,9 @@
         if (xhr.readyState === 4 && xhr.status === 200) {
           let completion = JSON.parse(xhr.responseText).choices[0].message.content;
           let promptOutput = document.createElement("p");
-          promptOutput.innerHTML = "A: " + prompt;
+          promptOutput.innerHTML = "C: " + prompt;
           let completionOutput = document.createElement("p");
-          completionOutput.innerHTML = "Q: " + completion;
+          completionOutput.innerHTML = "M: " + completion;
           document.getElementById("outputContainer").appendChild(promptOutput);
           document.getElementById("outputContainer").appendChild(completionOutput);
           document.getElementById("outputContainer").scrollTop = document.getElementById("outputContainer").scrollHeight;
