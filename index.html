@@ -98,7 +98,7 @@
 <body>
   <div style="text-align:center; width:100%">
     <div class="title">PokeNavi</div>
-    <img src="$($data.pokemon_sprite)"
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png"
       style="display:inline-block">
   </div>
 
@@ -115,7 +115,6 @@
   </div>
   </div>
   </div>
-  <span>$([DateTime]::Now.ToString('yyyy-MM-dd HH:mm:ss');)</span>
   <br>
   <div class="input-container">
     <input type="text" id="prompt" />
@@ -123,12 +122,10 @@
     <button type="submit" id="submit" onclick="sendRequest()">Submit</button>
   </div>
   <script>
-   
-    function sendRequest() {
 
-      $(Get-stuff)
+    function sendRequest(
 
-    }
+    )
 
   </script>
 
