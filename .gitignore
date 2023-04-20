@@ -1,6 +1,3 @@
 api.txt
-__pycach__
+.env
 node_modules
-Nodejs
-package-lock.json
-package.json
