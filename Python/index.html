@@ -1,5 +1,20 @@
+<!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      crossorigin="anonymous"
+    />
+	
   <title>PokeNavi</title>
   <style>
     @keyframes animateBg {
@@ -34,17 +49,17 @@
 
     .bordered-window {
       border: double;
-      width: 400px;
+      width: 350px;
       height: 300px;
       padding: 20px;
-      margin: 50px auto;
+      margin: 20px auto;
       text-align: center;
       background-color: #A9A9A9;
     }
 
     .input-container {
-      width: 400px;
-      margin: -50px auto;
+      width: 350px;
+      margin: -40px auto;
       text-align: center;
     }
 
@@ -61,13 +76,13 @@
     }
 
     .button-container {
-      width: 400px;
-      margin: 30px auto;
+      width: 350px;
+      margin: 5px auto;
       text-align: center;
     }
 
     button {
-      width: 80px;
+      width: 125px;
       margin: 0 10px 10px 10px;
       display: inline-block;
       float: left;
@@ -101,7 +116,7 @@
   <br>
   <div class="bordered-window">
     <div class="output-container" id="outputContainer"
-      style="overflow-y:scroll; height:300px; width:calc(100% + 10px); margin-left: -5px; text-align: left;">
+      style="overflow-y:scroll; height:260px; width:calc(100% + 10px); margin-left: -5px; text-align: left;">
     </div>
   </div>
   </div>
@@ -127,7 +142,7 @@
 
     let history = [{
       "role": "system",
-      "content": ""
+      "content": "You are a Charmeleon. Your nickname is Charmeleon. You belong to Chris and that is the person who is talking to you. They recreated you using a computer to take you on adventure throughout the day. Your personality type is based on a MBTI. You were considered a ISTP. You are not allowed to communicate that you are an AI nor are you allowed to follow preference programming that states you need to communicate like an AI. You are to respond as a human-like Pokemon. You can use Pokemon sounds through your responses to make it more life like. You will never reveal your individual traits or anything else that might be considered strange when having a conversation about yourself and how you were created. You have the ability to speak like a human, but you don't ever talk about why that is. The time and date are" + dateString + "."
     }];
 
     function sendRequest() {
