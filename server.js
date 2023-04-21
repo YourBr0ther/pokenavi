@@ -1,6 +1,6 @@
-console.clear();
-
 const { Configuration, OpenAIApi } = require("openai");
+const express = require("express");
+const bodyParser = require("body-parser");
 require("dotenv").config();
 
 const configuration = new Configuration({
@@ -47,24 +47,6 @@ const runPrompt = async (input) => {
 
     return output;
 };
-
-// const executePrompts = async () => {
-//     await primaryPrompt(fileContent);
-    
-//     const response1 = await runPrompt('My favorite color is Green');
-//     console.log(response1);
-    
-//     const response2 = await runPrompt('What type of Pokemon are you?');
-//     console.log(response2);
-    
-//     const response3 = await runPrompt('What is my favorite color?');
-//     console.log(response3);
-// };
-
-// executePrompts();
-
-const express = require("express");
-const bodyParser = require("body-parser");
 
 const app = express();
 const port = process.env.PORT || 3000;
