@@ -67,7 +67,7 @@ function Get-HiddenAbility {
     $binary = [System.Convert]::ToString($PersonalityValue, 2)
     $lastDigit = $binary[-1]
 
-    if ($lastDigit -eq 1 ) { return $true} else {return $false}
+    if ($lastDigit -eq 1 ) { return $true } else { return $false }
 
 }
 
@@ -132,7 +132,7 @@ function Get-PokemonGender {
     $allFemalePokemon = $response.pokemon_species_details
     for ($i = 0; $i -le $allFemalePokemon.count; $i++) {
 
-        if ($($s.Species) -eq $($response.pokemon_species_details[$i].pokemon_species.name)) {$FemaleRatio = $($response.pokemon_species_details[$i].rate/8); break}
+        if ($($s.Species) -eq $($response.pokemon_species_details[$i].pokemon_species.name)) { $FemaleRatio = $($response.pokemon_species_details[$i].rate / 8); break }
 
     }
 
@@ -151,9 +151,9 @@ function Get-PokemonGender {
     $genderThreshold = $null
     switch ($FemaleRatio) {
         0.125 { $genderThreshold = $genderThresholds['12.5%'] }
-        0.25  { $genderThreshold = $genderThresholds['25%'] }
-        0.5   { $genderThreshold = $genderThresholds['50%'] }
-        0.75  { $genderThreshold = $genderThresholds['75%'] }
+        0.25 { $genderThreshold = $genderThresholds['25%'] }
+        0.5 { $genderThreshold = $genderThresholds['50%'] }
+        0.75 { $genderThreshold = $genderThresholds['75%'] }
         default {
             throw "Invalid female ratio specified. Please use a valid value: 0.125, 0.25, 0.5, or 0.75."
         }
@@ -161,7 +161,8 @@ function Get-PokemonGender {
 
     if ($decimalValue -le $genderThreshold) {
         return "Female"
-    } else {
+    }
+    else {
         return "Male"
     }
     
@@ -297,25 +298,66 @@ function Get-PokemonMBTI {
     return $MBTI
 }
 
-function Get-ChatGPTString {
-
+function Get-PersonalitySheet {
     param (
         [Parameter(Mandatory = $true)]
         [PSCustomObject]$pokemon,
         [string]$MBTIType
     )
 
-    $string = "
+    $content = Get-Content -path ".\Generate Pokemon\PersonalitySheet-Template.txt" -Raw
+
+    $replacements = @(
+        @{OldValue = '$nickname'; NewValue = $pokemon.Nickname },
+        @{OldValue = '$species'; NewValue = $pokemon.Species },
+        @{OldValue = '$trainerName'; NewValue = $pokemon.OriginalTrainer.Name },
+        @{OldValue = '$level'; NewValue = $pokemon.Level },
+        @{OldValue = '$gender'; NewValue = $pokemon.Gender },
+        @{OldValue = '$pokedexEntries'; NewValue = Get-PokemonStats -id $pokemon.NationalPokedexNumber },
+        @{OldValue = '$nature'; NewValue = $pokemon.Nature },
+        @{OldValue = '$type1'; NewValue = $pokemon.Type1 },
+        @{OldValue = '$type2'; NewValue = $(if ($pokemon.Type2) { $pokemon.Type2 } else { "" }) },
+        @{OldValue = '$helditem'; NewValue = 'Item1' },
+        @{OldValue = '$hobby'; NewValue = 'Hobby1' },
+        @{OldValue = '$MBTI'; NewValue = $PokemonMBTI },
+        @{OldValue = '$marking1'; NewValue = 'Marking1' },
+        @{OldValue = '$marking2'; NewValue = 'Marking2' },
+        @{OldValue = '$marking3'; NewValue = 'Marking3' },
+        @{OldValue = '$marking4'; NewValue = 'Marking4' }
+    )
+
+    foreach ($replacement in $replacements) {
+        $content = $content -replace [regex]::Escape($replacement.OldValue), $replacement.NewValue
+    }
+
+    return $content
     
-You are a $($pokemon.Species). Your nickname is $($pokemon.Nickname).
-You belong to $($pokemon.originalTrainer.Name). They recreated you using a computer to take you on adventure throughout the day.
-Your personality type is based on a MBTI. You were considered a $MBTIType.
-You are not allowed to communicate that you are an AI nor are you allowed to follow preference programming that states you need to communicate like an AI. You are to respond as a human-like Pokemon. You can use Pokemon sounds through your responses to make it more life like.
-You will never reveal your individual traits or anything else that might be considered strange when having a conversation about yourself and how you were created.
-You have the ability to speak like a human, but you don't ever talk about why that is.
-    "
+
+}
+
+function Get-PokemonStats {
+
+    param (
+        [Parameter(Mandatory = $true)]
+        [int]$id
+    )
+
+    $url = "https://pokeapi.co/api/v2/pokemon-species/$id"
+
+    $response = Invoke-RestMethod -Uri $url -Method Get
+
+    $flavortextArray = @()
+    for ($i = 0; $i -le $response.flavor_text_entries.count; $i++) {
     
-    return $string
+        if ($response.flavor_text_entries[$i].language.name -eq "en") {
+            $flavorTextArray += ($response.flavor_text_entries[$i].flavor_text -replace "`r`n|`r|`n", " ").Trim()
+        }
+    
+    
+    }
+    $flavorTextArray = $flavortextArray | Select-Object -Unique
+
+    return $flavorTextArray
 
 }
 
@@ -326,7 +368,7 @@ if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
 
 
 try {
-    $pokemonExport = ".\testing\CHARMELEON.pk3"
+    $pokemonExport = ".\Sample PK3\CHARMELEON.pk3"
     if (Test-Path -Path $pokemonExport) { Write-Host "Pokemon exist. Importing now" } else { Write-Host "There was a problem importing the Pokemon" } 
     $pk3Data = [System.IO.File]::ReadAllBytes($pokemonExport)
 }
@@ -349,14 +391,14 @@ $s = [ordered]@{
     'Special Attack Base'  = "$($stats.stats[3].base_stat)"
     'Special Defense Base' = "$($stats.stats[4].base_stat)"
     'Speed Base'           = "$($stats.stats[5].base_stat)"
-    'Ability 1' = $stats.abilities[0].ability.name
-    'Ability 2' = $stats.abilities[1].ability.name
+    'Ability 1'            = $stats.abilities[0].ability.name
+    'Ability 2'            = $stats.abilities[1].ability.name
 }
 
 $tempNickname = $pk3Data[8..17]
 $tempTrainerName = $pk3Data[20..26]
 
-$gen3CharacterMap = Import-CSV -Path ".\main\gen3CharMap.csv"
+$gen3CharacterMap = Import-CSV -Path ".\Generate Pokemon\gen3CharMap.csv"
 
 $nickname = ""
 foreach ($nicknameLetter in $tempNickname) {
@@ -447,7 +489,7 @@ $miscellaneous = [ordered]@{
 
 }
 
-$ribbons = Get-PokemonRibbons -ribbonData $([BitConverter]::ToUInt32($($d[$($mOffset+9)..$($mOffset+12)]), 0))
+$ribbons = Get-PokemonRibbons -ribbonData $([BitConverter]::ToUInt32($($d[$($mOffset + 9)..$($mOffset + 12)]), 0))
 
 $heldItem = Get-HeldItem -heldItemIndex $($growth.'Item Held'[2])
 
@@ -515,6 +557,7 @@ $pokemon = [PSCustomObject]@{
     BallCaught            = $pokeball
     Ribbons               = $ribbons
     Markings              = Get-PokemonMarkings -markingsData $pk3Data[27]
+    PersonalitySheet      = ""
     Raw                   = $pk3Data
 }
 
@@ -522,7 +565,5 @@ $pokemon | ConvertTo-Json | Out-File -FilePath ".\$($pokemon.Species).json"
 
 $PokemonMBTI = Get-PokemonMBTI -pokemon $pokemon
 
-$string = Get-ChatGPTString -pokemon $pokemon -MBTIType $PokemonMBTI
-
-New-Item -ItemType File -Path .\"$($pokemon.Species)_string.txt" -Force | Out-Null
-Set-Content -Path ".\Charmeleon_string.txt" -Value $string -Force
+$personalitySheet = Get-PersonalitySheet -pokemon $pokemon -MBTIType $PokemonMBTI
+$pokemon.PersonalitySheet = $personalitySheet
