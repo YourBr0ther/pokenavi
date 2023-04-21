@@ -13,7 +13,6 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 * Fix DATA blocks [G.A.M.E.]
 
 ### Server-side
-* Interactive with ChatGPT API and present to frontend
 * Save X previous conversations to DB
 * Add logging
 
