@@ -1,3 +1,5 @@
+console.clear()
+
 require("dotenv").config();
 const { Configuration, OpenAIApi } = require("openai");
 const express = require("express");
@@ -7,25 +9,33 @@ const openai = new OpenAIApi(configuration);
 
 const fs = require('fs');
 const path = require('path');
+const util = require("util");
 
-const directoryPath = path.join(__dirname, './PokeCORE/');
-const markdownFileNames = fs.readdirSync(directoryPath).filter(file => path.extname(file) === '.txt');
+const directoryPath = path.join(__dirname, './JSON/');
+const jsonFileNames = fs.readdirSync(directoryPath).filter(file => path.extname(file) === '.json');
 
-const markdownFiles = markdownFileNames.map(fileName => {
+const jsonFiles = jsonFileNames.map(fileName => {
   const filePath = path.join(directoryPath, fileName);
   const fileContent = fs.readFileSync(filePath, 'utf-8');
-  return { fileName, fileContent };
+  const jsonData = JSON.parse(fileContent);
+  return { fileName, personalitySheet: jsonData.PersonalitySheet };
 });
 
-const messages = [];
 
-const primaryPrompt = async (prompt) => {
+let messages = [];
+
+let primaryPrompt = async (prompt) => {
   messages.push({ role: "system", content: prompt });
 
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: messages
   });
+
+  if (response.data.error) {
+    console.error(response.data.error);
+    return;
+  }
 
   const data = response.data.choices;
   const output = data[0].message.content;
@@ -36,9 +46,11 @@ const primaryPrompt = async (prompt) => {
 };
 
 let currentPromptIndex = 0;
-const promptFile = markdownFiles[currentPromptIndex];
+const promptFile = jsonFiles[currentPromptIndex];
 
-primaryPrompt(promptFile.fileContent);
+(async () => {
+  await primaryPrompt(promptFile.personalitySheet);
+})();
 
 const runPrompt = async (input) => {
   messages.push({ role: "user", content: input });
@@ -55,6 +67,8 @@ const runPrompt = async (input) => {
 
   return output;
 };
+
+const readFile = util.promisify(fs.readFile);
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -75,18 +89,36 @@ app.post("/prompt", async (req, res) => {
   }
 });
 
-app.post("/switch", async (req, res) => {
-  currentPromptIndex = (currentPromptIndex + 1) % markdownFiles.length;
-  const promptFile = markdownFiles[currentPromptIndex];
-  messages.length = 0;
-  try {
-    const response = await primaryPrompt(promptFile.fileContent);
-    res.json({ assistantResponse: response });
-  } catch (error) {
-    res.status(500).json({ error: "An error occurred while processing the request" });
-  }
-});
+app.post('/switch', (req, res) => {
+  fs.readdir('./JSON', (err, files) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
 
+    const currentIndex = files.indexOf(selectedFile);
+    console.log('currentIndex:', currentIndex);
+
+    const nextIndex = (currentIndex + 1) % files.length;
+    console.log('nextIndex:', nextIndex);
+
+    selectedFile = files[nextIndex];
+    console.log('selectedFile:', selectedFile);
+
+    fs.readFile(`./JSON/${selectedFile}`, 'utf-8', (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send(err);
+      }
+
+      primaryPrompt = JSON.parse(data).personalitySheet;
+      messages = [];
+      runPrompt(primaryPrompt, messages);
+
+      res.status(200).send({ selectedFile, messages });
+    });
+  });
+});
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

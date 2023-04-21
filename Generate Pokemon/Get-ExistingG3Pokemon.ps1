@@ -368,7 +368,7 @@ if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
 
 
 try {
-    $pokemonExport = ".\Sample PK3\CHARMELEON.pk3"
+    $pokemonExport = ".\Sample PK3\MANKEY.pk3"
     if (Test-Path -Path $pokemonExport) { Write-Host "Pokemon exist. Importing now" } else { Write-Host "There was a problem importing the Pokemon" } 
     $pk3Data = [System.IO.File]::ReadAllBytes($pokemonExport)
 }
@@ -566,4 +566,8 @@ $PokemonMBTI = Get-PokemonMBTI -pokemon $pokemon
 $personalitySheet = Get-PersonalitySheet -pokemon $pokemon -MBTIType $PokemonMBTI
 $pokemon.PersonalitySheet = $personalitySheet
 
-$pokemon | ConvertTo-Json | Out-File -FilePath ".\JSON\$($pokemon.Species).json"
+$pokemonJson = $pokemon | ConvertTo-Json
+$outputFile = ".\JSON\$($pokemon.Species).json"
+
+[System.IO.File]::WriteAllText($outputFile, $pokemonJson, (New-Object System.Text.UTF8Encoding($false)))
+
