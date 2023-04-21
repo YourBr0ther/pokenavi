@@ -99,7 +99,7 @@
 <body>
   <div style="text-align:center; width:100%">
     <div class="title">PokeNavi</div>
-    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png"
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/56.png"
       style="display:inline-block">
   </div>
 
@@ -127,6 +127,9 @@
     const userMessage = document.getElementById("prompt");
     const messages = document.getElementById("outputContainer");
 
+    const scrollToBottom = () => {
+      messages.scrollToBottom = messages.scrollHeight;
+    };
     const submitMessage = async () => {
       const message = userMessage.value;
       userMessage.value = "";
@@ -134,6 +137,8 @@
       const li = document.createElement("li");
       li.textContent = `C: ${message}`;
       messages.appendChild(li);
+
+      scrollToBottom()
 
       const response = await fetch("/prompt", {
         method: "POST",
@@ -153,12 +158,38 @@
 
     submitButton.addEventListener("click", submitMessage);
 
+    const switchPrompt = async () => {
+
+      messages.innerHTML = "Switching!"
+      const response = await fetch("/switch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      const data = await response.json();
+      const assistantResponse = data.assistantResponse;
+
+      messages.innerHTML = ""; // This line clears the scrolling text box
+
+      const liAssistant = document.createElement("li");
+      liAssistant.textContent = `M: ${assistantResponse}`;
+      messages.appendChild(liAssistant);
+
+      scrollToBottom()
+    };
+
     userMessage.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
         submitMessage();
       }
     });
+
+    const switchButton = document.getElementById("switch");
+    switchButton.addEventListener("click", switchPrompt);
+
   </script>
 </body>
 

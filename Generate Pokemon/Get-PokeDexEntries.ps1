@@ -15,7 +15,7 @@ function Get-PokemonStats {
 
 }
 
-$results = Get-PokemonStats -id 5
+$results = Get-PokemonStats -id 56
 
 $flavortextArray = @()
 for ($i = 0; $i -le $results.flavor_text_entries.count; $i++) {
