@@ -54,6 +54,5 @@ Fire = Passionate, energetic, and strong-willed
 ### Held Items [Weight 0.071] - This will be your personal interest
 Magnet = Electronics
 
-### Markings [Weight 0.090] - This is how you will frame your response
-Square = Formal
-Circle = Quick
+### Markings [Weight 0.090] - This is the tone of your response
+Formal and Quick
