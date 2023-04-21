@@ -49,6 +49,7 @@
       margin: 20px auto;
       text-align: center;
       background-color: #A9A9A9;
+      list-style-type: none;
     }
 
     .input-container {
@@ -122,42 +123,43 @@
     <button type="submit" id="submit">Submit</button>
   </div>
   <script>
+    const submitButton = document.getElementById("submit");
+    const userMessage = document.getElementById("prompt");
+    const messages = document.getElementById("outputContainer");
 
-    const submitBtn = document.getElementById('submit')
-    const menuBtn = document.getElementById('menu')
-    const restartBtn = document.getElementById('restart')
+    const submitMessage = async () => {
+      const message = userMessage.value;
+      userMessage.value = "";
 
-    const baseUrl = 'http://localhost:8080/'
+      const li = document.createElement("li");
+      li.textContent = `C: ${message}`;
+      messages.appendChild(li);
 
-    submitBtn.addEventListener('click', getPrompt)
-    async function getPrompt(e) {
-      e.preventDefault()
-      const res = await fetch(baseUrl + 'info/prompt?query=blank',
-        {
-          method: 'GET'
-        })
-      console.log(res)
-      const data = await res.json()
-      input.value = data.infos
+      const response = await fetch("/prompt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userMessage: message })
+      });
 
-    }
-    async function postResponse() {
-      e.preventDefault()
-      if (input.value == '') {return}
-      const res = await fetch(baseUrl + 'prompt?query=blank',
-        {
-          method: 'POST',
-          headers: {
-            "Content-Type": 'application/json'
-          },
-          body: JSON.stringify({
-            parcel: input.value
+      const data = await response.json();
+      const assistantResponse = data.assistantResponse;
 
-          })
+      const liAssistant = document.createElement("li");
+      liAssistant.textContent = `M: ${assistantResponse}`;
+      messages.appendChild(liAssistant);
+    };
 
-        })
-    }
+    submitButton.addEventListener("click", submitMessage);
 
+    userMessage.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitMessage();
+      }
+    });
   </script>
+</body>
 
 </html>

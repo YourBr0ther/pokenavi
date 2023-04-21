@@ -48,44 +48,43 @@ const runPrompt = async (input) => {
     return output;
 };
 
-const executePrompts = async () => {
-    await primaryPrompt(fileContent);
+// const executePrompts = async () => {
+//     await primaryPrompt(fileContent);
     
-    const response1 = await runPrompt('My favorite color is Green');
-    console.log(response1);
+//     const response1 = await runPrompt('My favorite color is Green');
+//     console.log(response1);
     
-    const response2 = await runPrompt('What type of Pokemon are you?');
-    console.log(response2);
+//     const response2 = await runPrompt('What type of Pokemon are you?');
+//     console.log(response2);
     
-    const response3 = await runPrompt('What is my favorite color?');
-    console.log(response3);
-};
+//     const response3 = await runPrompt('What is my favorite color?');
+//     console.log(response3);
+// };
 
-executePrompts();
-// const express = require('express')
-// const app = express()
-// const port = 8080
+// executePrompts();
 
+const express = require("express");
+const bodyParser = require("body-parser");
 
+const app = express();
+const port = process.env.PORT || 3000;
 
-// app.use(express.static('public'))
-// app.use(express.json())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.get('/info/:dynamic', (req, res) => {
-//     const { dynamic } = req.params
-//     const { key } = req.query
-//     console.log(dynamic, key)
-//     res.status(200).send({ info: 'Prompt Information' })
-// })
+app.use(express.static("public")); // Serve the static HTML files from the 'public' folder
 
-// app.post('/', (req, res) => {
-//     const parcel = req.body
-//     console.log(parcel)
-//     if (!parcel) {
-//         return res.status(400).send({ status: 'failed' })
-//     }
-//     res.status(200).send({ status: 'received' })
-// })
+app.post("/prompt", async (req, res) => {
+  const userMessage = req.body.userMessage;
 
-// app.listen(port, () => console.log(`Server has started on port: ${port}`))
+  try {
+    const response = await runPrompt(userMessage);
+    res.json({ assistantResponse: response });
+  } catch (error) {
+    res.status(500).json({ error: "An error occurred while processing the request" });
+  }
+});
 
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
