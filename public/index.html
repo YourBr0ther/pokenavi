@@ -133,8 +133,9 @@
     const messages = document.getElementById("outputContainer");
 
     const scrollToBottom = () => {
-      messages.scrollToBottom = messages.scrollHeight;
-    };
+  messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+};
+
     const submitMessage = async () => {
       const message = userMessage.value;
       userMessage.value = "";
@@ -143,14 +144,15 @@
       li.textContent = `C: ${message}`;
       messages.appendChild(li);
 
-      scrollToBottom()
-
+	scrollToBottom()
+	
       const response = await fetch("/prompt", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ userMessage: message })
+
       });
 
       const data = await response.json();
@@ -159,6 +161,10 @@
       const liAssistant = document.createElement("li");
       liAssistant.textContent = `M: ${assistantResponse}`;
       messages.appendChild(liAssistant);
+	
+	setTimeout(() => {
+    		scrollToBottom();
+	}, 0);
     };
 
     submitButton.addEventListener("click", submitMessage);
