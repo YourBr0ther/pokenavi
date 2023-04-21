@@ -313,7 +313,7 @@ function Get-PersonalitySheet {
         @{OldValue = '$trainerName'; NewValue = $pokemon.OriginalTrainer.Name },
         @{OldValue = '$level'; NewValue = $pokemon.Level },
         @{OldValue = '$gender'; NewValue = $pokemon.Gender },
-        @{OldValue = '$pokedexEntries'; NewValue = Get-PokemonStats -id $pokemon.NationalPokedexNumber },
+        @{OldValue = '$pokedexEntries'; NewValue = Get-PokeDexEntries -id $pokemon.NationalPokedexNumber },
         @{OldValue = '$nature'; NewValue = $pokemon.Nature },
         @{OldValue = '$type1'; NewValue = $pokemon.Type1 },
         @{OldValue = '$type2'; NewValue = $(if ($pokemon.Type2) { $pokemon.Type2 } else { "" }) },
@@ -335,7 +335,7 @@ function Get-PersonalitySheet {
 
 }
 
-function Get-PokemonStats {
+function Get-PokeDexEntries {
 
     param (
         [Parameter(Mandatory = $true)]
@@ -561,9 +561,9 @@ $pokemon = [PSCustomObject]@{
     Raw                   = $pk3Data
 }
 
-$pokemon | ConvertTo-Json | Out-File -FilePath ".\$($pokemon.Species).json"
-
 $PokemonMBTI = Get-PokemonMBTI -pokemon $pokemon
 
 $personalitySheet = Get-PersonalitySheet -pokemon $pokemon -MBTIType $PokemonMBTI
 $pokemon.PersonalitySheet = $personalitySheet
+
+$pokemon | ConvertTo-Json | Out-File -FilePath ".\JSON\$($pokemon.Species).json"
