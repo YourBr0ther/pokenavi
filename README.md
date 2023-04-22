@@ -14,7 +14,6 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 
 ### Server-side
 * Save X previous conversations to DB
-* Add logging
 
 ### Front-end
 * Enable the Switch button [Charmeleon, Mankey, Pidgey]

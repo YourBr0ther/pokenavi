@@ -144,6 +144,8 @@ async function sendChatToPokemon(prompt) {
 
 }
 
+// switch out the active Pokemon with the next one in the se
+
 // Define the web app
 const app = express()
 // Use port 3000
@@ -156,7 +158,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // Display the index.html page in the public folder
 app.use(express.static("public"))
 
-app.post("/prompt", async (req, res) => {
+app.post('/prompt', async (req, res) => {
     const userMessage = req.body.userMessage
 
     try {
@@ -167,6 +169,20 @@ app.post("/prompt", async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request"})
     }
+})
+
+app.post('/switch', async (req, res) => {
+    JSONIndex = (JSONIndex + 1) % jsonFileNames.length;
+    console.log('Switching to ' + jsonFileNames[JSONIndex]);
+
+    // Update the chatbot with the next Pokemon
+    try {
+        primeChatBot(selectedPokemon)
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred while processing the request"})
+    }
+
+    messages = []
 })
 
 app.listen(port, () => {
