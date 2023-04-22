@@ -67,6 +67,7 @@ console.log('JSON Directory: ' + directoryPath)
 // JSON Files
 const jsonFileNames = fs.readdirSync(directoryPath).filter(file => path.extname(file) === '.json');
 console.log('JSON Files: ' + jsonFileNames)
+console.log('')
 
 // Import first JSON
 let JSONIndex = 0
@@ -94,11 +95,13 @@ let messages = [];
     console.log('Name: ' + selectedPokemon.Nickname);
     console.log('National Dex: ' + selectedPokemon.NationalPokedexNumber);
     primeChatBot(selectedPokemon)
+
 })();
 
 async function primeChatBot(selectedPokemon) {
     let response
     console.log('Pokemon for priming: ' + selectedPokemon.Nickname)
+    console.log('')
     const pkmnSheet = selectedPokemon.PersonalitySheet
     messages.push({ role: "system", content: pkmnSheet })
 
@@ -106,12 +109,60 @@ async function primeChatBot(selectedPokemon) {
         response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
             messages: messages,
-            temperature: 0.7
+            temperature: 0.7,
         });
     } catch (error) {
         console.error(error)
     }
-    console.log(response)
+
+    const output_json = response.data.choices
+    const output = output_json[0].message.content
+    console.log('M: ' + output)
+    console.log('')
+
+    await sendChatToPokemon("Chris's favorite color is Green")
+    console.log('')
+    await sendChatToPokemon("What are you going to get into today?")
+    console.log('')
+    await sendChatToPokemon("What is Chris's favorite color?")
+    console.log('')
+
+    // Save messages to CSV file
+    const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+    const csvWriter = createCsvWriter({
+        path: 'messages.csv',
+        header: [
+            { id: 'role', title: 'Role' },
+            { id: 'content', title: 'Content' }
+        ]
+    });
+
+    csvWriter.writeRecords(messages)
+        .then(() => console.log('Messages saved to CSV file'))
+        .catch((error) => console.error('Error saving messages to CSV file:', error));
+}
+
+async function sendChatToPokemon(prompt) {
+    console.log('C: ' + prompt)
+    let response
+    messages.push({ role: "user", content: prompt })
+
+    try {
+        response = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 100
+        });
+    } catch (error) {
+        console.error(error)
+    }
+
+    const output_json = response.data.choices
+    const output = output_json[0].message.content
+    messages.push({ role: "system", content: output })
+    console.log('M ' + output)
+    
 }
 
 // * Dynamic Variables
