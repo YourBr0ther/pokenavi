@@ -1,43 +1,10 @@
 /*
-
-Start program
-Load the first JSON file
-Feed the selected JSON file to OpenAI to prime the chatbot
-Put the response into index 0 of the message array
-
-WAIT
-
-User inputs first request.
-The request is passed to the OpenAI with the message array and saved to the message array
-The chatbot returns the response and saved to the message array
-
-Import Values
- * JSON Index
- * Messages
- * JSON Personality Sheet
- * Species Number
-
-
-
-
-
-
-
-
 Button press
 
 Switch
 The switch button will cause the selected JSON to be changed out for the next one in the JSON directory.
 The new JSON file will be sent to OpenAI to prim the chatbot again
 The message array will be purge
-
-
-
-
-
-
-
-
 
 */
 
@@ -85,9 +52,10 @@ let getPokemon = async (JSONIndex) => {
     return selectedPokemon
 }
 
+// Pokemon JSON
 let selectedPokemon
+// Chat messages
 let messages = [];
-//let activeJSON
 
 // Import first JSON
 (async () => {
@@ -98,13 +66,21 @@ let messages = [];
 
 })();
 
+// Give the pkmnSheet to ChatGPT and get back first prompt
 async function primeChatBot(selectedPokemon) {
+
+    // ChatGPT Response
     let response
     console.log('Pokemon for priming: ' + selectedPokemon.Nickname)
     console.log('')
+
+    // Pull the string from the Pokemon JSON
     const pkmnSheet = selectedPokemon.PersonalitySheet
+
+    // Push the pkmnSheet to the message array
     messages.push({ role: "system", content: pkmnSheet })
 
+    // Send pkmnSheet via the message array to ChatGPT and put response in response variable
     try {
         response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
@@ -115,11 +91,13 @@ async function primeChatBot(selectedPokemon) {
         console.error(error)
     }
 
+    // Get just the string response
     const output_json = response.data.choices
     const output = output_json[0].message.content
     console.log('M: ' + output)
     console.log('')
 
+    // Ask random questions 
     await sendChatToPokemon("Chris's favorite color is Green")
     console.log('')
     await sendChatToPokemon("What are you going to get into today?")
@@ -142,11 +120,16 @@ async function primeChatBot(selectedPokemon) {
         .catch((error) => console.error('Error saving messages to CSV file:', error));
 }
 
+// Send a message to the Pokemon with message array as well
 async function sendChatToPokemon(prompt) {
     console.log('C: ' + prompt)
+
+    // ChatGPT Response
     let response
+    // Save prompt as user response to messages array
     messages.push({ role: "user", content: prompt })
 
+    // Send user response with previous message array
     try {
         response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
@@ -158,14 +141,11 @@ async function sendChatToPokemon(prompt) {
         console.error(error)
     }
 
+    // Get just the string response
     const output_json = response.data.choices
     const output = output_json[0].message.content
+    // Save ChatGPT's response to message array
     messages.push({ role: "system", content: output })
     console.log('M ' + output)
-    
+
 }
-
-// * Dynamic Variables
-// Short-term Memory
-
-
