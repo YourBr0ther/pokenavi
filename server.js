@@ -2,10 +2,10 @@ console.clear()
 
 require("dotenv").config();
 const { Configuration, OpenAIApi } = require("openai");
-const express = require("express");
-const bodyParser = require("body-parser");
 const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
 const openai = new OpenAIApi(configuration);
+const express = require("express");
+const bodyParser = require("body-parser");
 
 const fs = require('fs');
 const path = require('path');
