@@ -97,14 +97,6 @@ async function primeChatBot(selectedPokemon) {
     console.log('M: ' + output)
     console.log('')
 
-    // Ask random questions 
-    await sendChatToPokemon("Chris's favorite color is Green")
-    console.log('')
-    await sendChatToPokemon("What are you going to get into today?")
-    console.log('')
-    await sendChatToPokemon("What is Chris's favorite color?")
-    console.log('')
-
     // Save messages to CSV file
     const createCsvWriter = require('csv-writer').createObjectCsvWriter;
     const csvWriter = createCsvWriter({
@@ -148,4 +140,35 @@ async function sendChatToPokemon(prompt) {
     messages.push({ role: "system", content: output })
     console.log('M ' + output)
 
+    return output
+
 }
+
+// Define the web app
+const app = express()
+// Use port 3000
+const port = process.env.PORT || 3000;
+
+// Use Body Parser for JSON requests
+app.use(bodyParser.json());
+// Use URL Encoded 
+app.use(bodyParser.urlencoded({ extended: true }))
+// Display the index.html page in the public folder
+app.use(express.static("public"))
+
+app.post("/prompt", async (req, res) => {
+    const userMessage = req.body.userMessage
+
+    try {
+        // Get the Pokemon Response using our entered Prompt via the HTML form
+        const response = await sendChatToPokemon(userMessage)
+        // Send the Pokemon Response back to the HTML form
+        res.json({assistantResponse: response})
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred while processing the request"})
+    }
+})
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
