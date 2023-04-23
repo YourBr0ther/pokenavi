@@ -368,7 +368,7 @@ if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
 
 
 try {
-    $pokemonExport = ".\Sample PK3\MANKEY.pk3"
+    $pokemonExport = ".\Sample PK3\RATTATA.pk3"
     if (Test-Path -Path $pokemonExport) { Write-Host "Pokemon exist. Importing now" } else { Write-Host "There was a problem importing the Pokemon" } 
     $pk3Data = [System.IO.File]::ReadAllBytes($pokemonExport)
 }
