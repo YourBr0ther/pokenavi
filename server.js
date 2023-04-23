@@ -1,125 +1,191 @@
+// Clear the console
 console.clear()
 
-require("dotenv").config();
+//  * Packages 
+// ENV module
+require('dotenv').config();
+// OpenAI modules
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
 const openai = new OpenAIApi(configuration);
+// Express modules
 const express = require("express");
 const bodyParser = require("body-parser");
-
+// File System modules
 const fs = require('fs');
 const path = require('path');
 const util = require("util");
+const { domainToASCII } = require('url');
 
+// * Constant Variables
+// JSON directory
 const directoryPath = path.join(__dirname, './JSON/');
+console.log('JSON Directory: ' + directoryPath)
+// JSON Files
 const jsonFileNames = fs.readdirSync(directoryPath).filter(file => path.extname(file) === '.json');
+console.log('JSON Files: ' + jsonFileNames)
+console.log('')
 
-const jsonFiles = jsonFileNames.map(fileName => {
-  const filePath = path.join(directoryPath, fileName);
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const jsonData = JSON.parse(fileContent);
-  return { fileName, personalitySheet: jsonData.PersonalitySheet };
-});
-
-
-let messages = [];
-
-let primaryPrompt = async (prompt) => {
-  messages.push({ role: "system", content: prompt });
-
-  const response = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: messages
-  });
-
-  if (response.data.error) {
-    console.error(response.data.error);
-    return;
-  }
-
-  const data = response.data.choices;
-  const output = data[0].message.content;
-
-  messages.push({ role: "assistant", content: output });
-
-  return output;
-};
-
-let currentPromptIndex = 0;
-const promptFile = jsonFiles[currentPromptIndex];
-
-(async () => {
-  await primaryPrompt(promptFile.personalitySheet);
-})();
-
-const runPrompt = async (input) => {
-  messages.push({ role: "user", content: input });
-
-  const response = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: messages
-  });
-
-  const data = response.data.choices;
-  const output = data[0].message.content;
-
-  messages.push({ role: "assistant", content: output });
-
-  return output;
-};
-
-const readFile = util.promisify(fs.readFile);
-
-const app = express();
-const port = process.env.PORT || 3000;
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(express.static("public")); // Serve the static HTML files from the 'public' folder
-
-app.post("/prompt", async (req, res) => {
-  const userMessage = req.body.userMessage;
-
-  try {
-    const response = await runPrompt(userMessage);
-    res.json({ assistantResponse: response });
-  } catch (error) {
-    res.status(500).json({ error: "An error occurred while processing the request" });
-  }
-});
-
-app.post('/switch', (req, res) => {
-  fs.readdir('./JSON', (err, files) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send(err);
+// Import first JSON
+let JSONIndex = 0
+let getPokemon = async (JSONIndex) => {
+    let testPath = `${directoryPath}/${jsonFileNames[JSONIndex]}`
+    let selectedPokemon
+    const readFile = util.promisify(fs.readFile)
+    try {
+        const data = await readFile(testPath)
+        selectedPokemon = JSON.parse(data)
+    } catch (err) {
+        console.err('Error importing the JSON file: ' + err)
     }
 
-    const currentIndex = files.indexOf(selectedFile);
-    console.log('currentIndex:', currentIndex);
+    return selectedPokemon
+}
 
-    const nextIndex = (currentIndex + 1) % files.length;
-    console.log('nextIndex:', nextIndex);
+// Pokemon JSON
+let selectedPokemon
+// Chat messages
+let messages = [];
 
-    selectedFile = files[nextIndex];
-    console.log('selectedFile:', selectedFile);
+// Import first JSON
+(async () => {
+    selectedPokemon = await getPokemon(JSONIndex);
+    console.log('Name: ' + selectedPokemon.Nickname);
+    console.log('National Dex: ' + selectedPokemon.NationalPokedexNumber);
+    primeChatBot(selectedPokemon)
 
-    fs.readFile(`./JSON/${selectedFile}`, 'utf-8', (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send(err);
-      }
+})();
 
-      primaryPrompt = JSON.parse(data).personalitySheet;
-      messages = [];
-      runPrompt(primaryPrompt, messages);
+// Give the pkmnSheet to ChatGPT and get back first prompt
+async function primeChatBot(selectedPokemon) {
 
-      res.status(200).send({ selectedFile, messages });
+    // ChatGPT Response
+    let response
+    console.log('Pokemon for priming: ' + selectedPokemon.Nickname)
+    console.log('')
+
+    // Pull the string from the Pokemon JSON
+    const pkmnSheet = selectedPokemon.PersonalitySheet
+
+    // Push the pkmnSheet to the message array
+    messages.push({ role: "system", content: pkmnSheet })
+
+    // Send pkmnSheet via the message array to ChatGPT and put response in response variable
+    try {
+        response = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: messages,
+            temperature: 0.7,
+        });
+    } catch (error) {
+        console.error(error)
+    }
+
+    // Get just the string response
+    const output_json = response.data.choices
+    const output = output_json[0].message.content
+    console.log('M: ' + output)
+    console.log('')
+
+    // Save messages to CSV file
+    const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+    const csvWriter = createCsvWriter({
+        path: 'messages.csv',
+        header: [
+            { id: 'role', title: 'Role' },
+            { id: 'content', title: 'Content' }
+        ]
     });
-  });
-});
+
+    csvWriter.writeRecords(messages)
+        .then(() => console.log('Messages saved to CSV file'))
+        .catch((error) => console.error('Error saving messages to CSV file:', error));
+}
+
+// Send a message to the Pokemon with message array as well
+async function sendChatToPokemon(prompt) {
+    console.log('C: ' + prompt)
+
+    // ChatGPT Response
+    let response
+    // Save prompt as user response to messages array
+    messages.push({ role: "user", content: prompt })
+
+    // Send user response with previous message array
+    try {
+        response = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 100
+        });
+    } catch (error) {
+        console.error(error)
+    }
+
+    // Get just the string response
+    const output_json = response.data.choices
+    const output = output_json[0].message.content
+    // Save ChatGPT's response to message array
+    messages.push({ role: "system", content: output })
+    console.log('M ' + output)
+
+    return output
+
+}
+
+// Define the web app
+const app = express()
+// Use port 3000
+const port = process.env.PORT || 3000;
+
+// Use Body Parser for JSON requests
+app.use(bodyParser.json());
+// Use URL Encoded 
+app.use(bodyParser.urlencoded({ extended: true }))
+// Display the index.html page in the public folder
+app.use(express.static("public"))
+
+app.post('/prompt', async (req, res) => {
+    const userMessage = req.body.userMessage
+
+    try {
+        // Get the Pokemon Response using our entered Prompt via the HTML form
+        const response = await sendChatToPokemon(userMessage)
+        // Send the Pokemon Response back to the HTML form
+        res.json({assistantResponse: response})
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred while processing the request"})
+    }
+})
+
+app.post('/switch', async (req, res) => {
+
+    // Update the JSON Index for the next number
+    JSONIndex = (JSONIndex + 1) % jsonFileNames.length;
+    console.log('Switching to ' + jsonFileNames[JSONIndex]);
+
+    // Clear previous messages
+    messages = []
+
+    // Update the chatbot with the next Pokemon
+    try {
+        // Import the JSON from the JSON files
+        selectedPokemon = await getPokemon(JSONIndex)
+        // Prime the Chatbot again
+        primeChatBot(selectedPokemon)
+        res.json({
+            assistantResponse: "Switched to new Pokemon!", // Modify this as per your requirement
+            pokedexNumber: selectedPokemon.NationalPokedexNumber
+          });
+
+        
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred while processing the request"})
+    }
+
+})
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+    console.log(`Server running on port ${port}`);
+  });
