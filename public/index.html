@@ -17,52 +17,103 @@
   <link rel="icon" type="image/png" sizes="16x16"
     href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DynaPuff">
 
   <style>
-    @keyframes animateBg {
-      from {
-        background-position: 0 0;
-      }
-
-      to {
-        background-position: 5000px 5000px;
-      }
+    body {
+      overflow: hidden;
+      background-color: #D3D3D3;
     }
 
-    body {
-      background-color: #D3D3D3;
-      padding: 20px;
-      background-image: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%),
-        radial-gradient(ellipse at center, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1%, rgba(255, 255, 255, 0) 100%),
-        linear-gradient(to right, rgba(255, 255, 255, 0.15) 1%, rgba(255, 255, 255, 0) 100%);
-      background-size: 200px 200px;
-      animation: animateBg 350s linear infinite;
+    .container {
+      position: relative;
+      background-color: #d04040;
+      width: 390px;
+      height: 3000px;
+    }
+
+    .inv-container {
+      margin-left: 5px;
     }
 
     .title {
       text-align: center;
+      font-size: 57px;
+      font-weight: bold;
+      text-align: center;
+
+      font-family: 'DynaPuff', sans-serif;
     }
 
-    .logo {
+    .title-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 350px;
+      height: 100px;
+      text-align: center;
+    }
+
+    .sprite {
+      border: 2px solid #3c4d5b;
+      background-color: #e7f3f4;
+      border-radius: 50%;
       display: inline-block;
       vertical-align: middle;
+      margin-left: 7px;
+      width: 75px;
+      height: 75px;
+    }
+
+    .btn-group .button {
+      background-color: #7fa9d0;
+      border: 1px solid black;
+      color: #3c4d5b;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+      width: calc(350px / 3);
+      margin: 0 0px
+    }
+
+    .btn-group .button:not(:last-child) {
+      border-right: none;
+      /* Prevent double borders */
+    }
+
+    .btn-group .button:hover {
+      background-color: #64ace0;
+    }
+
+    .output-container {
+      margin-left: -5px;
+      text-align: left;
     }
 
     .bordered-window {
-      border: double;
+      border: 1px solid black;
       width: 350px;
-      height: 300px;
+      height: 550px;
       padding: 20px;
-      margin: 20px auto;
+      margin-left: 0;
+      margin-right: 0;
       text-align: center;
-      background-color: #A9A9A9;
+      background-color: #7fa9d0;
       list-style-type: none;
     }
 
+    .text-input {
+      border: 1px solid black;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+
+
     .input-container {
       width: 350px;
-      margin: -40px auto;
+
       text-align: center;
     }
 
@@ -76,59 +127,56 @@
       width: 100%;
       text-align: center;
       margin: 10px 0;
-    }
-
-    .button-container {
-      width: 350px;
-      margin: 5px auto;
-      text-align: center;
+      color: #3c4d5b;
     }
 
     button {
-      width: 125px;
-      margin: 0 10px 10px 10px;
+      background-color: #7fa9d0;
+      border: 1px solid black;
+      color: white;
+      text-align: center;
+      text-decoration: none;
       display: inline-block;
-      float: left;
-      font-size: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 125px;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      font-family: 'DynaPuff', sans-serif;
     }
 
-    @import url('https://fonts.googleapis.com/css2?family=DynaPuff&display=swap');
-
-    .title {
-      font-size: 36px;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 20px;
-      font-family: 'DynaPuff', sans-serif;
+    .inv-p {
+      margin-bottom: 0px;
     }
   </style>
 </head>
 
 <body>
-  <div style="text-align:center; width:100%">
-    <div class="title">PokeNavi</div>
-    <img id="sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png"
-      style="display:inline-block">
-  </div>
-
-  <div class="button-container">
-    <button id="menu" style="float:left; margin-left: 0;">Menu</button>
-    <button id="switch" style="width: 80px; margin-left: auto; margin-right: auto;">Switch</button>
-    <button id="restart" onclick="location.reload()" style="float:right; margin-right: 0;">Restart</button>
-  </div>
-  <br>
-  <div class="bordered-window">
-    <div class="output-container" id="outputContainer"
-      style="overflow-y:scroll; height:260px; width:calc(100% + 10px); margin-left: -5px; text-align: left;">
+  <div class="container">
+    <div class="inv-container">
+      <div class="title-box">
+        <div class="title">PokeNavi</div>
+        <img class="sprite" id="sprite"
+          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png">
+      </div>
+      <div>
+        <div class="btn-group">
+          <button class="button" id="menu">Menu</button>
+          <button class="button" id="switch">Switch</button>
+          <button class="button" id="restart" onclick="location.reload()">Restart</button>
+        </div>
+        <p class="inv-p" style="clear:both"></p>
+        <div class="bordered-window">
+          <div class="output-container" id="outputContainer"
+            style="overflow-y:scroll; height:505px; width:calc(100% + 10px);">
+          </div>
+        </div>
+        <div class="input-container">
+          <input class="text-input" type="text" id="prompt" />
+          <button class="button" type="submit" id="submit">Submit</button>
+        </div>
+      </div>
     </div>
-  </div>
-  </div>
-  </div>
-  <br>
-  <div class="input-container">
-    <input type="text" id="prompt" />
-    <br>
-    <button type="submit" id="submit">Submit</button>
   </div>
   <script>
     const submitButton = document.getElementById("submit");

@@ -16,12 +16,9 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 * Save X previous conversations to DB
 
 ### Front-end
-* Enable the Switch button [Charmeleon, Mankey, Pidgey]
-* Switch to GIF instead of Sprite for Pokemon Rasters
 * Figure out why the fonts aren't working
 * Provide an invisible debug button
-* Create a better CSS sheet
-* Anchor the HTML elements correctly
+* Comment the HTML
 
 ### Personality Profiles
 * Update the PersonalitySheet with more rules
