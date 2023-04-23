@@ -3,12 +3,12 @@
     "short_name": "PokeNavi",
     "icons": [
       {
-        "src": "poke-radar_scaled_6x_pngcrushed.png",
+        "src": "poke-radar-192.png",
         "type": "image/png",
         "sizes": "192x192"
       },
       {
-        "src": "poke-radar_scaled_17x_pngcrushed.png",
+        "src": "poke-radar-512.png",
         "type": "image/png",
         "sizes": "512x512"
       }
