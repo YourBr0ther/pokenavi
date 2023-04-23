@@ -236,7 +236,13 @@
       const pokedexNumber = data.pokedexNumber
       const pokemonImg = document.getElementById("sprite");
       const cacheBuster = new Date().getTime()
-      pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokedexNumber}.png?${cacheBuster}`;
+
+      if (pokedexNumber === 133) {
+        pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/pokemon/versions/generation-iii/firered-leafgreen/shiny/133.png`;
+      } else {
+        pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokedexNumber}.png?${cacheBuster}`;
+      }
+      
 
       messages.innerHTML = "";
 
