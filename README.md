@@ -14,14 +14,12 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
   * I tried quite a bit on this, no progress
 
 ### Server-side
-* Save X previous conversations to DB
 
 ### Front-end
-* Provide an invisible debug button
 * Comment the HTML
 
 ### PkmnSheet
-* Create a PS script to create a generic Pokemon
+* Create a nodeJS script to create a generic Pokemon
 * Use ChatGPT to get Traits off of the Pokedex entries
 
 ### Conscious Bot Creation [PokeCORE]
@@ -29,7 +27,7 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
   * Id [Instincts]
   * Ego [Reality]
   * Superego [Morality]
-* Memory Cell
+* Memory Cell [work in progress]
 
 ### Skill Roadmap
  * Release version 1.0.0
