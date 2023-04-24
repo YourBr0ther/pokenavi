@@ -42,14 +42,12 @@ let getPokemon = async (JSONIndex) => {
     } catch (err) {
         console.err('Error importing the JSON file: ' + err)
     }
-
+    console.log('getPokemon returning selectedPokemon')
     return selectedPokemon
 }
 
 // Pokemon JSON
 let selectedPokemon
-// Chat messages
-let messages = [];
 
 // Import first JSON
 (async () => {
@@ -66,22 +64,21 @@ async function primeChatBot(selectedPokemon) {
     // ChatGPT Response
     let response
     console.log('Pokemon for priming: ' + selectedPokemon.Nickname)
-    console.log('')
+
+    // Load previous messages
+    await loadMessagesFromCSV(selectedPokemon.NationalPokedexNumber);
 
     // Pull the string from the Pokemon JSON
     const pkmnSheet = selectedPokemon.PersonalitySheet
 
-    // Load previous messages
-    loadMessagesFromCSV(selectedPokemon.NationalPokedexNumber);
-
     // Push the pkmnSheet to the message array
-    messages.push({ role: "system", content: pkmnSheet, timestamp: new Date().toISOString() })
+    messageLogs[selectedPokemon.NationalPokedexNumber].push({ role: "system", content: pkmnSheet, timestamp: new Date().toISOString() })
 
     // Send pkmnSheet via the message array to ChatGPT and put response in response variable
     try {
         response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
-            messages: messages.map(({ role, content }) => ({ role, content })), // Only send role and content
+            messages: messageLogs[selectedPokemon.NationalPokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
             temperature: 0.7,
         });
     } catch (error) {
@@ -105,13 +102,13 @@ async function sendChatToPokemon(prompt) {
     // ChatGPT Response
     let response
     // Save prompt as user response to messages array
-    messages.push({ role: "user", content: prompt, timestamp: new Date().toISOString() })
+    messageLogs[selectedPokemon.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() })
 
     // Send user response with previous message array
     try {
         response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
-            messages: messages.map(({ role, content }) => ({ role, content })), // Only send role and content
+            messages: messageLogs[selectedPokemon.NationalPokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
             temperature: 0.7,
             max_tokens: 100,
         });
@@ -123,7 +120,7 @@ async function sendChatToPokemon(prompt) {
     const output_json = response.data.choices
     const output = output_json[0].message.content
     // Save ChatGPT's response to message array
-    messages.push({ role: "system", content: output, timestamp: new Date().toISOString() })
+    messageLogs[selectedPokemon.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() })
     console.log('M ' + output)
 
     // Save messages to CSV
@@ -142,11 +139,12 @@ function saveMessagesToCSV(pokedexNumber) {
         header: [
             { id: 'role', title: 'Role' },
             { id: 'content', title: 'Content' },
-            { id: 'timestamp', title: 'Timestamp' } // Add this line
-        ]
+            { id: 'timestamp', title: 'Timestamp' }
+        ],
+        append: true, // Add this line to append new messages to the existing ones
     });
 
-    csvWriter.writeRecords(messages)
+    csvWriter.writeRecords(messageLogs[pokedexNumber])
         .then(() => {
             console.log(`Messages saved to CSV file for Pokemon #${pokedexNumber}`);
         })
@@ -159,32 +157,24 @@ function saveMessagesToCSV(pokedexNumber) {
 async function loadMessagesFromCSV(pokedexNumber) {
     const csv = require('csv-parser');
     const results = [];
-
+  
     try {
-        const exists = fs.existsSync(`messages_${pokedexNumber}.csv`);
-
-        if (exists) {
-            const data = fs.createReadStream(`messages_${pokedexNumber}.csv`)
-                .pipe(csv({ headers: ['role', 'content', 'timestamp'] })) // Add 'timestamp' to the headers
-                .on('data', (data) => results.push(data))
-                .on('end', () => {
-                    messageLogs[pokedexNumber] = results.filter(isMessageWithinDuration);
-                    console.log(`Messages for Pokemon #${pokedexNumber} loaded from CSV file`);
-
-                    // Update the messages array with the loaded messages
-                    messages = messageLogs[pokedexNumber];
-                });
-        } else {
-            messageLogs[pokedexNumber] = [];
-            console.log(`No existing messages for Pokemon #${pokedexNumber}`);
-
-            // Update the messages array to be empty if there are no existing messages
-            messages = [];
-        }
+      const csvPath = path.join(directoryPath, `messages_${pokedexNumber}.csv`);
+      const csvExists = fs.existsSync(csvPath);
+  
+      if (csvExists) {
+        const csvStream = fs.createReadStream(csvPath).pipe(csv({ headers: ['role', 'content', 'timestamp'] }));
+        csvStream.on('data', (data) => results.push(data));
+        csvStream.on('error', (error) => console.error(`Error loading messages for Pokemon #${pokedexNumber} from CSV file:`, error));
+        await once(csvStream, 'end');
+      }
+  
+      messageLogs[pokedexNumber] = results.filter(isMessageWithinDuration);
+      console.log(`Messages for Pokemon #${pokedexNumber} loaded from CSV file`);
     } catch (error) {
-        console.error(`Error loading messages for Pokemon #${pokedexNumber} from CSV file:`, error);
+      console.error(`Error loading messages for Pokemon #${pokedexNumber} from CSV file:`, error);
     }
-}
+  }
 
 // Check if a message is within the specified duration
 function isMessageWithinDuration(message) {
