@@ -8,14 +8,21 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 ![Browser Image](/Example/PokeNavi.png)
 
 ## To-Do
-### Attributes
+
+## Features
+* Create a generic Pokemon (Gen1 through GenX)
+* Import a authentic Gen1 through Gen2 Pokemon
+
+### Authentic Attributes
 * Add second Typing
-* Fix DATA blocks [G.A.M.E.]
-  * I tried quite a bit on this, no progress
+* Fix DATA block decryption [G.A.M.E.]
 
-### Server-side
+### Backend Development
+* PokeCORE integration
 
-### Front-end
+### Frontend Development
+* Default to No Pokemon on boot
+* Pokemon selector
 * Comment the HTML
 
 ### PkmnSheet
