@@ -29,7 +29,6 @@ function Get-PK3SubstructureOrder {
     )
 
     $order = ($PersonalityValue % 6) - 1
-    Write-Host $order
     $permutations = @(
         "GAEM", "GAME", "GEAM", "GEMA", "GMAE", "GMEA",
         "AGEM", "AGME", "AEGM", "AEMG", "AMGE", "AMEG",
