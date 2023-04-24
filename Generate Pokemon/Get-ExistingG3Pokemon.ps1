@@ -440,7 +440,7 @@ $moves = [ordered]@{
 
     "Move 1"    = "$(Get-MoveName -id $($d[$($aOffset+1)]))"
     "Move 2"    = "$(Get-MoveName -id $($d[$($aOffset+3)]))"
-    "Move 3"    = "$(Get-MoveName -id $($d[$($aOffset+5)])) "
+    "Move 3"    = "$(Get-MoveName -id $($d[$($aOffset+5)]))"
     "Move 4"    = "$(Get-MoveName -id $($d[$($aOffset+7)]))"
     "Move 1 PP" = "$($d[$($aOffset+9)])"
     "Move 2 PP" = "$($d[$($aOffset+10)])"

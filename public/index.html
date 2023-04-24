@@ -192,7 +192,7 @@
       userMessage.value = "";
 
       const li = document.createElement("li");
-      li.textContent = `C: ${message}`;
+      li.textContent = `User: ${message}`;
       messages.appendChild(li);
 
       scrollToBottom()
@@ -210,7 +210,7 @@
       const assistantResponse = data.assistantResponse;
 
       const liAssistant = document.createElement("li");
-      liAssistant.textContent = `M: ${assistantResponse}`;
+      liAssistant.textContent = `${assistantResponse}`;
       messages.appendChild(liAssistant);
 
       setTimeout(() => {
