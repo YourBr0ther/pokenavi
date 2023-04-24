@@ -24,6 +24,6 @@ function Get-PokeDexEntries {
 
 }
 
-$entries = Get-PokeDexEntries -id 5
+$entries = Get-PokeDexEntries -id 909
 
 $entries
