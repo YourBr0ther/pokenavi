@@ -155,7 +155,9 @@ function saveMessagesToCSV(pokedexNumber) {
         append: true, // Add this line to append new messages to the existing ones
     });
 
-    csvWriter.writeRecords(interactionHistoryLogs[pokedexNumber])
+    const lastTwoMessages = interactionHistoryLogs[pokedexNumber].slice(-2);
+
+    csvWriter.writeRecords(lastTwoMessages)
         .then(() => {
             console.log(`Messages saved to CSV file for Pokemon #${pokedexNumber}`);
         })
