@@ -1,9 +1,9 @@
 // This is the Pokemon Creator script. It will be used to create Generic Pokemon to be used within PokeNavi
 
 // Modules
+import inquirer from 'inquirer';
 const { create } = require('domain')
 const readline = require('readline')
-const inquirer = require('inquirer');
 
 // Answer's array
 let answerArray = {
@@ -62,7 +62,7 @@ const template = {
     system_gender: "<$genderfemale>"
 };
 
-await function createPokemon(template, answerArray) {
+function createPokemon(template, answerArray) {
     for (const key in answerArray) {
         if (template.hasOwnProperty(key)) {
             template[key] = answerArray[key]
