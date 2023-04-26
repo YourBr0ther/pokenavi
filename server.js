@@ -59,6 +59,8 @@ let selectedPokemon
 
 })();
 
+// Test change
+
 // Give the pkmnSheet to ChatGPT and get back first prompt
 async function primeChatBot(selectedPokemon) {
 
