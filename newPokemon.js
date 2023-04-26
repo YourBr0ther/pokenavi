@@ -1,6 +1,7 @@
 // Modules
 const readline = require('readline');
 const fs = require('fs');
+const path = require('path');
 
 // Create a readline interface for input/output
 const rl = readline.createInterface({
@@ -68,8 +69,8 @@ async function promptUser() {
 
   // Use system_name as the name of the output file
   const filename = answerArray.system_species;
-  const filepath = `${filename}.json`;
-
+  const filepath = path.join(__dirname, 'JSON', `${filename}.json`);
+ 
   // Write the pokemon object to a JSON file with the system name
   fs.writeFile(filepath, JSON.stringify(pokemon), (err) => {
     if (err) throw err;
