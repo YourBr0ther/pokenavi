@@ -9,9 +9,8 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 
 ## To-Do
 
-## Features
-* Create a generic Pokemon (Gen1 through GenX)
-* Import a authentic Gen1 through Gen2 Pokemon
+### Features
+* Import a authentic Gen1 through Gen3 Pokemon
 
 ### Authentic Attributes
 * Add second Typing

@@ -21,12 +21,12 @@ async function getPokemonEntries(species, count = 5) {
     const pokemon = await pokemonResponse.json();
 
     const entries = speciesData.flavor_text_entries.slice(0, count).map((entry) => removeNewlines(entry.flavor_text));
-    const dexNumber = speciesData.id;
+    const NationalPokedexNumber = speciesData.id;
 
-    return { entries, dexNumber };
+    return { entries, NationalPokedexNumber };
   } catch (error) {
     console.error('Error fetching Pokémon entries:', error.message);
-    return { entries: [], dexNumber: null };
+    return { entries: [], NationalPokedexNumber: null };
   }
 }
 
@@ -87,6 +87,7 @@ const template = {
   dreams: "Create simulated detailed description of the system's dreams based on previous conversations",
   inner_dialogue: "Create simulated inner_dialogue based on the conversation",
   private_thoughts: "Create simulated private thoughts based on the conversation",
+  rules: ["You can use Pokemon sounds at the end or beginning of your responses", "Response more like a Pokemon that can talk and less like an AI", "If you are unable to provide a reply, you can fake a pokemon noise or confusion"],
   user_name: "<$user_name>",
   user_gender: "<$user_gender>",
   system_interest: "<$system_interest>",
