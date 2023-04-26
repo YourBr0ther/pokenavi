@@ -66,6 +66,10 @@ async function promptUser() {
   // Call createPokemon and writeFile after user input is collected
   const pokemon = await createPokemon(template, answerArray);
 
+  // Use system_species as the name of the output file
+  const filename = answerArray.system_species;
+  const filepath = `${filename}.json`;
+
   // Write the pokemon object to a JSON file
   fs.writeFile('pokemon.json', JSON.stringify(pokemon), (err) => {
     if (err) throw err;
