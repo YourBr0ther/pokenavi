@@ -20,16 +20,16 @@ async function getPokemonEntries(species, count = 5) {
     const pokemonResponse = await fetch(speciesData.varieties[0].pokemon.url);
     const pokemon = await pokemonResponse.json();
 
-    const entries = speciesData.flavor_text_entries
-      .slice(0, count)
-      .map((entry) => removeNewlines(entry.flavor_text));
+    const entries = speciesData.flavor_text_entries.slice(0, count).map((entry) => removeNewlines(entry.flavor_text));
+    const dexNumber = speciesData.id;
 
-    return entries;
+    return { entries, dexNumber };
   } catch (error) {
     console.error('Error fetching Pokémon entries:', error.message);
-    return [];
+    return { entries: [], dexNumber: null };
   }
 }
+
 
 // Answer's array
 let answerArray = {
@@ -61,12 +61,10 @@ async function promptUser() {
     }
   }
 
-  answerArray.system_description = await getPokemonEntries(answerArray.system_species);
-
   rl.close();
 
   // Call createPokemon and writeFile after user input is collected
-  const pokemon = createPokemon(template, answerArray);
+  const pokemon = await createPokemon(template, answerArray);
 
   // Write the pokemon object to a JSON file
   fs.writeFile('pokemon.json', JSON.stringify(pokemon), (err) => {
@@ -92,7 +90,7 @@ const template = {
   user_name: "<$user_name>",
   user_gender: "<$user_gender>",
   system_interest: "<$system_interest>",
-  system_description: ["<$system_description[0]>", "<$system_description[1]>", "<$system_description[2]>", "<$system_description[3]>", "<$system_description[4]>"],
+  system_description: "<$system_description>",
   system_age: "<$system_age>",
   system_personality: "<$system_personality>",
   system_species: "<$system_species>",
@@ -100,20 +98,24 @@ const template = {
   system_gender: "<$system_gender>"
 };
 
-function createPokemon(template, answerArray) {
+async function createPokemon(template, answerArray) {
   const myPokemon = {};
+
+  // Call getPokemonEntries function
+  const entries = await getPokemonEntries(answerArray.system_species);
 
   for (const key in template) {
     if (template.hasOwnProperty(key)) {
-      if (key === 'system_description') {
-        myPokemon[key] = answerArray[key];
-      } else if (typeof template[key] === 'string') {
+      if (typeof template[key] === 'string') {
         myPokemon[key] = template[key].replace(/<\$([a-zA-Z0-9_]+)>/g, (_, matchedKey) => answerArray[matchedKey]);
       } else {
         myPokemon[key] = template[key];
       }
     }
   }
+
+  // Set system_description separately
+  myPokemon.system_description = entries;
 
   return myPokemon;
 }
