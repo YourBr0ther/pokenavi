@@ -43,7 +43,6 @@ let getPokemon = async (JSONIndex) => {
     } catch (err) {
         console.err('Error importing the JSON file: ' + err)
     }
-    console.log('getPokemon returning selectedPokemon')
     return selectedPokemon
 }
 
@@ -53,31 +52,41 @@ let selectedPokemon
 // Import first JSON
 (async () => {
     selectedPokemon = await getPokemon(JSONIndex);
-    console.log('Name: ' + selectedPokemon.Nickname);
-    console.log('National Dex: ' + selectedPokemon.NationalPokedexNumber);
-    primeChatBot(selectedPokemon)
+    console.log('Name: ' + selectedPokemon.system_name);
+    console.log('National Dex: ' + selectedPokemon.system_description.NationalPokedexNumber);
 
+    // Create string arrays from JSON
+    const [string1, string2] = createStringArrayFromJSON(selectedPokemon);
+
+    primeChatBot(selectedPokemon)
 })();
 
 // Test change
 
 // Give the pkmnSheet to ChatGPT and get back first prompt
 async function primeChatBot(selectedPokemon) {
-
     // ChatGPT Response
-    let response
-    console.log('Pokemon for priming: ' + selectedPokemon.Nickname)
+    let response;
+    console.log("Pokemon for priming: " + selectedPokemon.system_name);
 
     // Load previous messages
-    await loadMessagesFromCSV(selectedPokemon.NationalPokedexNumber);
+    await loadMessagesFromCSV(selectedPokemon.system_description.NationalPokedexNumber);
 
     // Pull the string from the Pokemon JSON
-    const pkmnSheet = selectedPokemon.PersonalitySheet
+    const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
 
-    runningMemoryLogs[selectedPokemon.NationalPokedexNumber].push({ role: "system", content: pkmnSheet, timestamp: new Date().toISOString() });
+    const pokedexNumber = selectedPokemon.system_description.NationalPokedexNumber;
+    if (!runningMemoryLogs[pokedexNumber]) {
+        runningMemoryLogs[pokedexNumber] = [];
+    }
+    runningMemoryLogs[pokedexNumber].push({
+        role: "system",
+        content: pkmnSheet,
+        timestamp: new Date().toISOString(),
+    });
 
     // Create a temporary array called primeRunningMemory
-    const primeRunningMemory = runningMemoryLogs[selectedPokemon.NationalPokedexNumber].slice();
+    const primeRunningMemory = runningMemoryLogs[pokedexNumber].slice();
 
     // Push the pkmnSheet to the primeRunningMemory array
     primeRunningMemory.push({
@@ -88,17 +97,38 @@ async function primeChatBot(selectedPokemon) {
 
     // Send pkmnSheet via the message array to ChatGPT and put response in response variable
     try {
-         response = await openai.createChatCompletion({
+        response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
             messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
             temperature: 0.7,
-            max_tokens: 1
+            max_tokens: 1,
         });
-        console.log('Ready to receive requests')
+        console.log("Ready to receive requests");
     } catch (error) {
-        console.error(error)
+        console.error(error);
     }
+}
 
+// Function to create a two string array from a JSON file
+function createStringArrayFromJSON(json) {
+    const string1 = [
+        json.rules.join(', '),
+        json.user_name,
+        json.user_gender,
+        json.system_interest,
+        json.system_description.entries.join(', '),
+        json.system_age,
+        json.system_personality,
+        json.system_species,
+        json.system_name,
+        json.system_gender
+    ].join('');
+
+    const string2 = [
+        json.system_description.NationalPokedexNumber.toString()
+    ];
+
+    return [string1, string2];
 }
 
 // Send a message to the Pokemon with message array as well
@@ -108,19 +138,19 @@ async function sendChatToPokemon(prompt) {
     // ChatGPT Response
     let response
     // Save prompt as user response to runningMemoryLogs and interactionHistoryLogs array
-    runningMemoryLogs[selectedPokemon.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
-    interactionHistoryLogs[selectedPokemon.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
+    runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
+    interactionHistoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
 
     // Send user response with previous message array
     try {
         // Log the entire primeRunningMemory array
         console.log("primeRunningMemory:");
-        runningMemoryLogs[selectedPokemon.NationalPokedexNumber].forEach((message, index) => {
+        runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].forEach((message, index) => {
             console.log(`Message ${index + 1}:`, message);
         });
         response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
-            messages: runningMemoryLogs[selectedPokemon.NationalPokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
+            messages: runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
             temperature: 0.7,
             max_tokens: 100,
         });
@@ -132,12 +162,12 @@ async function sendChatToPokemon(prompt) {
     const output_json = response.data.choices
     const output = output_json[0].message.content
     // Save ChatGPT's response to runningMemoryLogs and interactionHistoryLogs array
-    runningMemoryLogs[selectedPokemon.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
-    interactionHistoryLogs[selectedPokemon.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
+    runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
+    interactionHistoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
     console.log('M ' + output)
 
     // Save messages to CSV
-    saveMessagesToCSV(selectedPokemon.NationalPokedexNumber);
+    saveMessagesToCSV(selectedPokemon.system_description.NationalPokedexNumber);
 
     // Add a delay of 200 milliseconds
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -182,6 +212,8 @@ async function loadMessagesFromCSV(pokedexNumber) {
             csvStream.on('data', (data) => results.push(data));
             csvStream.on('error', (error) => console.error(`Error loading interaction history for Pokemon #${pokedexNumber} from CSV file:`, error));
             await once(csvStream, 'end');
+        } else {
+            console.log(`CSV file not found for Pokemon #${pokedexNumber}`);
         }
 
         interactionHistoryLogs[pokedexNumber] = results.filter(isMessageWithinDuration);
@@ -193,6 +225,7 @@ async function loadMessagesFromCSV(pokedexNumber) {
         console.error(`Error loading interaction history for Pokemon #${pokedexNumber} from CSV file:`, error);
     }
 }
+
 
 // Check if a message is within the specified duration
 function isMessageWithinDuration(message) {
@@ -241,12 +274,12 @@ app.post('/switch', async (req, res) => {
         // Import the JSON from the JSON files
         selectedPokemon = await getPokemon(JSONIndex)
         // Load previous conversations
-        loadMessagesFromCSV(selectedPokemon.NationalPokedexNumber);
+        loadMessagesFromCSV(selectedPokemon.system_description.NationalPokedexNumber);
         // Prime the Chatbot again
         primeChatBot(selectedPokemon)
         res.json({
             assistantResponse: "Switched to new Pokemon!", // Modify this as per your requirement
-            pokedexNumber: selectedPokemon.NationalPokedexNumber
+            pokedexNumber: selectedPokemon.system_description.NationalPokedexNumber
         });
 
     } catch (error) {
