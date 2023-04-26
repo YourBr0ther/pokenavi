@@ -11,9 +11,9 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
  * NodeJS
 
 ### Installation
-  git clone https://github.com/YourBr0ther/PokeNavi
-  cd PokeNavi
-  npm install
+    git clone https://github.com/YourBr0ther/PokeNavi
+    cd PokeNavi
+    npm install
 
 ## To-Do
 * Create creation HTML page
