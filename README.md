@@ -8,6 +8,7 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 ![Browser Image](/Example/PokeNavi.png)
 
 ## To-Do
+* Create creation HTML page
 
 ### Features
 * Import a authentic Gen1 through Gen3 Pokemon
