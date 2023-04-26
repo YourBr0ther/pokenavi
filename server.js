@@ -16,6 +16,8 @@ const fs = require('fs');
 const path = require('path');
 const util = require("util");
 const { domainToASCII } = require('url');
+const fsPromises = require('fs').promises;
+const { once } = require('events');
 
 // * Constant Variables
 // JSON directory
@@ -40,12 +42,12 @@ let getPokemon = async (JSONIndex) => {
     try {
         const data = await readFile(testPath)
         selectedPokemon = JSON.parse(data)
+        console.log('Successfully read and parsed JSON file:', selectedPokemon);
     } catch (err) {
         console.err('Error importing the JSON file: ' + err)
     }
     return selectedPokemon
 }
-
 // Pokemon JSON
 let selectedPokemon
 
@@ -55,57 +57,65 @@ let selectedPokemon
     console.log('Name: ' + selectedPokemon.system_name);
     console.log('National Dex: ' + selectedPokemon.system_description.NationalPokedexNumber);
 
+    if (selectedPokemon) {
+        console.log("Pokemon for priming: " + selectedPokemon.system_name);
+    }
+
     // Create string arrays from JSON
     const [string1, string2] = createStringArrayFromJSON(selectedPokemon);
 
     primeChatBot(selectedPokemon)
 })();
 
-// Test change
-
 // Give the pkmnSheet to ChatGPT and get back first prompt
 async function primeChatBot(selectedPokemon) {
     // ChatGPT Response
     let response;
-    console.log("Pokemon for priming: " + selectedPokemon.system_name);
 
-    // Load previous messages
-    await loadMessagesFromCSV(selectedPokemon.system_description.NationalPokedexNumber);
+    if (selectedPokemon) {
+        console.log("Pokemon for priming: " + selectedPokemon.system_name);
 
-    // Pull the string from the Pokemon JSON
-    const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
+        // Load previous messages
+        await loadMessagesFromCSV(selectedPokemon.system_description.NationalPokedexNumber);
 
-    const pokedexNumber = selectedPokemon.system_description.NationalPokedexNumber;
-    if (!runningMemoryLogs[pokedexNumber]) {
-        runningMemoryLogs[pokedexNumber] = [];
-    }
-    runningMemoryLogs[pokedexNumber].push({
-        role: "system",
-        content: pkmnSheet,
-        timestamp: new Date().toISOString(),
-    });
+        // Pull the string from the Pokemon JSON
+        const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
 
-    // Create a temporary array called primeRunningMemory
-    const primeRunningMemory = runningMemoryLogs[pokedexNumber].slice();
-
-    // Push the pkmnSheet to the primeRunningMemory array
-    primeRunningMemory.push({
-        role: "system",
-        content: pkmnSheet,
-        timestamp: new Date().toISOString(),
-    });
-
-    // Send pkmnSheet via the message array to ChatGPT and put response in response variable
-    try {
-        response = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
-            messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
-            temperature: 0.7,
-            max_tokens: 1,
+        const pokedexNumber = selectedPokemon.system_description.NationalPokedexNumber;
+        if (!runningMemoryLogs[pokedexNumber]) {
+            runningMemoryLogs[pokedexNumber] = [];
+        }
+        runningMemoryLogs[pokedexNumber].push({
+            role: "system",
+            content: pkmnSheet,
+            timestamp: new Date().toISOString(),
         });
-        console.log("Ready to receive requests");
-    } catch (error) {
-        console.error(error);
+
+        // Create a temporary array called primeRunningMemory
+        const primeRunningMemory = runningMemoryLogs[pokedexNumber].slice();
+
+        // Push the pkmnSheet to the primeRunningMemory array
+        primeRunningMemory.push({
+            role: "system",
+            content: pkmnSheet,
+            timestamp: new Date().toISOString(),
+        });
+
+        // Send pkmnSheet via the message array to ChatGPT and put response in response variable
+        try {
+            response = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo",
+                messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
+                temperature: 0.7,
+                max_tokens: 1,
+            });
+            return response;
+            console.log("Ready to receive requests");
+        } catch (error) {
+            console.error(error);
+        }
+    } else {
+        console.log("No selected pokemon");
     }
 }
 
@@ -133,52 +143,60 @@ function createStringArrayFromJSON(json) {
 
 // Send a message to the Pokemon with message array as well
 async function sendChatToPokemon(prompt) {
-    console.log('C: ' + prompt)
-
-    // ChatGPT Response
-    let response
-    // Save prompt as user response to runningMemoryLogs and interactionHistoryLogs array
-    runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
-    interactionHistoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
-
-    // Send user response with previous message array
     try {
-        // Log the entire primeRunningMemory array
-        console.log("primeRunningMemory:");
-        runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].forEach((message, index) => {
-            console.log(`Message ${index + 1}:`, message);
-        });
-        response = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
-            messages: runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
-            temperature: 0.7,
-            max_tokens: 100,
-        });
+        console.log('C: ' + prompt)
+
+        // ChatGPT Response
+        let response
+
+        // Save prompt as user response to runningMemoryLogs and interactionHistoryLogs array
+        runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
+        interactionHistoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
+
+        console.log("testing")
+        // Send user response with previous message array
+        try {
+            // Log the entire primeRunningMemory array
+            console.log("primeRunningMemory:");
+            runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].forEach((message, index) => {
+                console.log(`Message ${index + 1}:`, message);
+            });
+            response = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo",
+                messages: runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
+                temperature: 0.7,
+                max_tokens: 100,
+            });
+        } catch (error) {
+            console.log("Failing")
+            console.error(error)
+        }
+
+        // Get just the string response
+        const output_json = response.data.choices
+        const output = output_json[0].message.content
+        // Save ChatGPT's response to runningMemoryLogs and interactionHistoryLogs array
+        runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
+        interactionHistoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
+        console.log('M ' + output)
+
+        // Save messages to CSV
+        saveMessagesToCSV(selectedPokemon.system_description.NationalPokedexNumber);
+
+        // Add a delay of 200 milliseconds
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        return output
+
     } catch (error) {
-        console.error(error)
+        console.error("Error in sendChatToPokemon:", error);
     }
-
-    // Get just the string response
-    const output_json = response.data.choices
-    const output = output_json[0].message.content
-    // Save ChatGPT's response to runningMemoryLogs and interactionHistoryLogs array
-    runningMemoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
-    interactionHistoryLogs[selectedPokemon.system_description.NationalPokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
-    console.log('M ' + output)
-
-    // Save messages to CSV
-    saveMessagesToCSV(selectedPokemon.system_description.NationalPokedexNumber);
-
-    // Add a delay of 200 milliseconds
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    return output
 }
 
 function saveMessagesToCSV(pokedexNumber) {
     const createCsvWriter = require('csv-writer').createObjectCsvWriter;
     const csvWriter = createCsvWriter({
-        path: `messages_${pokedexNumber}.csv`,
+        path: `interaction_history_${selectedPokemon.system_description.NationalPokedexNumber}.csv`,
         header: [
             { id: 'role', title: 'Role' },
             { id: 'content', title: 'Content' },
@@ -187,11 +205,11 @@ function saveMessagesToCSV(pokedexNumber) {
         append: true, // Add this line to append new messages to the existing ones
     });
 
-    const lastTwoMessages = interactionHistoryLogs[pokedexNumber].slice(-2);
+    const lastTwoMessages = interactionHistoryLogs[selectedPokemon.system_description.NationalPokedexNumber].slice(-2);
 
     csvWriter.writeRecords(lastTwoMessages)
         .then(() => {
-            console.log(`Messages saved to CSV file for Pokemon #${pokedexNumber}`);
+            console.log(`Messages saved to CSV file for Pokemon #${selectedPokemon.system_description.NationalPokedexNumber}`);
         })
         .catch((error) => {
             console.error(`Error saving messages to CSV file for Pokemon #${pokedexNumber}:`, error);
@@ -204,7 +222,7 @@ async function loadMessagesFromCSV(pokedexNumber) {
     const results = [];
 
     try {
-        const csvPath = path.join(directoryPath, `interaction_history_${pokedexNumber}.csv`);
+        const csvPath = path.join(__dirname, `interaction_history_${pokedexNumber}.csv`);
         const csvExists = fs.existsSync(csvPath);
 
         if (csvExists) {
@@ -227,6 +245,7 @@ async function loadMessagesFromCSV(pokedexNumber) {
 }
 
 
+
 // Check if a message is within the specified duration
 function isMessageWithinDuration(message) {
     const messageTimestamp = new Date(message.timestamp).getTime();
@@ -234,6 +253,42 @@ function isMessageWithinDuration(message) {
 
     return currentTimestamp - messageTimestamp <= conversationMemoryDuration;
 }
+
+// Function to read all JSON files and extract Pokemon names and Pokedex numbers
+// Function to read all JSON files and extract Pokemon names and Pokedex numbers
+async function getAllPokemon() {
+    let allPokemon = [];
+    for (const file of jsonFileNames) {
+        const filePath = `${directoryPath}/${file}`;
+        const data = await fs.promises.readFile(filePath);
+        const pokemon = JSON.parse(data);
+        allPokemon.push({
+            species: pokemon.system_species,
+            pokedexNumber: pokemon.system_description.NationalPokedexNumber,
+        });
+    }
+    return allPokemon;
+}
+
+async function getPokemonByPokedexNumber(pokedexNumber) {
+    try {
+        for (const fileName of jsonFileNames) {
+            const fileData = await fsPromises.readFile(`./JSON/${fileName}`, 'utf8');
+            const pokemonData = JSON.parse(fileData);
+            if (pokemonData.system_description.NationalPokedexNumber == pokedexNumber) {
+                console.log(`Found ${pokemonData.system_species}`);
+                return pokemonData;
+            }
+        }
+
+        console.log(`Pokemon not found`);
+        return null;
+    } catch (error) {
+        console.error(`Error getting Pokémon by Pokedex number:`, error);
+        return null;
+    }
+}
+
 
 // Define the web app
 const app = express()
@@ -246,6 +301,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 // Display the index.html page in the public folder
 app.use(express.static("public"))
+
+app.get('/api/pokemon-list', async (req, res) => {
+    try {
+        const allPokemon = await getAllPokemon();
+        res.json({ allPokemon });
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred while processing the request" });
+    }
+});
+
 
 app.post('/prompt', async (req, res) => {
     const userMessage = req.body.userMessage
@@ -261,32 +326,34 @@ app.post('/prompt', async (req, res) => {
 })
 
 app.post('/switch', async (req, res) => {
-
-    // Update the JSON Index for the next number
-    JSONIndex = (JSONIndex + 1) % jsonFileNames.length;
-    console.log('Switching to ' + jsonFileNames[JSONIndex]);
-
-    // Clear previous messages
-    messages = []
-
-    // Update the chatbot with the next Pokemon
+    const pokedexNumber = req.body.pokedexNumber;
+    console.log('Species Received: ' + pokedexNumber)
     try {
-        // Import the JSON from the JSON files
-        selectedPokemon = await getPokemon(JSONIndex)
+        // Find the Pokémon by species name
+        const selectedPokemon = await getPokemonByPokedexNumber(pokedexNumber);
+        if (!selectedPokemon) {
+            res.status(404).json({ error: "Pokémon not found" });
+            return;
+        }
+
+        // Clear previous messages
+        messages = [];
+
         // Load previous conversations
         loadMessagesFromCSV(selectedPokemon.system_description.NationalPokedexNumber);
+
         // Prime the Chatbot again
-        primeChatBot(selectedPokemon)
+        primeChatBot(selectedPokemon);
+
         res.json({
-            assistantResponse: "Switched to new Pokemon!", // Modify this as per your requirement
+            assistantResponse: "Switched to new Pokémon!",
             pokedexNumber: selectedPokemon.system_description.NationalPokedexNumber
         });
-
     } catch (error) {
-        res.status(500).json({ error: "An error occurred while processing the request" })
+        console.log(error)
+        res.status(500).json({ error: "An error occurred while processing the request" });
     }
-
-})
+});
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
