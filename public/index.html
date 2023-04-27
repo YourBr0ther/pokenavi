@@ -8,7 +8,6 @@
     integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
     crossorigin="anonymous" />
-
   <title>PokeNavi</title>
   <link rel="shortcut icon" type="image/png"
     href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
@@ -22,18 +21,30 @@
   <style>
     body {
       overflow: hidden;
-      background-color: #D3D3D3;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background-color: #d04040;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .container {
-      position: relative;
+      text-align: center;
       background-color: #d04040;
-      width: 390px;
-      height: 3000px;
+      max-width: 100%;
+      max-height: 100%;
+      padding: 10px;
     }
 
     .inv-container {
-      margin-left: 5px;
+      display: inline-block;
+      padding: 5px;
+      margin-left: 0px;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .title {
@@ -49,8 +60,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 350px;
-      height: 100px;
+      width: 100%;
+      height: 100%;
       text-align: center;
     }
 
@@ -65,6 +76,10 @@
       height: 75px;
     }
 
+    .btn-group {
+      display: flex;
+    }
+
     .btn-group .button {
       background-color: #7fa9d0;
       border: 1px solid black;
@@ -74,13 +89,13 @@
       display: inline-block;
       font-size: 16px;
       cursor: pointer;
-      width: calc(350.5px / 3);
-      margin: 0 0px
+      width: 100%;
+      margin: 0 0px;
+      box-sizing: border-box;
     }
 
     .btn-group .button:not(:last-child) {
       border-right: none;
-      /* Prevent double borders */
     }
 
     .btn-group .button:hover {
@@ -92,20 +107,27 @@
     }
 
     .output-container {
-      margin-left: -5px;
-      text-align: left;
+      width: 100%;
+      height: calc(100% - 40px);
+      overflow-y: scroll;
+      box-sizing: border-box;
+      margin-left: 5px;
     }
 
     .bordered-window {
       border: 1px solid black;
-      width: 350px;
+      width: 100%;
       height: 550px;
-      padding: 20px;
+      padding: 0 0 0 0px;
       margin-left: 0;
       margin-right: 0;
-      text-align: center;
+      text-align: left;
       background-color: #7fa9d0;
       list-style-type: none;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .text-input {
@@ -116,8 +138,7 @@
 
 
     .input-container {
-      width: 350px;
-
+      width: 100%;
       text-align: center;
     }
 
@@ -125,6 +146,7 @@
       width: 100%;
       text-align: center;
       margin: 10px 0;
+      box-sizing: border-box;
     }
 
     button[type="submit"] {
@@ -143,7 +165,7 @@
       display: inline-block;
       font-size: 16px;
       cursor: pointer;
-      width: 125px;
+      width: 100%;
       margin-top: 0 !important;
       margin-bottom: 0 !important;
       font-family: 'DynaPuff', sans-serif;
@@ -178,8 +200,7 @@
         </div>
         <p class="inv-p" style="clear:both"></p>
         <div class="bordered-window">
-          <div class="output-container" id="outputContainer"
-            style="overflow-y:scroll; height:505px; width:calc(100% + 10px);">
+          <div class="output-container" id="outputContainer" style="overflow-y:scroll">
           </div>
         </div>
         <div class="input-container">
@@ -271,8 +292,6 @@
         },
         body: JSON.stringify({ pokedexNumber: pokedexNumber })
       });
-
-
 
       const data = await response.json();
       console.log(data)

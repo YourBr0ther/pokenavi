@@ -2,7 +2,7 @@
   "name": "pokenavi",
   "version": "1.0.0",
   "description": "A new way to interact with Pokemon from your previous games",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
