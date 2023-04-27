@@ -102,8 +102,11 @@ async function primeChatBot(selectedPokemon) {
             timestamp: new Date().toISOString(),
         });
 
+        
+
         // Send pkmnSheet via the message array to ChatGPT and put response in response variable
         try {
+            console.log(primeRunningMemory.content)
             response = await openai.createChatCompletion({
                 model: "gpt-3.5-turbo",
                 messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
@@ -187,7 +190,8 @@ function createStringArrayFromJSON(json) {
 async function sendChatToPokemon(prompt) {
     try {
         const pokedexNumber = global.selectedPokemon.system_description.NationalPokedexNumber
-        console.log('C: ' + prompt)
+        const trainerName = global.selectedPokemon.user_name
+        console.log(trainerName + ': ' + prompt)
 
         // ChatGPT Response
         let response
@@ -220,7 +224,8 @@ async function sendChatToPokemon(prompt) {
         // Save ChatGPT's response to runningMemoryLogs and interactionHistoryLogs array
         runningMemoryLogs[pokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
-        console.log('M: ' + output)
+        const pokemonName = global.selectedPokemon.system_name
+        console.log(pokemonName + ': ' + output)
 
         // Save messages to CSV
         saveMessagesToCSV(pokedexNumber);
@@ -326,7 +331,8 @@ app.post('/prompt', async (req, res) => {
         // Get the Pokemon Response using our entered Prompt via the HTML form
         const response = await sendChatToPokemon(userMessage)
         // Send the Pokemon Response back to the HTML form
-        res.json({ assistantResponse: response })
+        const pokemonName = 
+        res.json({ assistantResponse: `Pokemon: ${response}` })
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" })
     }

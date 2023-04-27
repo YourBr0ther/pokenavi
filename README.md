@@ -46,7 +46,6 @@ Add your OpenAI key to the .env file using this format
 * PokeCORE integration
 
 ### Frontend Development
-* Default to No Pokemon on boot
 * Comment the HTML
 
 ### Conscious Bot Creation [PokeCORE]

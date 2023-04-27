@@ -65,7 +65,7 @@
     }
 
     .sprite {
-      
+      image-rendering: pixelated;
       border: 2px solid #3c4d5b;
       background-color: #e7f3f4;
       border-radius: 50%;
@@ -136,7 +136,6 @@
       margin-bottom: 0 !important;
     }
 
-
     .input-container {
       width: 100%;
       text-align: center;
@@ -183,7 +182,7 @@
       <div class="title-box">
         <div class="title">PokeNavi</div>
         <img class="sprite" id="sprite"
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/351.png">
+          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png">
       </div>
       <div>
         <div class="btn-group">
@@ -200,17 +199,24 @@
         </div>
         <p class="inv-p" style="clear:both"></p>
         <div class="bordered-window">
-          <div class="output-container" id="outputContainer" style="overflow-y:scroll">
-          </div>
+          <div class="output-container" id="outputContainer" style="overflow-y:scroll">Welcome to PokeNavi! Select a
+            Pokemon from the drop-down to begin</div>
         </div>
-        <div class="input-container">
-          <input class="text-input" type="text" id="prompt" />
-          <button class="button" type="submit" id="submit">Submit</button>
-        </div>
+      </div>
+      <div class="input-container">
+        <input class="text-input" type="text" id="prompt" />
+        <button class="button" type="submit" id="submit">Submit</button>
       </div>
     </div>
   </div>
+  </div>
+
+  <audio id="myAudio">
+    <source src="ping.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
   <script>
+
     const submitButton = document.getElementById("submit");
     const userMessage = document.getElementById("prompt");
     const messages = document.getElementById("outputContainer");
@@ -268,10 +274,13 @@
 
       const data = await response.json();
       const assistantResponse = data.assistantResponse;
+      console.log(data.systemName)
+
+      playSound()
 
       const liAssistant = document.createElement("li");
       liAssistant.textContent = `${assistantResponse}`;
-      console.log(liAssistant.text)
+      console.log(liAssistant.textContent);
       messages.appendChild(liAssistant);
 
       setTimeout(() => {
@@ -309,7 +318,7 @@
       messages.innerHTML = "";
 
       const liAssistant = document.createElement("li");
-      liAssistant.textContent = `M: ${assistantResponse}`;
+      liAssistant.textContent = `${assistantResponse}`;
       messages.appendChild(liAssistant);
 
       scrollToBottom();
@@ -319,6 +328,13 @@
 
       submitButton.disabled = false;
     };
+
+    function playSound() {
+  var audio = document.getElementById("myAudio");
+  if (audio !== null) {
+    audio.play();
+  }
+}
 
     userMessage.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
@@ -339,6 +355,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       fetchPokemonList();
+      submitButton.disabled = true;
     });
 
   </script>
