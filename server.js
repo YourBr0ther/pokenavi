@@ -15,7 +15,6 @@ const bodyParser = require("body-parser");
 const fs = require('fs');
 const path = require('path');
 const util = require("util");
-const { domainToASCII } = require('url');
 const fsPromises = require('fs').promises;
 const { once } = require('events');
 
@@ -40,6 +39,7 @@ let getPokemon = async () => {
     const readFile = util.promisify(fs.readFile)
     try {
         const data = await readFile(testPath)
+        // Import the actual JSON data and make it a variable
         selectedPokemon = JSON.parse(data)
         console.log('Successfully read and parsed JSON file:', selectedPokemon.system_species);
     } catch (err) {
@@ -53,10 +53,13 @@ let selectedPokemon
 
 // Import first JSON
 (async () => {
+
+    // Get the pokemon JSON via getPokemon
     selectedPokemon = await getPokemon();
     console.log('Name: ' + selectedPokemon.system_name);
     console.log('National Dex: ' + selectedPokemon.system_description.NationalPokedexNumber);
 
+    // Prime the chat bot with the selected JSON
     primeChatBot(selectedPokemon)
 })();
 
@@ -74,10 +77,15 @@ async function primeChatBot(selectedPokemon) {
         // Pull the string from the Pokemon JSON
         const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
 
+        // Declare the pokedexNumber to make it easier to call
         const pokedexNumber = selectedPokemon.system_description.NationalPokedexNumber;
+
+        // If the runningMemoryLogs are empty, create them
         if (!runningMemoryLogs[pokedexNumber]) {
             runningMemoryLogs[pokedexNumber] = [];
         }
+
+        // Update the runningMemoryLogs to include the role, the pkmnSheet, and the time/date
         runningMemoryLogs[pokedexNumber].push({
             role: "system",
             content: pkmnSheet,
@@ -133,6 +141,7 @@ async function loadMessagesFromCSV(pokedexNumber) {
             console.log(`CSV file not found for Pokemon #${pokedexNumber}`);
         }
 
+        // Double check to make sure the hstory is withi nthe time limit
         interactionHistoryLogs[pokedexNumber] = results.filter(isMessageWithinDuration);
         console.log(`Interaction history for Pokemon #${pokedexNumber} loaded from CSV file`);
 
@@ -170,6 +179,7 @@ function createStringArrayFromJSON(json) {
         json.system_description.NationalPokedexNumber.toString()
     ];
 
+    // Return the pkmnSheet string and the NatonalPokedex number
     return [string1, string2];
 }
 
@@ -191,6 +201,7 @@ async function sendChatToPokemon(prompt) {
             // Log the entire primeRunningMemory array
             runningMemoryLogs[pokedexNumber].forEach((message, index) => {
             });
+            // Get ChatGPT's response
             response = await openai.createChatCompletion({
                 model: "gpt-3.5-turbo",
                 messages: runningMemoryLogs[pokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
@@ -217,6 +228,7 @@ async function sendChatToPokemon(prompt) {
         // Add a delay of 200 milliseconds
         await new Promise(resolve => setTimeout(resolve, 200));
 
+        // Return OpenAI's response
         return output
 
     } catch (error) {
@@ -224,6 +236,7 @@ async function sendChatToPokemon(prompt) {
     }
 }
 
+// Save the last two lines from the Interacton History logs to a CSV
 function saveMessagesToCSV(pokedexNumber) {
     const createCsvWriter = require('csv-writer').createObjectCsvWriter;
     const csvWriter = createCsvWriter({
@@ -263,8 +276,10 @@ async function getAllPokemon() {
     return allPokemon;
 }
 
+// Get a Pokemon JSON by its PokedexNumber instead of its JSON Index
 async function getPokemonByPokedexNumber(pokedexNumber) {
     try {
+        // for each of the JSON files, look to see if the seleted pokedmon's natonal dex number matches te PokedexNumber
         for (const fileName of jsonFileNames) {
             const fileData = await fsPromises.readFile(`./JSON/${fileName}`, 'utf8');
             const pokemonData = JSON.parse(fileData);
@@ -281,7 +296,6 @@ async function getPokemonByPokedexNumber(pokedexNumber) {
         return null;
     }
 }
-
 
 // Define the web app
 const app = express()
