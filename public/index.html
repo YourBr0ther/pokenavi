@@ -330,11 +330,12 @@
     };
 
     function playSound() {
-  var audio = document.getElementById("myAudio");
-  if (audio !== null) {
-    audio.play();
-  }
-}
+      var audio = document.getElementById("myAudio");
+      if (audio !== null) {
+        audio.volume = 0.1;
+        audio.play();
+      }
+    }
 
     userMessage.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {

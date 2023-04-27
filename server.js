@@ -106,7 +106,6 @@ async function primeChatBot(selectedPokemon) {
 
         // Send pkmnSheet via the message array to ChatGPT and put response in response variable
         try {
-            console.log(primeRunningMemory.content)
             response = await openai.createChatCompletion({
                 model: "gpt-3.5-turbo",
                 messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
