@@ -87,6 +87,10 @@
       background-color: #64ace0;
     }
 
+    select {
+      font-family: 'DynaPuff', sans-serif;
+    }
+
     .output-container {
       margin-left: -5px;
       text-align: left;
@@ -268,7 +272,7 @@
         body: JSON.stringify({ pokedexNumber: pokedexNumber })
       });
 
-      
+
 
       const data = await response.json();
       console.log(data)
