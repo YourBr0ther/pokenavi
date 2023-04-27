@@ -33,6 +33,7 @@ Add your OpenAI key to the .env file using this format
 
 ## To-Do
 * Create creation HTML page
+* Add injection commands
 
 ### Features
 * Import a authentic Gen1 through Gen3 Pokemon
@@ -46,12 +47,7 @@ Add your OpenAI key to the .env file using this format
 
 ### Frontend Development
 * Default to No Pokemon on boot
-* Pokemon selector
 * Comment the HTML
-
-### PkmnSheet
-* Create a nodeJS script to create a generic Pokemon
-* Use ChatGPT to get Traits off of the Pokedex entries
 
 ### Conscious Bot Creation [PokeCORE]
 * Brain [Parent]
