@@ -32,7 +32,8 @@ Add your OpenAI key to the .env file using this format
     node server.js
 
 ## To-Do
-* Create creation HTML page
+* Add a login screen with sign up sheet
+* Add a party system and PC system
 * Add injection commands
 
 ### Features
@@ -46,7 +47,6 @@ Add your OpenAI key to the .env file using this format
 * PokeCORE integration
 
 ### Frontend Development
-* Default to No Pokemon on boot
 * Comment the HTML
 
 ### Conscious Bot Creation [PokeCORE]
@@ -58,6 +58,7 @@ Add your OpenAI key to the .env file using this format
 
 ### Skill Roadmap
  * Release version 1.0.0
+ * NovelAI TTS
  * Check Weather
  * Check Calendar
  * Allow Pokemon to dream
