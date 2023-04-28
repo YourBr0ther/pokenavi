@@ -10,6 +10,7 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 ### Requirements
  * [NodeJS](https://nodejs.org/en)
  * [OpenAI Key](https://platform.openai.com/account/api-keys)
+ * [MongoDB](https://www.mongodb.com/)
 
 ### Supported Operating Systems
  * Windows
@@ -24,6 +25,8 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 
 Add your OpenAI key to the .env file using this format
     OPENAI_API_KEY=XXXX
+Add your Mongo secret key to the .env file using this format
+    MONGODB_SECRET=XXXX
 
 ### Pokemon Creation
     node newPokemon.js
@@ -32,7 +35,6 @@ Add your OpenAI key to the .env file using this format
     node server.js
 
 ## To-Do
-* Add a login screen with sign up sheet
 * Add a party system and PC system
 * Add injection commands
 
