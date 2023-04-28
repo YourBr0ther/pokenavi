@@ -18,6 +18,15 @@ const util = require("util");
 const fsPromises = require('fs').promises;
 const { once } = require('events');
 
+// Auth
+const bcrypt = require('bcrypt');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const mongoose = require('mongoose');
+
+// Connect to MongoDB
+mongoose.connect('mongodb://192.168.0.4:27017/loginDemo', { useNewUrlParser: true, useUnifiedTopology: true });
+
 // * Constant Variables
 // JSON directory
 const directoryPath = path.join(__dirname, './JSON/');
@@ -102,7 +111,7 @@ async function primeChatBot(selectedPokemon) {
             timestamp: new Date().toISOString(),
         });
 
-        
+
 
         // Send pkmnSheet via the message array to ChatGPT and put response in response variable
         try {
@@ -301,19 +310,83 @@ async function getPokemonByPokedexNumber(pokedexNumber) {
     }
 }
 
+function isAuthenticated(req, res, next) {
+    if (req.session && req.session.user) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
 // Define the web app
 const app = express()
-// Use port 3000
 const port = process.env.PORT || 3000;
+const User = require('./models/User');
 
-// Use Body Parser for JSON requests
-app.use(bodyParser.json());
-// Use URL Encoded 
-app.use(bodyParser.urlencoded({ extended: true }))
-// Display the index.html page in the public folder
+// Set up EJS as the view engine
+app.set('view engine', 'ejs');
 app.use(express.static("public"))
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-app.get('/api/pokemon-list', async (req, res) => {
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+// Set up session middleware
+app.use(session({
+    secret: `process.env.MONGODB_SECRET`,
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: 'mongodb://192.168.0.4:27017/loginDemo' }),
+}));
+
+// Handle login form submission
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+
+    if (user && await bcrypt.compare(password, user.password)) {
+        console.log('Authed')
+        req.session.user = { id: user._id, username: user.username };
+        res.redirect('/');
+    } else {
+        console.log('Not Authed')
+        res.redirect('/login');
+    }
+});
+
+app.get('/', isAuthenticated, async (req, res) => {
+    try {
+        const allPokemon = await getAllPokemon();
+        res.render('index', { user: req.session.user, allPokemon });
+    } catch (error) {
+        res.status(500).send('An error occurred while fetching the Pokémon list');
+    }
+});
+
+// Render registration page
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+// Handle registration form submission
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ username, password: hashedPassword });
+
+    await user.save();
+    res.redirect('/login');
+});
+
+// Handle logout
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/login');
+});
+
+app.get('/api/pokemon-list',isAuthenticated, async (req, res) => {
     try {
         const allPokemon = await getAllPokemon();
         res.json({ allPokemon });
@@ -322,22 +395,21 @@ app.get('/api/pokemon-list', async (req, res) => {
     }
 });
 
-
-app.post('/prompt', async (req, res) => {
-    const userMessage = req.body.userMessage
+app.post('/prompt', isAuthenticated, async (req, res) => {
+    const userMessage = req.body.userMessage;
 
     try {
         // Get the Pokemon Response using our entered Prompt via the HTML form
-        const response = await sendChatToPokemon(userMessage)
-        // Send the Pokemon Response back to the HTML form
-        const pokemonName = 
-        res.json({ assistantResponse: `Pokemon: ${response}` })
-    } catch (error) {
-        res.status(500).json({ error: "An error occurred while processing the request" })
-    }
-})
+        const response = await sendChatToPokemon(userMessage);
 
-app.post('/switch', async (req, res) => {
+        // Send the Pokemon Response back to the HTML form
+        res.json({ assistantResponse: `Pokemon: ${response}` });
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred while processing the request" });
+    }
+});
+
+app.post('/switch', isAuthenticated, async (req, res) => {
     const pokedexNumber = req.body.pokedexNumber;
     console.log('Species Received: ' + pokedexNumber)
     try {
