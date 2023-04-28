@@ -186,7 +186,7 @@
       </div>
       <div>
         <div class="btn-group">
-          <button class="button" id="menu">Menu</button>
+          
           <select class="button" id="switch">
             <option value="">Pokémon</option>
             <% for (let i=0; i < allPokemon.length; i++) { %>
@@ -196,6 +196,7 @@
               <% } %>
           </select>
           <button class="button" id="restart" onclick="location.reload()">Restart</button>
+          <button class="button" id="menu">Logout</button>
         </div>
         <p class="inv-p" style="clear:both"></p>
         <div class="bordered-window">
@@ -218,6 +219,7 @@
   <script>
 
     const submitButton = document.getElementById("submit");
+    const menuButton = document.getElementById("menu");
     const userMessage = document.getElementById("prompt");
     const messages = document.getElementById("outputContainer");
 
@@ -289,6 +291,21 @@
     };
 
     submitButton.addEventListener("click", submitMessage);
+    menuButton.addEventListener("click", logOut);
+
+    function logOut() {
+
+      fetch('/logout', { method: 'GET' })
+        .then(response => {
+          if (response.redirected) {
+            window.location.href = response.url;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+
+    }
 
     const switchPrompt = async () => {
       submitButton.disabled = true;
