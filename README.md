@@ -41,8 +41,9 @@ Add your Mongo secret key to the .env file using this format
   * Select 6 for Party
   * Check boxes showing all registered Pokemon
   * Save button on selected Pokemon
-* Add logout button via Menu
-* Add creation button via Menu
+* Creation Screen Changes
+  * Update creation screen with current theme
+  * Update the creation screen to include the bot specific information
 * Add injection commands
 
 ### Features
