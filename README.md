@@ -35,7 +35,14 @@ Add your Mongo secret key to the .env file using this format
     node server.js
 
 ## To-Do
+* Migrate chats to MongoDB
+  * Per Pokemon \ Per User
 * Add a party system and PC system
+  * Select 6 for Party
+  * Check boxes showing all registered Pokemon
+  * Save button on selected Pokemon
+* Add logout button via Menu
+* Add creation button via Menu
 * Add injection commands
 
 ### Features
