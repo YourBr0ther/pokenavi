@@ -1,19 +1,171 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Register</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    crossorigin="anonymous" />
+  <title>PokeNavi | Register</title>
+  <link rel="shortcut icon" type="image/png"
+    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
+  <link rel="icon" type="image/png" sizes="32x32"
+    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DynaPuff">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background-color: #d04040;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+    }
+
+    .container {
+      text-align: center;
+      background-color: #d04040;
+      max-width: 100%;
+      max-height: 100%;
+      padding: 10px;
+    }
+
+    .inv-container {
+      display: inline-block;
+      padding: 5px;
+      margin-left: 0px;
+      text-align: center;
+      width: 50%;
+      box-sizing: border-box;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 57px;
+      font-weight: bold;
+      text-align: center;
+
+      font-family: 'DynaPuff', sans-serif;
+    }
+
+    .title-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+    }
+
+    .sprite {
+      image-rendering: pixelated;
+      border: 2px solid #3c4d5b;
+      background-color: #e7f3f4;
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 7px;
+      width: 75px;
+      height: 75px;
+    }
+
+    .bordered-window {
+      border: 1px solid black;
+      width: 600px;
+      height: 350px;
+      padding: 0 0 0 0px;
+      margin-left: 0;
+      margin-right: 0;
+      text-align: left;
+      background-color: #7fa9d0;
+      list-style-type: none;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+
+    }
+
+    button {
+      background-color: #7fa9d0;
+      border: 1px solid black;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+      width: 75%;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      font-family: 'DynaPuff', sans-serif;
+      margin: 0 auto;
+    }
+
+    .input-text {
+      background-color: #7fa9d0;
+      border: 1px solid black;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+      width: 75%;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      font-family: 'DynaPuff', sans-serif;
+      margin: 0 auto;
+    }
+
+    .textbox {
+      width: 75%;
+    }
+
+    .register {
+      display: inline-block;
+      font-family: 'DynaPuff', sans-serif;
+      position: absolute;
+      margin-top: 67%;
+
+    }
+
+    .form {
+      margin-left: 20%;
+    }
+  </style>
+
 </head>
+
 <body>
-  <h1>Register</h1>
-  <form action="/register" method="post">
-    <label for="username">Username:</label>
-    <input type="text" name="username" id="username" required />
-    <br />
-    <label for="password">Password:</label>
-    <input type="password" name="password" id="password" required />
-    <br />
-    <button type="submit">Register</button>
-  </form>
-  <p>Already have an account? <a href="/login">Login</a></p>
+  <div class="container">
+    <div class="inv-container">
+      <div class="title-box">
+        <div class="title">PokeNavi</div>
+        <img class="sprite" id="sprite"
+          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png">
+      </div>
+      <div class="bordered-window">
+        <form class="form" action="/register" method="post">
+          <label class="input-text" for="username">Username:</label>
+          <input class="textbox" type="text" name="username" id="username" required />
+          <label class="input-text" for="password">Password:</label>
+          <input class="textbox" type="password" name="password" id="password" required />
+          <button type="submit">Register</button>
+        </form>
+        <div class="register">Already have an account? <a href="/login">Login</a></div>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
