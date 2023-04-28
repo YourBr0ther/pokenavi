@@ -386,6 +386,10 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
+app.get('/create', (req, res) => {
+    res.render('create');
+});
+
 app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
 
@@ -427,6 +431,27 @@ app.post('/switch', isAuthenticated, async (req, res) => {
         res.status(500).json({ error: "An error occurred while processing the request" });
         process.exit(1)
     }
+});
+
+// API endpoint to handle form data submission
+app.post('/api/submit-data', (req, res) => {
+    console.log('Received data:', req.body);
+
+    // Save JSON data to the './JSON' folder
+    const jsonFolder = './JSON/new_format';
+    const speciesName = req.body.pokemon.species;
+    const fileName = `${speciesName}.json`;
+    const filePath = path.join(jsonFolder, fileName);
+
+    fs.promises.mkdir(jsonFolder, { recursive: true }).then(() => {
+        return fs.promises.writeFile(filePath, JSON.stringify(req.body, null, 2));
+    }).then(() => {
+        res.status(200).json({ message: 'Data saved successfully' });
+    }).catch(error => {
+        console.error('Error saving JSON data:', error);
+        res.status(500).json({ message: 'Error saving data' });
+    });
+
 });
 
 app.listen(port, () => {

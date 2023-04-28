@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf-8" />
@@ -186,7 +186,7 @@
       </div>
       <div>
         <div class="btn-group">
-          
+
           <select class="button" id="switch">
             <option value="">Pokémon</option>
             <% for (let i=0; i < allPokemon.length; i++) { %>
@@ -195,7 +195,7 @@
               </option>
               <% } %>
           </select>
-          <button class="button" id="restart" onclick="location.reload()">Restart</button>
+          <button class="button" id="create">Create</button>
           <button class="button" id="menu">Logout</button>
         </div>
         <p class="inv-p" style="clear:both"></p>
@@ -220,6 +220,7 @@
 
     const submitButton = document.getElementById("submit");
     const menuButton = document.getElementById("menu");
+    const createButton = document.getElementById("create");
     const userMessage = document.getElementById("prompt");
     const messages = document.getElementById("outputContainer");
 
@@ -307,6 +308,10 @@
 
     }
 
+    function createPokemon() {
+      fetch('/create')
+    }
+
     const switchPrompt = async () => {
       submitButton.disabled = true;
       const pokedexNumber = document.getElementById("switch").value;
@@ -374,6 +379,10 @@
     window.addEventListener('DOMContentLoaded', () => {
       fetchPokemonList();
       submitButton.disabled = true;
+    });
+
+    document.getElementById('create').addEventListener('click', function () {
+      window.location.href = "create";
     });
 
   </script>
