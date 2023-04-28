@@ -386,15 +386,6 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-app.get('/api/pokemon-list',isAuthenticated, async (req, res) => {
-    try {
-        const allPokemon = await getAllPokemon();
-        res.json({ allPokemon });
-    } catch (error) {
-        res.status(500).json({ error: "An error occurred while processing the request" });
-    }
-});
-
 app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
 
