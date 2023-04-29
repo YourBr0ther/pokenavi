@@ -127,7 +127,6 @@ async function saveMessagesToMongoDB(pokedexNumber) {
             message.userId = global.userId;
             message.pokedexNumber = pokedexNumber;
         });
-        console.log(lastTwoMessages)
 
         if (lastTwoMessages.length > 0) {
             const result = await collection.insertMany(lastTwoMessages);
