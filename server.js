@@ -295,6 +295,34 @@ async function getPokemonByPokedexNumber(pokedexNumber) {
     }
 }
 
+function removeNewlines(text) {
+    return text.replace(/\n|\f/g, ' ');
+}
+
+async function getPokemonEntries(species, count = 5) {
+    try {
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${species.toLowerCase()}`);
+        const speciesData = await response.json();
+        const pokemonResponse = await fetch(speciesData.varieties[0].pokemon.url);
+        const pokemon = await pokemonResponse.json();
+
+        const entries = speciesData.flavor_text_entries.slice(0, count).map((entry) => removeNewlines(entry.flavor_text));
+        const NationalPokedexNumber = speciesData.id;
+
+        return { entries, NationalPokedexNumber };
+    } catch (error) {
+        console.error('Error fetching Pokémon entries:', error.message);
+        return { entries: [], NationalPokedexNumber: null };
+    }
+}
+
+function toProperCase(str) {
+    return str.replace(/\w\S*/g, (txt) => {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+}
+
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
         next();
@@ -424,25 +452,70 @@ app.post('/switch', isAuthenticated, async (req, res) => {
 });
 
 // API endpoint to handle form data submission
-app.post('/api/submit-data', (req, res) => {
+app.post('/api/submit-data', async (req, res) => {
     console.log('Received data:', req.body);
 
-    userId = global.userId
+    const userId = global.userId;
     // Save JSON data to the './JSON' folder
     const jsonFolder = './JSON';
-    const speciesName = req.body.pokemon.species;
+    const speciesName = toProperCase(req.body.pokemon.species)
     const fileName = `${userId}-${speciesName}.json`;
     const filePath = path.join(jsonFolder, fileName);
+    const pokeData = await getPokemonEntries(speciesName);
+    console.log(pokeData)
 
-    fs.promises.mkdir(jsonFolder, { recursive: true }).then(() => {
-        return fs.promises.writeFile(filePath, JSON.stringify(req.body, null, 2));
-    }).then(() => {
+    // JSON object to be added
+    const template = {
+        system: {
+            response: "Response text based on the user input",
+            memory: "key-value store of things I should remember about myself and the user",
+            topics_to_explore: "detailed description of interesting topics to explore further",
+            previous_conversation_points: "list of previous conversation points",
+            current_topic: "detailed description of the current topic",
+            dreams: "Create simulated detailed description of the system's dreams based on previous conversations",
+            inner_dialogue: "Create simulated inner_dialogue based on the conversation",
+            private_thoughts: "Create simulated private thoughts based on the conversation",
+            rules: [
+                "You can use Pokemon sounds at the end or beginning of your responses",
+                "Response more like a Pokemon that can talk and less like an AI",
+                "If you are unable to provide a reply, you can fake a pokemon noise or confusion"
+            ]
+        },
+        pokemon: {
+            species: speciesName,
+            entries: pokeData.entries,
+            nationalPokedexNumber: pokeData.NationalPokedexNumber
+        }
+    };
+
+    try {
+        // Create the JSON folder if it doesn't exist
+        await fs.promises.mkdir(jsonFolder, { recursive: true });
+
+        // Read the existing JSON data from the file if it exists
+        let existingData = {};
+        if (fs.existsSync(filePath)) {
+            const fileData = await fs.promises.readFile(filePath, 'utf-8');
+            existingData = JSON.parse(fileData);
+        }
+
+        // Merge the received JSON with the existing JSON and the template JSON
+        const mergedData = {
+            ...existingData,
+            ...req.body,
+            system: { ...existingData.system, ...req.body.system, ...template.system },
+            pokemon: { ...existingData.pokemon, ...req.body.pokemon, ...template.pokemon },
+        };
+
+        // Write the merged JSON data back to the file
+        await fs.promises.writeFile(filePath, JSON.stringify(mergedData, null, 2));
+
+        // Send a success response
         res.status(200).json({ message: 'Data saved successfully' });
-    }).catch(error => {
+    } catch (error) {
         console.error('Error saving JSON data:', error);
         res.status(500).json({ message: 'Error saving data' });
-    });
-
+    }
 });
 
 app.listen(port, () => {
