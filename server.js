@@ -109,9 +109,9 @@ async function primeChatBot(selectedPokemon) {
     }
 }
 
-async function saveMessagesToMongoDB(pokedexNumber, userId) {
+async function saveMessagesToMongoDB(pokedexNumber) {
+    console.log(pokedexNumber)
     const localClient = new MongoClient(uri);
-    console.log('UserId: ' + global.userId)
 
     try {
 
@@ -121,19 +121,22 @@ async function saveMessagesToMongoDB(pokedexNumber, userId) {
         const collection = database.collection('chats');
 
         let lastTwoMessages = interactionHistoryLogs[pokedexNumber].slice(-2);
-        
+
         // Add the userId to each message
-        lastTwoMessages.forEach(message => message.userId = global.userId);
+        lastTwoMessages.forEach(message => {
+            message.userId = global.userId;
+            message.pokedexNumber = pokedexNumber;
+        });
         console.log(lastTwoMessages)
 
         if (lastTwoMessages.length > 0) {
             const result = await collection.insertMany(lastTwoMessages);
-            console.log(`Messages saved to MongoDB for Pokemon #${pokedexNumber} and user ${userId}:`, result.insertedCount);
+            console.log(`Messages saved to MongoDB for Pokemon #${pokedexNumber} and user ${global.userId}:`, result.insertedCount);
         } else {
             console.log('No messages to save to MongoDB');
         }
     } catch (error) {
-        console.error(`Error saving messages to MongoDB for Pokemon #${pokedexNumber} and user ${userId}:`, error);
+        console.error(`Error saving messages to MongoDB for Pokemon #${pokedexNumber} and user ${global.userId}:`, error);
     } finally {
         await localClient.close();
     }
@@ -235,7 +238,7 @@ async function sendChatToPokemon(prompt) {
         console.log(pokemonName + ': ' + output)
 
         // Save messages to MongoDB
-        saveMessagesToMongoDB(pokedexNumber, userId)
+        saveMessagesToMongoDB(pokedexNumber)
 
         // Add a delay of 200 milliseconds
         await new Promise(resolve => setTimeout(resolve, 200));
@@ -323,7 +326,7 @@ app.post('/login', async (req, res) => {
     if (user && await bcrypt.compare(password, user.password)) {
         console.log('Authed')
         req.session.user = { id: user._id, username: user.username };
-        userId = req.session.user.username
+        global.userId = req.session.user.username
         console.log(req.session.user.username)
         selectedPokemon = await getPokemon();
         primeChatBot(selectedPokemon)
