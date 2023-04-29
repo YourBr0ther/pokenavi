@@ -23,13 +23,9 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
     npm install
     mkdir .env
 
-### Add your OpenAI key to the .env file using this format
+### Add your OpenAI key and Mongo key to the .env file using this format
     OPENAI_API_KEY=XXXX
-### Add your Mongo secret key to the .env file using this format
     MONGODB_SECRET=XXXX
-
-### Pokemon Creation
-    node newPokemon.js
 
 ### Start PokeNavi
     node server.js
