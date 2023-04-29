@@ -23,9 +23,9 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
     npm install
     mkdir .env
 
-Add your OpenAI key to the .env file using this format
+### Add your OpenAI key to the .env file using this format
     OPENAI_API_KEY=XXXX
-Add your Mongo secret key to the .env file using this format
+### Add your Mongo secret key to the .env file using this format
     MONGODB_SECRET=XXXX
 
 ### Pokemon Creation
@@ -35,8 +35,6 @@ Add your Mongo secret key to the .env file using this format
     node server.js
 
 ## To-Do
-* Migrate chats to MongoDB
-  * Per Pokemon \ Per User
 * Add a party system and PC system
   * Select 6 for Party
   * Check boxes showing all registered Pokemon
