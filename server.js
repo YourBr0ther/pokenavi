@@ -427,10 +427,11 @@ app.post('/switch', isAuthenticated, async (req, res) => {
 app.post('/api/submit-data', (req, res) => {
     console.log('Received data:', req.body);
 
+    userId = global.userId
     // Save JSON data to the './JSON' folder
-    const jsonFolder = './JSON/new_format';
+    const jsonFolder = './JSON';
     const speciesName = req.body.pokemon.species;
-    const fileName = `${speciesName}.json`;
+    const fileName = `${userId}-${speciesName}.json`;
     const filePath = path.join(jsonFolder, fileName);
 
     fs.promises.mkdir(jsonFolder, { recursive: true }).then(() => {
