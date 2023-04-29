@@ -47,7 +47,7 @@ let getPokemon = async () => {
     try {
         const data = await readFile(testPath)
         selectedPokemon = JSON.parse(data)
-        console.log('Successfully read and parsed JSON file:', selectedPokemon.system_species);
+        console.log('Successfully read and parsed JSON file:', selectedPokemon.pokemon.species);
     } catch (err) {
         console.err('Error importing the JSON file: ' + err)
         process.exit(1)
@@ -62,9 +62,9 @@ async function primeChatBot(selectedPokemon) {
     let response;
 
     if (selectedPokemon) {
-        console.log("Pokemon for priming: " + selectedPokemon.system_name);
+        console.log("Pokemon for priming: " + selectedPokemon.pokemon.name);
 
-        const pokedexNumber = selectedPokemon.system_description.NationalPokedexNumber;
+        const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
         await loadMessagesFromMongoDB(pokedexNumber, userId)
 
         const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
@@ -176,19 +176,19 @@ function isMessageWithinDuration(message) {
 function createStringArrayFromJSON(json) {
     const string1 = [
         json.rules.join(', '),
-        json.user_name,
-        json.user_gender,
-        json.system_interest,
-        json.system_description.entries.join(', '),
-        json.system_age,
-        json.system_personality,
-        json.system_species,
-        json.system_name,
-        json.system_gender
+        json.trainer.name,
+        json.trainer.gender,
+        json.pokemon.hobby,
+        json.pokemon.entries.join(', '),
+        json.pokemon.age,
+        json.pokemon.traits.join(', '),
+        json.pokemon.species,
+        json.pokemon.name,
+        json.pokemon.gender
     ].join('');
 
     const string2 = [
-        json.system_description.NationalPokedexNumber.toString()
+        json.pokemon.nationalPokedexNumber.toString()
     ];
 
     // Return the pkmnSheet string and the NatonalPokedex number
@@ -198,8 +198,8 @@ function createStringArrayFromJSON(json) {
 // Send a message to the Pokemon with message array as well
 async function sendChatToPokemon(prompt) {
     try {
-        const pokedexNumber = global.selectedPokemon.system_description.NationalPokedexNumber
-        const trainerName = global.selectedPokemon.user_name
+        const pokedexNumber = global.selectedPokemon.pokemon.nationalPokedexNumber
+        const trainerName = global.selectedPokemon.trainer.name
         const userId = global.userId
         console.log(trainerName + ': ' + prompt)
 
@@ -234,7 +234,7 @@ async function sendChatToPokemon(prompt) {
         // Save ChatGPT's response to runningMemoryLogs and interactionHistoryLogs array
         runningMemoryLogs[pokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
-        const pokemonName = global.selectedPokemon.system_name
+        const pokemonName = global.selectedPokemon.pokemon.name
         console.log(pokemonName + ': ' + output)
 
         // Save messages to MongoDB
@@ -266,8 +266,8 @@ async function getAllPokemon() {
             const data = await fs.promises.readFile(filePath);
             const pokemon = JSON.parse(data);
             allPokemon.push({
-                species: pokemon.system_species,
-                pokedexNumber: pokemon.system_description.NationalPokedexNumber,
+                species: pokemon.pokemon.species,
+                pokedexNumber: pokemon.pokemon.nationalPokedexNumber,
             });
         }
     }
@@ -281,8 +281,8 @@ async function getPokemonByPokedexNumber(pokedexNumber) {
         for (const fileName of jsonFileNames) {
             const fileData = await fsPromises.readFile(`./JSON/${fileName}`, 'utf8');
             const pokemonData = JSON.parse(fileData);
-            if (pokemonData.system_description.NationalPokedexNumber == pokedexNumber) {
-                console.log(`Found ${pokemonData.system_species}`);
+            if (pokemonData.pokemon.nationalPokedexNumber == pokedexNumber) {
+                console.log(`Found ${pokemonData.pokemon.species}`);
                 return pokemonData;
             }
         }
@@ -415,7 +415,7 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
         const response = await sendChatToPokemon(userMessage);
 
         // Save the message to MongoDB
-        await saveMessagesToMongoDB(selectedPokemon.system_description.NationalPokedexNumber, userId);
+        await saveMessagesToMongoDB(selectedPokemon.pokemon.nationalPokedexNumber, userId);
 
         res.json({ assistantResponse: `Pokemon: ${response}` });
     } catch (error) {
@@ -436,13 +436,13 @@ app.post('/switch', isAuthenticated, async (req, res) => {
         }
 
         // Load previous conversations
-        await loadMessagesFromMongoDB(selectedPokemon.system_description.NationalPokedexNumber, userId);
+        await loadMessagesFromMongoDB(selectedPokemon.pokemon.nationalPokedexNumber, userId);
 
         primeChatBot(selectedPokemon);
 
         res.json({
             assistantResponse: "Switched to new Pokémon!",
-            pokedexNumber: selectedPokemon.system_description.NationalPokedexNumber
+            pokedexNumber: selectedPokemon.pokemon.NationalPokedexNumber
         });
     } catch (error) {
         console.log(error);
