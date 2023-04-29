@@ -51,7 +51,7 @@ Add your Mongo secret key to the .env file using this format
 
 ### Authentic Attributes
 * Add second Typing
-* Fix DATA block decryption [G.A.M.E.]
+* Reserve engineer PkHex to get the order of the ATA block decryption [G.A.M.E.]
 
 ### Backend Development
 * PokeCORE integration
