@@ -22,7 +22,10 @@
     "user_gender": "Male",
     "system_interest": "Smashing things",
     "system_description": {
-        "entries": [],
+        "entries": [
+            "This intelligent Pokémon has a very daring disposition. It knocks rocks into the sky with its hammer, aiming for flying Corviknight.",
+            "The hammer tops 220 pounds, yet it gets swung around easily by Tinkaton as it steals whatever it pleases and carries its plunder back home."
+        ],
         "NationalPokedexNumber": 959
     },
     "system_age": "20",

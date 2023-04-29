@@ -254,14 +254,22 @@ async function sendChatToPokemon(prompt) {
 // Function to read all JSON files and extract Pokemon names and Pokedex numbers
 async function getAllPokemon() {
     let allPokemon = [];
+    const userId = global.userId; // Make sure to set global.userId before calling this function
+
+    // Create a regular expression to match the file name pattern
+    const filePattern = new RegExp(`^${userId}\.([^.]+)\.json$`);
+
     for (const file of jsonFileNames) {
-        const filePath = `${directoryPath}/${file}`;
-        const data = await fs.promises.readFile(filePath);
-        const pokemon = JSON.parse(data);
-        allPokemon.push({
-            species: pokemon.system_species,
-            pokedexNumber: pokemon.system_description.NationalPokedexNumber,
-        });
+        // Check if the file name matches the desired pattern
+        if (filePattern.test(file)) {
+            const filePath = `${directoryPath}/${file}`;
+            const data = await fs.promises.readFile(filePath);
+            const pokemon = JSON.parse(data);
+            allPokemon.push({
+                species: pokemon.system_species,
+                pokedexNumber: pokemon.system_description.NationalPokedexNumber,
+            });
+        }
     }
     return allPokemon;
 }
