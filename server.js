@@ -175,7 +175,7 @@ function isMessageWithinDuration(message) {
 // Function to create a two string array from a JSON file
 function createStringArrayFromJSON(json) {
     const string1 = [
-        json.rules.join(', '),
+        json.system.rules.join(', '),
         json.trainer.name,
         json.trainer.gender,
         json.pokemon.hobby,
