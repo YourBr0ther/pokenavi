@@ -1,54 +1,51 @@
-// Clear the console
+
 console.clear()
 
-//  * Packages 
-// ENV module
 require('dotenv').config();
-// OpenAI modules
+
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
 const openai = new OpenAIApi(configuration);
-// Express modules
+
 const express = require("express");
 const bodyParser = require("body-parser");
-// File System modules
+
 const fs = require('fs');
 const path = require('path');
 const util = require("util");
 const fsPromises = require('fs').promises;
-const { once } = require('events');
 
-// Auth
+
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
 
-// Connect to MongoDB
+const { MongoClient } = require('mongodb');
+const uri = "mongodb://192.168.0.4/InteractionHistory";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
 mongoose.connect('mongodb://192.168.0.4:27017/loginDemo', { useNewUrlParser: true, useUnifiedTopology: true });
 
-// * Constant Variables
-// JSON directory
 const directoryPath = path.join(__dirname, './JSON/');
 console.log('JSON Directory: ' + directoryPath)
-// JSON Files
+
 const jsonFileNames = fs.readdirSync(directoryPath).filter(file => path.extname(file) === '.json');
 console.log('JSON Files: ' + jsonFileNames)
 console.log('')
-// Message Logs for Each Pokemon
+
 const runningMemoryLogs = {}
 const interactionHistoryLogs = {}
-// How long to keep the conversations
+
 const conversationMemoryDuration = 7 * 24 * 60 * 60 * 1000
 
-// Import first JSON
+
 let getPokemon = async () => {
     let testPath = `${directoryPath}/${jsonFileNames[0]}`
     let selectedPokemon
     const readFile = util.promisify(fs.readFile)
     try {
         const data = await readFile(testPath)
-        // Import the actual JSON data and make it a variable
         selectedPokemon = JSON.parse(data)
         console.log('Successfully read and parsed JSON file:', selectedPokemon.system_species);
     } catch (err) {
@@ -57,44 +54,25 @@ let getPokemon = async () => {
     }
     return selectedPokemon
 }
-// Pokemon JSON
+
 let selectedPokemon
+let userId
 
-// Import first JSON
-(async () => {
-
-    // Get the pokemon JSON via getPokemon
-    selectedPokemon = await getPokemon();
-    console.log('Name: ' + selectedPokemon.system_name);
-    console.log('National Dex: ' + selectedPokemon.system_description.NationalPokedexNumber);
-
-    // Prime the chat bot with the selected JSON
-    primeChatBot(selectedPokemon)
-})();
-
-// Give the pkmnSheet to ChatGPT and get back first prompt
 async function primeChatBot(selectedPokemon) {
-    // ChatGPT Response
     let response;
 
     if (selectedPokemon) {
         console.log("Pokemon for priming: " + selectedPokemon.system_name);
 
-        // Load previous messages
-        await loadMessagesFromCSV(selectedPokemon.system_description.NationalPokedexNumber);
+        const pokedexNumber = selectedPokemon.system_description.NationalPokedexNumber;
+        await loadMessagesFromMongoDB(pokedexNumber, userId)
 
-        // Pull the string from the Pokemon JSON
         const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
 
-        // Declare the pokedexNumber to make it easier to call
-        const pokedexNumber = selectedPokemon.system_description.NationalPokedexNumber;
-
-        // If the runningMemoryLogs are empty, create them
         if (!runningMemoryLogs[pokedexNumber]) {
             runningMemoryLogs[pokedexNumber] = [];
         }
 
-        // Update the runningMemoryLogs to include the role, the pkmnSheet, and the time/date
         runningMemoryLogs[pokedexNumber].push({
             role: "system",
             content: pkmnSheet,
@@ -110,8 +88,6 @@ async function primeChatBot(selectedPokemon) {
             content: pkmnSheet,
             timestamp: new Date().toISOString(),
         });
-
-
 
         // Send pkmnSheet via the message array to ChatGPT and put response in response variable
         try {
@@ -133,33 +109,55 @@ async function primeChatBot(selectedPokemon) {
     }
 }
 
-// Load messages from CSV file
-async function loadMessagesFromCSV(pokedexNumber) {
-    const csv = require('csv-parser');
-    const results = [];
+async function saveMessagesToMongoDB(pokedexNumber, userId) {
+    const localClient = new MongoClient(uri);
+    console.log('UserId: ' + global.userId)
 
     try {
-        const csvPath = path.join(__dirname, `interaction_history_${pokedexNumber}.csv`);
-        const csvExists = fs.existsSync(csvPath);
 
-        if (csvExists) {
-            const csvStream = fs.createReadStream(csvPath).pipe(csv({ headers: ['role', 'content', 'timestamp'] }));
-            csvStream.on('data', (data) => results.push(data));
-            csvStream.on('error', (error) => console.error(`Error loading interaction history for Pokemon #${pokedexNumber} from CSV file:`, error));
-            console.log('Log found! Loading!')
-            await once(csvStream, 'end');
+        await localClient.connect();
+
+        const database = localClient.db('InteractionHistory');
+        const collection = database.collection('chats');
+
+        let lastTwoMessages = interactionHistoryLogs[pokedexNumber].slice(-2);
+        
+        // Add the userId to each message
+        lastTwoMessages.forEach(message => message.userId = global.userId);
+        console.log(lastTwoMessages)
+
+        if (lastTwoMessages.length > 0) {
+            const result = await collection.insertMany(lastTwoMessages);
+            console.log(`Messages saved to MongoDB for Pokemon #${pokedexNumber} and user ${userId}:`, result.insertedCount);
         } else {
-            console.log(`CSV file not found for Pokemon #${pokedexNumber}`);
+            console.log('No messages to save to MongoDB');
         }
+    } catch (error) {
+        console.error(`Error saving messages to MongoDB for Pokemon #${pokedexNumber} and user ${userId}:`, error);
+    } finally {
+        await localClient.close();
+    }
+}
 
-        // Double check to make sure the hstory is withi nthe time limit
+async function loadMessagesFromMongoDB(pokedexNumber, userId) {
+    try {
+        await client.connect();
+
+        const database = client.db('InteractionHistory');
+        const collection = database.collection('chats');
+        const userId = global.userId
+
+        const cursor = collection.find({ 'pokedexNumber': pokedexNumber, 'userId': userId });
+        const results = await cursor.toArray();
+
         interactionHistoryLogs[pokedexNumber] = results.filter(isMessageWithinDuration);
-        console.log(`Interaction history for Pokemon #${pokedexNumber} loaded from CSV file`);
+        console.log(`Interaction history for Pokemon #${pokedexNumber} and user ${userId} loaded from MongoDB`);
 
-        // Add interaction history to running memory
         runningMemoryLogs[pokedexNumber] = interactionHistoryLogs[pokedexNumber].slice();
     } catch (error) {
-        console.error(`Error loading interaction history for Pokemon #${pokedexNumber} from CSV file:`, error);
+        console.error(`Error loading interaction history for Pokemon #${pokedexNumber} and user ${userId} from MongoDB:`, error);
+    } finally {
+        await client.close();
     }
 }
 
@@ -199,6 +197,7 @@ async function sendChatToPokemon(prompt) {
     try {
         const pokedexNumber = global.selectedPokemon.system_description.NationalPokedexNumber
         const trainerName = global.selectedPokemon.user_name
+        const userId = global.userId
         console.log(trainerName + ': ' + prompt)
 
         // ChatGPT Response
@@ -235,8 +234,8 @@ async function sendChatToPokemon(prompt) {
         const pokemonName = global.selectedPokemon.system_name
         console.log(pokemonName + ': ' + output)
 
-        // Save messages to CSV
-        saveMessagesToCSV(pokedexNumber);
+        // Save messages to MongoDB
+        saveMessagesToMongoDB(pokedexNumber, userId)
 
         // Add a delay of 200 milliseconds
         await new Promise(resolve => setTimeout(resolve, 200));
@@ -247,31 +246,6 @@ async function sendChatToPokemon(prompt) {
     } catch (error) {
         console.error("Error in sendChatToPokemon:", error);
     }
-}
-
-// Save the last two lines from the Interacton History logs to a CSV
-function saveMessagesToCSV(pokedexNumber) {
-    const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-    const csvWriter = createCsvWriter({
-        path: `interaction_history_${pokedexNumber}.csv`,
-        header: [
-            { id: 'role', title: 'Role' },
-            { id: 'content', title: 'Content' },
-            { id: 'timestamp', title: 'Timestamp' }
-        ],
-        append: true, // Add this line to append new messages to the existing ones
-    });
-
-    const lastTwoMessages = interactionHistoryLogs[pokedexNumber].slice(-2);
-
-    csvWriter.writeRecords(lastTwoMessages)
-        .then(() => {
-            console.log(`Messages saved to CSV file for Pokemon #${pokedexNumber}`);
-        })
-        .catch((error) => {
-            console.error(`Error saving messages to CSV file for Pokemon #${pokedexNumber}:`, error);
-            process.exit(1)
-        });
 }
 
 // Function to read all JSON files and extract Pokemon names and Pokedex numbers
@@ -349,6 +323,10 @@ app.post('/login', async (req, res) => {
     if (user && await bcrypt.compare(password, user.password)) {
         console.log('Authed')
         req.session.user = { id: user._id, username: user.username };
+        userId = req.session.user.username
+        console.log(req.session.user.username)
+        selectedPokemon = await getPokemon();
+        primeChatBot(selectedPokemon)
         res.redirect('/');
     } else {
         console.log('Not Authed')
@@ -392,12 +370,14 @@ app.get('/create', (req, res) => {
 
 app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
+    const userId = req.session.user.id;
 
     try {
-        // Get the Pokemon Response using our entered Prompt via the HTML form
         const response = await sendChatToPokemon(userMessage);
 
-        // Send the Pokemon Response back to the HTML form
+        // Save the message to MongoDB
+        await saveMessagesToMongoDB(selectedPokemon.system_description.NationalPokedexNumber, userId);
+
         res.json({ assistantResponse: `Pokemon: ${response}` });
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" });
@@ -406,20 +386,19 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
 
 app.post('/switch', isAuthenticated, async (req, res) => {
     const pokedexNumber = req.body.pokedexNumber;
-    console.log('Species Received: ' + pokedexNumber)
+    const userId = req.session.user.id;
+    console.log('Species Received: ' + pokedexNumber);
     try {
-        // Find the Pokémon by species name
         const selectedPokemon = await getPokemonByPokedexNumber(pokedexNumber);
-        global.selectedPokemon = selectedPokemon
+        global.selectedPokemon = selectedPokemon;
         if (!selectedPokemon) {
             res.status(404).json({ error: "Pokémon not found" });
             return;
         }
 
         // Load previous conversations
-        loadMessagesFromCSV(selectedPokemon.system_description.NationalPokedexNumber);
+        await loadMessagesFromMongoDB(selectedPokemon.system_description.NationalPokedexNumber, userId);
 
-        // Prime the Chatbot again
         primeChatBot(selectedPokemon);
 
         res.json({
@@ -427,7 +406,7 @@ app.post('/switch', isAuthenticated, async (req, res) => {
             pokedexNumber: selectedPokemon.system_description.NationalPokedexNumber
         });
     } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).json({ error: "An error occurred while processing the request" });
         process.exit(1)
     }
