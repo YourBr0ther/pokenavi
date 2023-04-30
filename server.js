@@ -360,15 +360,11 @@ app.post('/login', async (req, res) => {
     const user = await User.findOne({ username });
 
     if (user && await bcrypt.compare(password, user.password)) {
-        console.log('Authed')
         req.session.user = { id: user._id, username: user.username };
         global.userId = req.session.user.username
-        console.log(req.session.user.username)
-        selectedPokemon = await getPokemon();
-        primeChatBot(selectedPokemon)
         res.redirect('/');
     } else {
-        console.log('Not Authed')
+
         res.redirect('/login');
     }
 });
