@@ -35,9 +35,6 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
   * Select 6 for Party
   * Check boxes showing all registered Pokemon
   * Save button on selected Pokemon
-* Creation Screen Changes
-  * Update creation screen with current theme
-  * Update the creation screen to include the bot specific information
 * Add injection commands
 
 ### Features
