@@ -88,14 +88,23 @@ fs.readFile('C:/Scripts/PokeNavi/Generate Pokemon/Pk3_Testing/CHARMANDER.pk3', (
 
     const decryptedData = decryptArray3(data);
     console.log('Decrypted data:', decryptedData);
-    const pokemon = new Pokemon(data);
+    const oldData = new Uint8Array(decryptedData);
+    const newSize = 100;
+
+    const newData = new Uint8Array(newSize);
+    newData.set(oldData);
+    console.log(newData)
+    const met = getMetLocation(newData)
+    console.log(met)
 });
 
 
 function getMetLocation(decryptedData) {
     const metLocationOffset = 45;
-    const metLocation = decryptedData.readUInt16LE(metLocationOffset);
+    const dataView = new DataView(decryptedData.buffer);
+    const metLocation = dataView.getUint16(metLocationOffset, true);
     console.log('Met location:', metLocation);
     return metLocation;
-  }
-  
+}
+
+
