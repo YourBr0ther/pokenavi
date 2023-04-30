@@ -29,6 +29,7 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 ### Add your OpenAI key and Mongo key to the .env file using this format
     OPENAI_API_KEY=XXXX
     MONGODB_SECRET=XXXX
+    MONGODB_SERVER=XXXX
 
 ### Start PokeNavi
     node server.js
