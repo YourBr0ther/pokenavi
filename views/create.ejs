@@ -54,31 +54,25 @@
 
             <label for="pokemon-species">Pokemon Species:</label>
             <select id="pokemon-species" name="pokemon-species" required>
-                <option value="">--Please choose an option--</option>
-                <option value="bulbasaur">Bulbasaur</option>
-                <option value="charmander">Charmander</option>
-                <option value="squirtle">Squirtle</option>
-                <!-- Add more species options as needed -->
+              <option value="">--Please choose an option--</option>
+              <% for (let i = 0; i < speciesNames.length; i++) { %>
+                <option value="<%= speciesNames[i] %>"><%= (speciesNames[i]) %></option>
+              <% } %>
             </select><br><br>
 
             <label for="pokemon-traits">Pokemon Traits:</label>
             <select id="pokemon-traits" name="pokemon-traits" required>
-                <option value="friendly">Friendly</option>
-                <option value="courageous">Courageous</option>
-                <option value="energetic">Energetic</option>
-                <!-- Add more traits options as needed -->
+              <option value="">--Please choose an option--</option>
+              <% for (let i = 0; i < natureNames.length; i++) { %>
+                <option value="<%= natureNames[i] %>"><%= (natureNames[i]) %></option>
+              <% } %>
             </select><br><br>
 
             <label for="pokemon-age">Pokemon Age:</label>
             <input type="number" id="pokemon-age" name="pokemon-age" required><br><br>
 
             <label for="pokemon-hobby">Pokemon Hobby:</label>
-            <select id="pokemon-hobby" name="pokemon-hobby" required>
-                <option value="">--Please choose an option--</option>
-                <option value="swimming">Swimming</option>
-                <option value="running">Running</option>
-                <option value="sleeping">Sleeping</option>
-                <!-- Add more hobbies options as needed -->
+            <input id="pokemon-hobby" name="pokemon-hobby" required>
             </select><br><br>
         </fieldset>
 

@@ -15,6 +15,8 @@ const path = require('path');
 const util = require("util");
 const fsPromises = require('fs').promises;
 
+const axios = require('axios');
+
 
 const bcrypt = require('bcrypt');
 const session = require('express-session');
@@ -38,7 +40,6 @@ const runningMemoryLogs = {}
 const interactionHistoryLogs = {}
 
 const conversationMemoryDuration = 7 * 24 * 60 * 60 * 1000
-
 
 let getPokemon = async () => {
     let testPath = `${directoryPath}/${jsonFileNames[0]}`
@@ -316,11 +317,13 @@ async function getPokemonEntries(species, count = 5) {
     }
 }
 
-function toProperCase(str) {
-    return str.replace(/\w\S*/g, (txt) => {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-}
+function capitalizeAndReplace(string) {
+    // Replace dashes with spaces
+    string = string.replace(/-/g, ' ');
+    // Capitalize each word
+    string = string.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return string;
+  }
 
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
@@ -402,9 +405,43 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
+// Define a route for the create page
 app.get('/create', (req, res) => {
-    res.render('create');
-});
+    // Query the PokeAPI for all Pokemon species
+    const speciesPromise = axios.get('https://pokeapi.co/api/v2/pokemon?limit=1000')
+      .then(response => {
+        // Extract the names of the Pokemon species
+        const speciesNames = response.data.results.map(pokemon => capitalizeAndReplace(pokemon.name));
+        return speciesNames;
+      })
+      .catch(error => {
+        console.log(error);
+        res.status(500).send('Error retrieving Pokemon data');
+      });
+  
+    // Query the PokeAPI for all Pokemon natures
+    const naturesPromise = axios.get('https://pokeapi.co/api/v2/nature')
+      .then(response => {
+        // Extract the names of the natures
+        const natureNames = response.data.results.map(nature => capitalizeAndReplace(nature.name));
+        return natureNames;
+      })
+      .catch(error => {
+        console.log(error);
+        res.status(500).send('Error retrieving Pokemon data');
+      });
+  
+    // Wait for both promises to resolve, then render the create template
+    Promise.all([speciesPromise, naturesPromise])
+      .then(([speciesNames, natureNames]) => {
+        // Render the create template, passing the species and nature names as variables
+        res.render('create', { speciesNames, natureNames });
+      })
+      .catch(error => {
+        console.log(error);
+        res.status(500).send('Error retrieving Pokemon data');
+      });
+  });
 
 app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
@@ -457,7 +494,7 @@ app.post('/api/submit-data', async (req, res) => {
     const userId = global.userId;
     // Save JSON data to the './JSON' folder
     const jsonFolder = './JSON';
-    const speciesName = toProperCase(req.body.pokemon.species)
+    const speciesName = capitalizeAndReplace(req.body.pokemon.species)
     const fileName = `${userId}-${speciesName}.json`;
     const filePath = path.join(jsonFolder, fileName);
     const pokeData = await getPokemonEntries(speciesName);
