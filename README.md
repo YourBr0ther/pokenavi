@@ -2,7 +2,7 @@
 A new way to interact with Pokemon from your previous games
 
 ### Summary
-I want to create a way for us to interact with our Pokemon using the metadata from the game, MBTI personality types, and ChatGPT to create a personable assistant based on your actual Pokemon. I am wanting to create some addition bots that will act as certain personality aspects or to interactive with other services until plugins become available.
+I want to create a way for us to use Pokemon as our personal assistant using PokeDex entries, Pokemon hobbies, and personality traits. Eventually with ChatGPT4, I will be able to add some additonal features to create a pusedo consciousness. I also eventually want to make it where you can import Pokemon directly from Pk files from PkHex. This would add an additional level of uniqueness that generic Pokemon created via the web app won't be able to mimic.
 
 ### Examples
 * [Login](/Example/Login.png)
