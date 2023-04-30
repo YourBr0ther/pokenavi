@@ -38,7 +38,7 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 ### Backend Development
 * Correct the dup MongoDB modules
 * Add injection commands
-* PokeCORE integration
+* PokeCORE integration [GPT4 needed]
 
 ### Frontend Development
 * Add a party system and PC system
@@ -52,7 +52,6 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
   * Id [Instincts]
   * Ego [Reality]
   * Superego [Morality]
-* Memory Cell [work in progress]
 
 ### Skill Roadmap
  * Release version 1.0.0
