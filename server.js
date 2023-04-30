@@ -110,7 +110,6 @@ async function primeChatBot(selectedPokemon) {
 }
 
 async function saveMessagesToMongoDB(pokedexNumber) {
-    console.log(pokedexNumber)
     const localClient = new MongoClient(uri);
 
     try {
@@ -449,9 +448,6 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
     try {
         const response = await sendChatToPokemon(userMessage);
 
-        // Save the message to MongoDB
-        await saveMessagesToMongoDB(selectedPokemon.pokemon.nationalPokedexNumber, userId);
-
         res.json({ assistantResponse: `Pokemon: ${response}` });
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" });
@@ -469,9 +465,6 @@ app.post('/switch', isAuthenticated, async (req, res) => {
             res.status(404).json({ error: "Pokémon not found" });
             return;
         }
-
-        // Load previous conversations
-        await loadMessagesFromMongoDB(selectedPokemon.pokemon.nationalPokedexNumber, userId);
 
         primeChatBot(selectedPokemon);
 

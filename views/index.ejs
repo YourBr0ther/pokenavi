@@ -265,7 +265,7 @@
       userMessage.value = "";
 
       const li = document.createElement("li");
-      li.textContent = `User: ${message}`;
+      li.textContent = `   User: ${message}`;
       messages.appendChild(li);
 
       scrollToBottom()
@@ -286,7 +286,7 @@
       playSound()
 
       const liAssistant = document.createElement("li");
-      liAssistant.textContent = `${assistantResponse}`;
+      liAssistant.textContent = `   ${assistantResponse}`;
       console.log(liAssistant.textContent);
       messages.appendChild(liAssistant);
 

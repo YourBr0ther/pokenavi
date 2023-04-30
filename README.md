@@ -32,10 +32,11 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 
 ### Authentic Attributes
 * Import a authentic Gen1 through Gen3 Pokemon
-* Add second Typing
+* Add second Type
 * Reserve engineer PkHex to get the order of the ATA block decryption [G.A.M.E.]
 
 ### Backend Development
+* Correct the dup MongoDB modules
 * Add injection commands
 * PokeCORE integration
 
