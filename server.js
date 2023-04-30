@@ -1,61 +1,27 @@
-
 console.clear()
-
 require('dotenv').config();
-
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
 const openai = new OpenAIApi(configuration);
-
 const express = require("express");
 const bodyParser = require("body-parser");
-
 const fs = require('fs');
 const path = require('path');
-const util = require("util");
 const fsPromises = require('fs').promises;
-
 const axios = require('axios');
-
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
-
 const { MongoClient } = require('mongodb');
-const uri = "mongodb://192.168.0.4/InteractionHistory";
+const uri = `mongodb://${process.env.MONGODB_SERVER}/InteractionHistory`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-mongoose.connect('mongodb://192.168.0.4:27017/loginDemo', { useNewUrlParser: true, useUnifiedTopology: true });
-
+mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/loginDemo`, { useNewUrlParser: true, useUnifiedTopology: true });
 const directoryPath = path.join(__dirname, './JSON/');
-console.log('JSON Directory: ' + directoryPath)
-
 const jsonFileNames = fs.readdirSync(directoryPath).filter(file => path.extname(file) === '.json');
-console.log('JSON Files: ' + jsonFileNames)
-console.log('')
-
 const runningMemoryLogs = {}
 const interactionHistoryLogs = {}
-
 const conversationMemoryDuration = 7 * 24 * 60 * 60 * 1000
-
-let getPokemon = async () => {
-    let testPath = `${directoryPath}/${jsonFileNames[0]}`
-    let selectedPokemon
-    const readFile = util.promisify(fs.readFile)
-    try {
-        const data = await readFile(testPath)
-        selectedPokemon = JSON.parse(data)
-        console.log('Successfully read and parsed JSON file:', selectedPokemon.pokemon.species);
-    } catch (err) {
-        console.err('Error importing the JSON file: ' + err)
-        process.exit(1)
-    }
-    return selectedPokemon
-}
-
-let selectedPokemon
 let userId
 
 async function primeChatBot(selectedPokemon) {
@@ -128,8 +94,7 @@ async function saveMessagesToMongoDB(pokedexNumber) {
         });
 
         if (lastTwoMessages.length > 0) {
-            const result = await collection.insertMany(lastTwoMessages);
-            console.log(`Messages saved to MongoDB for Pokemon #${pokedexNumber} and user ${global.userId}:`, result.insertedCount);
+            await collection.insertMany(lastTwoMessages);
         } else {
             console.log('No messages to save to MongoDB');
         }
@@ -152,8 +117,6 @@ async function loadMessagesFromMongoDB(pokedexNumber, userId) {
         const results = await cursor.toArray();
 
         interactionHistoryLogs[pokedexNumber] = results.filter(isMessageWithinDuration);
-        console.log(`Interaction history for Pokemon #${pokedexNumber} and user ${userId} loaded from MongoDB`);
-
         runningMemoryLogs[pokedexNumber] = interactionHistoryLogs[pokedexNumber].slice();
     } catch (error) {
         console.error(`Error loading interaction history for Pokemon #${pokedexNumber} and user ${userId} from MongoDB:`, error);
@@ -198,7 +161,6 @@ async function sendChatToPokemon(prompt) {
     try {
         const pokedexNumber = global.selectedPokemon.pokemon.nationalPokedexNumber
         const trainerName = global.selectedPokemon.trainer.name
-        const userId = global.userId
         console.log(trainerName + ': ' + prompt)
 
         // ChatGPT Response
@@ -302,9 +264,6 @@ async function getPokemonEntries(species, count = 5) {
         const fetch = (await import('node-fetch')).default;
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${species.toLowerCase()}`);
         const speciesData = await response.json();
-        const pokemonResponse = await fetch(speciesData.varieties[0].pokemon.url);
-        const pokemon = await pokemonResponse.json();
-
         const entries = speciesData.flavor_text_entries.slice(0, count).map((entry) => removeNewlines(entry.flavor_text));
         const NationalPokedexNumber = speciesData.id;
 
@@ -439,7 +398,6 @@ app.get('/create', (req, res) => {
 
 app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
-    const userId = req.session.user.id;
 
     try {
         const response = await sendChatToPokemon(userMessage);
@@ -452,7 +410,6 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
 
 app.post('/switch', isAuthenticated, async (req, res) => {
     const pokedexNumber = req.body.pokedexNumber;
-    const userId = req.session.user.id;
     console.log('Species Received: ' + pokedexNumber);
     try {
         const selectedPokemon = await getPokemonByPokedexNumber(pokedexNumber);
