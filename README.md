@@ -5,10 +5,10 @@ A new way to interact with Pokemon from your previous games
 I want to create a way for us to interact with our Pokemon using the metadata from the game, MBTI personality types, and ChatGPT to create a personable assistant based on your actual Pokemon. I am wanting to create some addition bots that will act as certain personality aspects or to interactive with other services until plugins become available.
 
 ### Example
-![Login](/Example/Login.png)
-![Homepage](/Example/Homepage.png)
-![Chat](/Example/Chat.png)
-![Creation](/Example/Creation.png)
+<img src="/Example/Login.png" alt="Login" width="75%">
+<img src="/Example/Homepage.png" alt="Homepage" width="75%">
+<img src="/Example/Chat.png" alt="Chat" width="75%">
+<img src="/Example/Creation.png" alt="Creation" width="75%">
 
 ### Requirements
  * [NodeJS](https://nodejs.org/en)
