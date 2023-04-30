@@ -30,24 +30,20 @@ I want to create a way for us to interact with our Pokemon using the metadata fr
 ### Start PokeNavi
     node server.js
 
-## To-Do
-* Add a party system and PC system
-  * Select 6 for Party
-  * Check boxes showing all registered Pokemon
-  * Save button on selected Pokemon
-* Add injection commands
-
-### Features
-* Import a authentic Gen1 through Gen3 Pokemon
-
 ### Authentic Attributes
+* Import a authentic Gen1 through Gen3 Pokemon
 * Add second Typing
 * Reserve engineer PkHex to get the order of the ATA block decryption [G.A.M.E.]
 
 ### Backend Development
+* Add injection commands
 * PokeCORE integration
 
 ### Frontend Development
+* Add a party system and PC system
+  * Select 6 for Party
+  * Check boxes showing all registered Pokemon
+  * Save button on selected Pokemon
 * Comment the HTML
 
 ### Conscious Bot Creation [PokeCORE]
