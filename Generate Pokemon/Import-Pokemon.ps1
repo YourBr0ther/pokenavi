@@ -45,16 +45,23 @@ function Get-MoveName {
         [int]$id
     )
 
-    # Set the API endpoint URL for the move with ID 1 (Pound)
-    $url = "https://pokeapi.co/api/v2/move/$id"
+    if (!($id -eq 0)) {
+        Write-Host "Move ID: $id"
 
-    # Make a GET request to the API endpoint and store the response
-    $response = Invoke-RestMethod -Uri $url -Method Get
+        # Set the API endpoint URL for the move with ID 1 (Pound)
+        $url = "https://pokeapi.co/api/v2/move/$id"
 
-    # Extract the move name from the response
-    $moveName = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($response.name.Replace("-", " "))
+        # Make a GET request to the API endpoint and store the response
+        $response = Invoke-RestMethod -Uri $url -Method Get
 
-    return $moveName
+        # Extract the move name from the response
+        $moveName = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($response.name.Replace("-", " "))
+
+        return $moveName
+    }
+    else {
+        return ""
+    }
 }
 
 function Get-HiddenAbility {
@@ -112,10 +119,17 @@ function Get-HeldItem {
         [string]$heldItemIndex
     )
 
-    $apiUrl = "https://pokeapi.co/api/v2/item/$heldItemIndex"
-    $response = Invoke-RestMethod -Uri $apiUrl
+    write-Host "Held Item Index: $heldItemIndex"
 
-    return $((Get-Culture).TextInfo.ToTitleCase($response.name).Replace("-", " "))
+    if (!($heldItemIndex -eq 0)) {
+        $apiUrl = "https://pokeapi.co/api/v2/item/$heldItemIndex"
+        $response = Invoke-RestMethod -Uri $apiUrl
+
+        return $((Get-Culture).TextInfo.ToTitleCase($response.name).Replace("-", " "))
+    }
+    else {
+        return ""
+    }
 
 }
 
@@ -360,6 +374,10 @@ function Get-PokeDexEntries {
 
 }
 
+function Floor([double]$number) {
+    [Math]::Floor($number)
+}
+
 # START SCRIPT BODY
 
 $ShinyValue = Get-ShinyValue -TID $TrainerID -SID $SecretID -PV $PersonalityValue
@@ -367,9 +385,19 @@ if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
 
 
 try {
-    $pokemonExport = ".\Generate Pokemon\Sample PK3\CHARMELEON.pk3"
+    $pokemonExport = ".\Generate Pokemon\Sample PK3\MANKEY.pk3"
     if (Test-Path -Path $pokemonExport) { Write-Host "Pokemon exist. Importing now" } else { Write-Host "There was a problem importing the Pokemon" } 
     $pk3Data = [System.IO.File]::ReadAllBytes($pokemonExport)
+    $pk3Data = $pk3Data[0..78]
+    # Use the BitConverter class to convert the byte array to a hex string
+    $hexString = [BitConverter]::ToString($pk3Data)
+
+    # Remove the dashes (-) from the hex string
+    $hexString = $hexString.Replace("-", "")
+
+    # Display the hex string
+    Write-Host $hexString
+  
 }
 catch { break }
 
@@ -395,9 +423,11 @@ $s = [ordered]@{
 }
 
 $tempNickname = $pk3Data[8..17]
+$decNickname = [System.Convert]::ToInt64($tempNickname, 16)
+
 $tempTrainerName = $pk3Data[20..26]
 
-$gen3CharacterMap = Import-CSV -Path ".\Generate Pokemon\gen3CharMap.csv"
+$gen3CharacterMap = Import-CSV -Path ".\Generate Pokemon\Mappings\gen3CharMap.csv"
 
 $nickname = ""
 foreach ($nicknameLetter in $tempNickname) {
@@ -413,9 +443,16 @@ $trainerName = [cultureinfo]::GetCultureInfo("en-US").TextInfo.ToTitleCase($trai
 
 $personalityValue = [BitConverter]::ToUInt32($($pk3Data[0..3]), 0)
 $substructureOrder = Get-PK3SubstructureOrder -PersonalityValue $personalityValue
+$pokemonID = $pk3Data[3..0]
+
+# Convert the byte array to an integer
+$intValue = [BitConverter]::ToUInt32($pokemonID, 0)
+$ABCDIndex = [Math]::Floor($intValue % 24)
+$ABCDOrder = Get-PK3SubstructureOrder -PersonalityValue $ABCDIndex
 
 Write-Host "PV: $personalityValue"
-Write-Host "Substructure Order: $substructureOrder"
+Write-Host "New Substructure Order: $ABCDOrder"
+Write-Host "Old Substructure Order: $substructureOrder"
 
 $d = $pk3Data[31..81]
 
@@ -560,13 +597,13 @@ $pokemon = [PSCustomObject]@{
     Raw                   = $pk3Data
 }
 
-$PokemonMBTI = Get-PokemonMBTI -pokemon $pokemon
+#$PokemonMBTI = Get-PokemonMBTI -pokemon $pokemon
 
-$personalitySheet = Get-PersonalitySheet -pokemon $pokemon -MBTIType $PokemonMBTI
-$pokemon.PersonalitySheet = $personalitySheet
+#$personalitySheet = Get-PersonalitySheet -pokemon $pokemon -MBTIType $PokemonMBTI
+#$pokemon.PersonalitySheet = $personalitySheet
 
 $pokemonJson = $pokemon | ConvertTo-Json
-$outputFile = ".\JSON\$($pokemon.Species).json"
+# $outputFile = ".\JSON\$($pokemon.Species).json"
 
-[System.IO.File]::WriteAllText($outputFile, $pokemonJson, (New-Object System.Text.UTF8Encoding($false)))
+# [System.IO.File]::WriteAllText($outputFile, $pokemonJson, (New-Object System.Text.UTF8Encoding($false)))
 
