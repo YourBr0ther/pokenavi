@@ -37,7 +37,7 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 ### Authentic Attributes
 * Import a authentic Gen1 through Gen3 Pokemon
 * Add second Type
-* Reserve engineer PkHex to get the order of the ATA block decryption [G.A.M.E.]
+* Solving decryption of the DATA block [G.A.M.E.]
 
 ### Backend Development
 * Correct the dup MongoDB modules
