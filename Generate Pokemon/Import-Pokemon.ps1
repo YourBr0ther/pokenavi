@@ -297,42 +297,42 @@ function Get-PokemonMBTI {
     return $MBTI
 }
 
-function Get-PersonalitySheet {
-    param (
-        [Parameter(Mandatory = $true)]
-        [PSCustomObject]$pokemon,
-        [string]$MBTIType
-    )
+# function Get-PersonalitySheet {
+#     param (
+#         [Parameter(Mandatory = $true)]
+#         [PSCustomObject]$pokemon,
+#         [string]$MBTIType
+#     )
 
-    $content = Get-Content -path ".\Generate Pokemon\PersonalitySheet-Template.txt" -Raw
+#     $content = Get-Content -path ".\Generate Pokemon\PersonalitySheet-Template.txt" -Raw
 
-    $replacements = @(
-        @{OldValue = '$nickname'; NewValue = $pokemon.Nickname },
-        @{OldValue = '$species'; NewValue = $pokemon.Species },
-        @{OldValue = '$trainerName'; NewValue = $pokemon.OriginalTrainer.Name },
-        @{OldValue = '$level'; NewValue = $pokemon.Level },
-        @{OldValue = '$gender'; NewValue = $pokemon.Gender },
-        @{OldValue = '$pokedexEntries'; NewValue = Get-PokeDexEntries -id $pokemon.NationalPokedexNumber },
-        @{OldValue = '$nature'; NewValue = $pokemon.Nature },
-        @{OldValue = '$type1'; NewValue = $pokemon.Type1 },
-        @{OldValue = '$type2'; NewValue = $(if ($pokemon.Type2) { $pokemon.Type2 } else { "" }) },
-        @{OldValue = '$helditem'; NewValue = 'Item1' },
-        @{OldValue = '$hobby'; NewValue = 'Hobby1' },
-        @{OldValue = '$MBTI'; NewValue = $PokemonMBTI },
-        @{OldValue = '$marking1'; NewValue = 'Marking1' },
-        @{OldValue = '$marking2'; NewValue = 'Marking2' },
-        @{OldValue = '$marking3'; NewValue = 'Marking3' },
-        @{OldValue = '$marking4'; NewValue = 'Marking4' }
-    )
+#     $replacements = @(
+#         @{OldValue = '$nickname'; NewValue = $pokemon.Nickname },
+#         @{OldValue = '$species'; NewValue = $pokemon.Species },
+#         @{OldValue = '$trainerName'; NewValue = $pokemon.OriginalTrainer.Name },
+#         @{OldValue = '$level'; NewValue = $pokemon.Level },
+#         @{OldValue = '$gender'; NewValue = $pokemon.Gender },
+#         @{OldValue = '$pokedexEntries'; NewValue = Get-PokeDexEntries -id $pokemon.NationalPokedexNumber },
+#         @{OldValue = '$nature'; NewValue = $pokemon.Nature },
+#         @{OldValue = '$type1'; NewValue = $pokemon.Type1 },
+#         @{OldValue = '$type2'; NewValue = $(if ($pokemon.Type2) { $pokemon.Type2 } else { "" }) },
+#         @{OldValue = '$helditem'; NewValue = 'Item1' },
+#         @{OldValue = '$hobby'; NewValue = 'Hobby1' },
+#         @{OldValue = '$MBTI'; NewValue = $PokemonMBTI },
+#         @{OldValue = '$marking1'; NewValue = 'Marking1' },
+#         @{OldValue = '$marking2'; NewValue = 'Marking2' },
+#         @{OldValue = '$marking3'; NewValue = 'Marking3' },
+#         @{OldValue = '$marking4'; NewValue = 'Marking4' }
+#     )
 
-    foreach ($replacement in $replacements) {
-        $content = $content -replace [regex]::Escape($replacement.OldValue), $replacement.NewValue
-    }
+#     foreach ($replacement in $replacements) {
+#         $content = $content -replace [regex]::Escape($replacement.OldValue), $replacement.NewValue
+#     }
 
-    return $content
+#     return $content
     
 
-}
+# }
 
 function Get-PokeDexEntries {
 
@@ -367,7 +367,7 @@ if ($ShinyValue -le 7) { $isShiny = $true } else { $isShiny = $false }
 
 
 try {
-    $pokemonExport = ".\Sample PK3\RATTATA.pk3"
+    $pokemonExport = ".\Generate Pokemon\Sample PK3\CHARMELEON.pk3"
     if (Test-Path -Path $pokemonExport) { Write-Host "Pokemon exist. Importing now" } else { Write-Host "There was a problem importing the Pokemon" } 
     $pk3Data = [System.IO.File]::ReadAllBytes($pokemonExport)
 }
