@@ -152,6 +152,8 @@ function Get-PokemonGender {
     # Get last 2 digits of PID in decimal form
     $decimalValue = $PersonalityValue % 256
 
+    Write-Host $decimalValue
+
     # Define gender thresholds
     $genderThresholds = @{
         '12.5%' = 30
