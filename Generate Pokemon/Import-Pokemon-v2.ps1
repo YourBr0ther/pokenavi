@@ -113,6 +113,15 @@ function Get-DecryptionKey {
     return $result
 }
 
+function Get-ShinyStatus {
+    param (
+        [decimal]$decryptionKey
+    )
+
+    $XResult = ($decryptionKey / 65536) -bxor ($decryptionKey % 65536)
+    if ($XResult -gt 8) { return $false } else { return $true }
+}
+
 $pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 #$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
 $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
@@ -131,6 +140,7 @@ $nature = Get-Nature -PokemonID $normalPokemonID
 #$gender = Get-Gender -PokemonID $normalPokemonID
 $ABCDOrder = Get-ABCDOrder -PokemonID $normalPokemonID
 $decryptionKey = Get-DecryptionKey -PokemonID $normalPokemonID -TrainerID $TrainerIDHex
+$isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
 
 Write-Host "PokemonHEX: $pokemonHEX"
 Write-Host "PokemonID - [R]: $reversePokemonID"
@@ -143,4 +153,4 @@ Write-Host "TrainerID - [N]: $TrainerID"
 Write-Host "Secret TrainerID - [H]: $secretTrainerIDHex"
 Write-Host "Secret TrainerID - [N]: $secretTrainerID"
 Write-Host "DecrptionKey: $decryptionKey"
-
+Write-Host "Shiny Status: $isShiny"
