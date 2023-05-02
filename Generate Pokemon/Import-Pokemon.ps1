@@ -536,6 +536,8 @@ function BytesToId([Byte[]]$bytes) {
     return $dword -band 0xFFFF
 }
 
+Write-Host $pk3Data[4..7]
+
 $trainerId = BytesToId $pk3Data[4..7]
 
 function BytesToId([Byte[]]$bytes) {

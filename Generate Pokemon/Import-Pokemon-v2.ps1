@@ -2,6 +2,7 @@ Clear-Host
 
 # Variables
 #$pokemonPath = ".\Generate Pokemon\Sample PK3\CHARMELEON.pk3"
+$Mappings = ".\Generate Pokemon\Mappings"
 
 function Get-PokemonBytes {
     param (
@@ -9,10 +10,7 @@ function Get-PokemonBytes {
         [String]
         $Path
     )
-    
-    Write-Host "Import Location: $Path"
     $pk3Data = $([System.IO.File]::ReadAllBytes($pokemonExport))[0..78]
-
     return $pk3Data
 }
 
@@ -22,11 +20,10 @@ function Get-Nature {
         [String]$PokemonID
     )
 
-    $natureList = ".\Generate Pokemon\Mappings\Natures.csv"
+    $natureList = "$Mappings\Natures.csv"
     $natureArray = Import-CSV -Path $natureList
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
     $id = $($PokemonIDDC % 25)
-
     return $natureArray.Personality[$id]
 
 }
@@ -38,18 +35,13 @@ function Get-Gender {
         [String]$PokemonSpecies
     )
 
-
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
     $apiUrl = "https://pokeapi.co/api/v2/gender/female"
     $response = Invoke-RestMethod -Uri $apiUrl
 
     $allFemalePokemon = $response.pokemon_species_details
     for ($i = 0; $i -le $allFemalePokemon.count; $i++) { if ($PokemonSpecies -eq $($response.pokemon_species_details[$i].pokemon_species.name)) { $FemaleRatio = $($response.pokemon_species_details[$i].rate / 8); break } }
-
-    # Get last 2 digits of PID in decimal form
     $decimalValue = $PokemonIDDC % 256
-
-    # Define gender thresholds
     $genderThresholds = @{
         '12.5%' = 30
         '25%'   = 63
@@ -57,7 +49,6 @@ function Get-Gender {
         '75%'   = 190
     }
 
-    # Determine gender threshold based on female ratio
     $genderThreshold = $null
     switch ($FemaleRatio) {
         0.125 { $genderThreshold = $genderThresholds['12.5%'] }
@@ -84,7 +75,7 @@ function Get-ABCDOrder {
         [String]$PokemonID
     )
 
-    $ABCDList = ".\Generate Pokemon\Mappings\ABCD-Structure.csv"
+    $ABCDList = "$Mappings\ABCD-Structure.csv"
     $ABCDArray = Import-CSV -Path $ABCDList
 
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
@@ -95,12 +86,18 @@ function Get-ABCDOrder {
 
 }
 
-function Get-TrainerID([Byte[]] $bytes) {
-    return ([UInt32] ($bytes[0] -bor ($bytes[1] -shl 8) -bor ($bytes[2] -shl 16) -bor ($bytes[3] -shl 24))) -band 0xFFFF
-
+function Get-TrainerID([Byte[]]$bytes) {
+    $dword = [BitConverter]::ToUInt32($bytes, 0)
+    return $dword -band 0xFFFF
 }
 
-$pokemonHEX = "9de847ffe1dd6e3bbdbbcdbdc9c9c8ff80430202c5d9e2ffffff00a4f100007c3529c47c3529c47c3529c4593429c4013529c47c7329c47c0eace45875f8c97c3529c4163529c47c3529c4623529c4"
+function Get-SecretTrainerID([Byte[]]$bytes) {
+    $dword = [BitConverter]::ToUInt32($bytes, 0)
+    return $dword -shr 16
+}
+
+$pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
+#$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
 $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
 for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
     $pk3Data[$i / 2] = [convert]::ToByte($pokemonHEX.Substring($i, 2), 16)
@@ -109,19 +106,21 @@ for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
 $reversePokemonID = $pokemonHEX[0..7] -join ""
 $pokemonID = $pk3Data[3..0]
 $normalPokemonID = ($pokemonID | ForEach-Object { $_.ToString("X2") }) -join ""
-$reverseTrainerID = Get-TrainerID $pk3Data[4..7]
-$TrainerID = Get-TrainerID $pk3Data[7..4]
+$TrainerID = Get-TrainerID $pk3Data[4..7]
+$secretTrainerID = Get-SecretTrainerID $pk3Data[4..7]
+
+Write-Host $pk3Data[4..7]
 
 $nature = Get-Nature -PokemonID $normalPokemonID
 #$gender = Get-Gender -PokemonID $normalPokemonID
 $ABCDOrder = Get-ABCDOrder -PokemonID $normalPokemonID
 
 Write-Host "PokemonHEX: $pokemonHEX"
-Write-Host "PokemonID - [R]: $reversePokemonId"
-Write-Host "PokemonID - [N]: $normalPokemonId"
+Write-Host "PokemonID - [R]: $reversePokemonID"
+Write-Host "PokemonID - [N]: $normalPokemonID"
 Write-Host "Nature: $nature"
 #Write-Host "Gender: $gender"
 Write-Host "ABCD Order: $ABCDOrder"
-Write-Host "TrainerID - [R]: $reverseOTrainerID" 
 Write-Host "TrainerID - [N]: $TrainerID" 
+Write-Host "Seceret TrainerID - [N]: $secretTrainerID"
 
