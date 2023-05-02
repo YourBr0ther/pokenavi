@@ -96,6 +96,23 @@ function Get-SecretTrainerID([Byte[]]$bytes) {
     return $dword -shr 16
 }
 
+function Get-DecryptionKey {
+    param (
+        [Parameter(Mandatory = $true)]
+        [String]$TrainerIDHex,
+        [String]$PokemonIDHex
+    )
+
+    $trainerIDInt = [Convert]::ToInt32($TrainerIDHex, 16)
+    $pokemonIDInt = [Convert]::ToInt32($PokemonIDHex, 16)
+
+    $signedResult = $pokemonIDInt -bxor $trainerIDInt
+    $bytes = [BitConverter]::GetBytes($signedResult)
+    $result = [BitConverter]::ToUInt32($bytes, 0)
+    
+    return $result
+}
+
 $pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 #$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
 $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
@@ -104,16 +121,16 @@ for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
 }
 
 $reversePokemonID = $pokemonHEX[0..7] -join ""
-$pokemonID = $pk3Data[3..0]
-$normalPokemonID = ($pokemonID | ForEach-Object { $_.ToString("X2") }) -join ""
+$pokemonIDBytes = $pk3Data[3..0]
+$normalPokemonID = ($pokemonIDBytes | ForEach-Object { $_.ToString("X2") }) -join ""
+$TrainerIDHex = ($pk3Data[7..4] | ForEach-Object { "{0:X2}" -f $_ }) -join ""
 $TrainerID = Get-TrainerID $pk3Data[4..7]
+$secretTrainerIDHex = ($pk3Data[7..6] | ForEach-Object { "{0:X2}" -f $_ }) -join ""
 $secretTrainerID = Get-SecretTrainerID $pk3Data[4..7]
-
-Write-Host $pk3Data[4..7]
-
 $nature = Get-Nature -PokemonID $normalPokemonID
 #$gender = Get-Gender -PokemonID $normalPokemonID
 $ABCDOrder = Get-ABCDOrder -PokemonID $normalPokemonID
+$decryptionKey = Get-DecryptionKey -PokemonID $normalPokemonID -TrainerID $TrainerIDHex
 
 Write-Host "PokemonHEX: $pokemonHEX"
 Write-Host "PokemonID - [R]: $reversePokemonID"
@@ -121,6 +138,9 @@ Write-Host "PokemonID - [N]: $normalPokemonID"
 Write-Host "Nature: $nature"
 #Write-Host "Gender: $gender"
 Write-Host "ABCD Order: $ABCDOrder"
-Write-Host "TrainerID - [N]: $TrainerID" 
-Write-Host "Seceret TrainerID - [N]: $secretTrainerID"
+Write-Host "TrainerID - H]: $TrainerIDHex" 
+Write-Host "TrainerID - [N]: $TrainerID"
+Write-Host "Secret TrainerID - [H]: $secretTrainerIDHex"
+Write-Host "Secret TrainerID - [N]: $secretTrainerID"
+Write-Host "DecrptionKey: $decryptionKey"
 
