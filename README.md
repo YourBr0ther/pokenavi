@@ -40,15 +40,20 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * Solving decryption of the DATA block [G.A.M.E.]
 
 ### Backend Development
+* Add Mongo local install or docker
+* Research how to handle crashesutc
 * Correct the dup MongoDB modules
-* Add injection commands
 * PokeCORE integration [GPT4 needed]
 
 ### Frontend Development
+* Figure out how to stop input if not authenticated
 * Add a party system and PC system
   * Select 6 for Party
   * Check boxes showing all registered Pokemon
   * Save button on selected Pokemon
+* Switch to chat bubbles
+* Research new html elements
+* Transparent sprite in bordered window element
 * Comment the HTML
 
 ### Conscious Bot Creation [PokeCORE]
