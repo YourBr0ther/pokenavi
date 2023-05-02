@@ -122,6 +122,39 @@ function Get-ShinyStatus {
     if ($XResult -gt 8) { return $false } else { return $true }
 }
 
+function Get-PokemonName {
+    param (
+        [Byte[]]$nameBytes
+    )
+
+    $characterList = "$Mappings\gen3CharMap.csv"
+    $characterArray = Import-CSV -Path $characterList
+
+    $nameHex = ($nameBytes | ForEach-Object { $_.ToString("X2") }) -join ""
+    
+    $name
+    for ($i = 0; $i -lt $nameHex.length; $i += 2) {
+        $firstHexChar = $nameHex[$i]
+        #Write-Host "FirstHEX: $firstHexChar"
+        $secondHexChar = $nameHex[$i+ 1]
+        #Write-Host "SecondHEX: $secondHexChar"
+        
+        $letter = $firstHexChar + $secondHexChar
+        Write-Host $letter
+
+        $name += $characterArray.$letter
+
+        
+
+        # if ($letter -eq "FF") { break
+        # }
+        
+    }
+
+    Write-Host $name
+
+}
+
 $pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 #$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
 $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
@@ -141,7 +174,9 @@ $nature = Get-Nature -PokemonID $normalPokemonID
 $ABCDOrder = Get-ABCDOrder -PokemonID $normalPokemonID
 $decryptionKey = Get-DecryptionKey -PokemonID $normalPokemonID -TrainerID $TrainerIDHex
 $isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
+$pokemonName = Get-PokemonName -nameBytes $pk3Data[8..17]
 
+Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
 Write-Host "PokemonID - [R]: $reversePokemonID"
 Write-Host "PokemonID - [N]: $normalPokemonID"
@@ -154,3 +189,4 @@ Write-Host "Secret TrainerID - [H]: $secretTrainerIDHex"
 Write-Host "Secret TrainerID - [N]: $secretTrainerID"
 Write-Host "DecrptionKey: $decryptionKey"
 Write-Host "Shiny Status: $isShiny"
+Write-Host "Pokemon Name: $pokemonName"
