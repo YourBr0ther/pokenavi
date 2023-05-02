@@ -122,7 +122,7 @@ function Get-ShinyStatus {
     if ($XResult -gt 8) { return $false } else { return $true }
 }
 
-function Get-PokemonName {
+function Get-Name {
     param (
         [Byte[]]$nameBytes
     )
@@ -138,27 +138,38 @@ function Get-PokemonName {
     
     $name = ""
     for ($i = 0; $i -lt $nameHex.length; $i += 2) {
-        $firstHexChar = $nameHex[$i]
-        #Write-Host "FirstHEX: $firstHexChar"
-        $secondHexChar = $nameHex[$i + 1]
-        #Write-Host "SecondHEX: $secondHexChar"
         
-        $letter = $firstHexChar + $secondHexChar
-        Write-Host $letter
-
-        $name += $characterArray[$letter]
-
-        # if ($letter -eq "FF") { break
-        # }
-
+        $letter = $nameHex[$i] + $nameHex[$i + 1]  
+        if ($letter -eq "FF") { break } else { $name += $characterArray[$letter] }
+        
     }
 
     return $name
 
 }
 
-$pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
-#$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
+function Get-Markings([int]$byte27) {
+
+    $marks = @{
+        "Circle"   = [Convert]::ToInt32("0001", 2)
+        "Square"   = [Convert]::ToInt32("0010", 2)
+        "Triangle" = [Convert]::ToInt32("0100", 2)
+        "Heart"    = [Convert]::ToInt32("1000", 2)
+    }
+
+    $combinedMarks = @()
+    foreach ($mark in $marks.Keys) {
+        if (($marks[$mark] -band $byte27) -eq $marks[$mark]) {
+            $combinedMarks += $mark
+        }
+    }
+
+    if (!$combinedMarks) { return "No Markings" } else { return $combinedMarks }
+
+}
+
+#$pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
+$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
 $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
 for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
     $pk3Data[$i / 2] = [convert]::ToByte($pokemonHEX.Substring($i, 2), 16)
@@ -176,7 +187,9 @@ $nature = Get-Nature -PokemonID $normalPokemonID
 $ABCDOrder = Get-ABCDOrder -PokemonID $normalPokemonID
 $decryptionKey = Get-DecryptionKey -PokemonID $normalPokemonID -TrainerID $TrainerIDHex
 $isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
-$pokemonName = Get-PokemonName -nameBytes $pk3Data[8..17]
+$pokemonName = Get-Name -nameBytes $pk3Data[8..19]
+$trainerName = Get-Name -nameBytes $pk3Data[20..26]
+$markings = Get-Markings -markingByte $pk3Data[27]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -192,3 +205,5 @@ Write-Host "Secret TrainerID - [N]: $secretTrainerID"
 Write-Host "DecrptionKey: $decryptionKey"
 Write-Host "Shiny Status: $isShiny"
 Write-Host "Pokemon Name: $pokemonName"
+Write-Host "Trainer Name: $trainerName"
+Write-Host "Markings: $markings"
