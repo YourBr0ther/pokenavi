@@ -127,31 +127,33 @@ function Get-PokemonName {
         [Byte[]]$nameBytes
     )
 
-    $characterList = "$Mappings\gen3CharMap.csv"
-    $characterArray = Import-CSV -Path $characterList
+    $characterList = "$Mappings\charMap.csv" # Replace this with the correct file path
+    $csvData = Import-Csv -Path $characterList -Delimiter ',' -Header Key, Value
+    $characterArray = @{}
+    foreach ($row in $csvData) {
+        $characterArray[$row.Key] = $row.Value
+    }
 
     $nameHex = ($nameBytes | ForEach-Object { $_.ToString("X2") }) -join ""
     
-    $name
+    $name = ""
     for ($i = 0; $i -lt $nameHex.length; $i += 2) {
         $firstHexChar = $nameHex[$i]
         #Write-Host "FirstHEX: $firstHexChar"
-        $secondHexChar = $nameHex[$i+ 1]
+        $secondHexChar = $nameHex[$i + 1]
         #Write-Host "SecondHEX: $secondHexChar"
         
         $letter = $firstHexChar + $secondHexChar
         Write-Host $letter
 
-        $name += $characterArray.$letter
-
-        
+        $name += $characterArray[$letter]
 
         # if ($letter -eq "FF") { break
         # }
-        
+
     }
 
-    Write-Host $name
+    return $name
 
 }
 
