@@ -228,6 +228,8 @@ function Get-abcdDATA ([string]$ABCDOrder) {
 
 }
 
+function Get-Exp ([string[]]$expHex) { return [Convert]::ToInt32($expHex -join "", 16) }
+
 # Test
 $pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 # Mankey
@@ -259,6 +261,7 @@ $growth = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Growth"
 $moves = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Moves"
 $evs = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."EVs"
 $misc = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Misc"
+$exp = Get-Exp -expHex $moves[8..15]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -277,7 +280,8 @@ Write-Host "Shiny Status: $isShiny"
 Write-Host "Pokemon Name: $pokemonName"
 Write-Host "Trainer Name: $trainerName"
 Write-Host "Markings: $markings"
-Write-Host "Growth: $growth"
-Write-Host "Moves: $moves"
-Write-Host "EVs: $evs"
-Write-Host "Misc: $misc"
+Write-Host "Growth [H]: $growth"
+Write-Host "Moves [H]: $moves"
+Write-Host "EVs [H]: $evs"
+Write-Host "Misc [H]: $misc"
+Write-Host "Exp: $exp"
