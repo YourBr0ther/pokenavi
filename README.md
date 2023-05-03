@@ -38,10 +38,12 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * Import a authentic Gen1 through Gen3 Pokemon
 * Add second Type
 * Solving decryption of the DATA block [G.A.M.E.]
+* Implement the new JSON format
+* Successfully import the 80 bytes into PokeNavi
 
 ### Backend Development
 * Add Mongo local install or docker
-* Research how to handle crashesutc
+* Research how to handle crashes
 * Correct the dup MongoDB modules
 * PokeCORE integration [GPT4 needed]
 
@@ -57,6 +59,7 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * Comment the HTML
 
 ### Conscious Bot Creation [PokeCORE]
+* Enter idle mode [?]
 * Brain [Parent]
   * Id [Instincts]
   * Ego [Reality]
@@ -69,4 +72,4 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
  * Check Calendar
  * Allow Pokemon to dream
  * Play basic music
- * Search Google via Google search or Bard
+ * Search Google via Google search or Bard [Coming soon in ChatGPT4]
