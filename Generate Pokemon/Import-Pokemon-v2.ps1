@@ -223,13 +223,17 @@ function Get-PP ([string[]]$PPHex) {
 
     $PPamount = @{
 
-        "Move 1" = $([Convert]::ToInt32($PPHex -join "", 16) % 256)
-        "Move 2" = $(([Convert]::ToInt32($PPHex -join "", 16)) / 256 ) % 256
-        "Move 3" = $(([Convert]::ToInt32($PPHex -join "", 16)) / 65536) % 256
-        "Move 4" = $(([Convert]::ToInt32($PPHex -join "", 16)) / 16777216) % 256
-
+        "Move 1" = [Convert]::ToInt32($PPHex[6..7] -join "", 16)
+        "Move 2" = [Convert]::ToInt32($PPHex[4..5] -join "", 16)
+        "Move 3" = [Convert]::ToInt32($PPHex[2..3] -join "", 16)
+        "Move 4" = [Convert]::ToInt32($PPHex[0..1] -join "", 16)
+        
     }
     return $PPamount
+}
+
+function Get-EffortValues {
+    
 }
 
 # Test
@@ -266,7 +270,8 @@ $misc = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Misc"
 $exp = Get-Exp -expHex $growth[8..15]
 $happiness = Get-Happiness -happinessHex $growth[16..24]
 $moveNames = Get-Moves -movesHex $moves[0..15]
-$PP = Get-PP -PPHEx $moves[16..24]
+$PP = Get-PP -PPHex $moves[16..24]
+$EffortValues = Get-EffortValues -EVsHex $evs
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -293,3 +298,4 @@ Write-Host "Exp: $exp"
 Write-Host "Happiness: $happiness"
 Write-Host "Move Names: $($moveNames.'Move 1'),$($moveNames.'Move 2'),$($moveNames.'Move 3'),$($moveNames.'Move 4')" 
 Write-Host "PP: $($PP.'Move 1'),$($PP.'Move 2'),$($PP.'Move 3'),$($PP.'Move 4')"
+Write-Host "EVs :$EffortValues"
