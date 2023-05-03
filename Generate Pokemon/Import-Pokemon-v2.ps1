@@ -25,7 +25,6 @@ function Get-Nature {
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
     $id = $($PokemonIDDC % 25)
     return $natureArray.Personality[$id]
-
 }
 
 function Get-Gender {
@@ -38,7 +37,6 @@ function Get-Gender {
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
     $apiUrl = "https://pokeapi.co/api/v2/gender/female"
     $response = Invoke-RestMethod -Uri $apiUrl
-
     $allFemalePokemon = $response.pokemon_species_details
     for ($i = 0; $i -le $allFemalePokemon.count; $i++) { if ($PokemonSpecies -eq $($response.pokemon_species_details[$i].pokemon_species.name)) { $FemaleRatio = $($response.pokemon_species_details[$i].rate / 8); break } }
     $decimalValue = $PokemonIDDC % 256
@@ -48,7 +46,6 @@ function Get-Gender {
         '50%'   = 126
         '75%'   = 190
     }
-
     $genderThreshold = $null
     switch ($FemaleRatio) {
         0.125 { $genderThreshold = $genderThresholds['12.5%'] }
@@ -59,14 +56,7 @@ function Get-Gender {
             throw "Invalid female ratio specified. Please use a valid value: 0.125, 0.25, 0.5, or 0.75."
         }
     }
-
-    if ($decimalValue -le $genderThreshold) {
-        return "Female"
-    }
-    else {
-        return "Male"
-    }
-
+    if ($decimalValue -le $genderThreshold) { return "Female" } else { return "Male" }
 }
 
 function Get-ABCDOrder {
@@ -77,13 +67,9 @@ function Get-ABCDOrder {
 
     $ABCDList = "$Mappings\ABCD-Structure.csv"
     $ABCDArray = Import-CSV -Path $ABCDList
-
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
-
     $order = [Math]::Floor($PokemonIDDC % 24)
-
     return $ABCDArray.Permutation[$order]
-
 }
 
 function Get-TrainerID([Byte[]]$bytes) {
@@ -109,7 +95,6 @@ function Get-DecryptionKey {
     $signedResult = $pokemonIDInt -bxor $trainerIDInt
     $bytes = [BitConverter]::GetBytes($signedResult)
     $result = [BitConverter]::ToUInt32($bytes, 0)
-    
     return $result
 }
 
@@ -143,9 +128,7 @@ function Get-Name {
         if ($letter -eq "FF") { break } else { $name += $characterArray[$letter] }
         
     }
-
     return $name
-
 }
 
 function Get-Markings([int]$byte27) {
@@ -163,9 +146,7 @@ function Get-Markings([int]$byte27) {
             $combinedMarks += $mark
         }
     }
-
     if (!$combinedMarks) { return "No Markings" } else { return $combinedMarks }
-
 }
 
 function Get-abcdDATA ([string]$ABCDOrder) {
@@ -193,11 +174,8 @@ function Get-abcdDATA ([string]$ABCDOrder) {
             }
 
             $dataStructure += $decryptedBlocks
-
         }
-
     }
-
     $dataStructure = $dataStructure.Replace(" ", "")
     $tempDataArray = @{
         A = $dataStructure[0..23] -join ""
@@ -205,7 +183,6 @@ function Get-abcdDATA ([string]$ABCDOrder) {
         C = $dataStructure[48..71] -join ""
         D = $dataStructure[72..96] -join ""
     }
-
     foreach ($letter in [char[]]$ABCDOrder) {
 
         switch ($letter) {
@@ -213,19 +190,15 @@ function Get-abcdDATA ([string]$ABCDOrder) {
             "B" { $tempGrowth = $tempDataArray."$letter"; break }
             "C" { $tempMisc = $tempDataArray."$letter"; break }            
             "D" { $tempMoves = $tempDataArray."$letter"; break }
-        }
-        
+        }  
     }
-
     $DataArray = @{
         "Growth" = $tempGrowth
         "Moves"  = $tempMoves
         "EVs"    = $tempEVs
         "Misc"   = $tempMisc
-    }
-        
+    }   
     return $DataArray
-
 }
 
 function Get-Exp ([string[]]$expHex) { return [Convert]::ToInt32($expHex -join "", 16) }
@@ -236,7 +209,6 @@ function Get-Moves ([string[]]$movesHex) {
 
     $moveList = "$Mappings\moves.csv"
     $moveArray = Import-CSV -Path $moveList
-
     $moveIDs = @{
         "Move 1" = $moveArray[(($([Convert]::ToInt32($movesHex[0..7] -join "", 16)) % 65536))].Move
         "Move 2" = $moveArray[(($([Convert]::ToInt32($movesHex[0..7] -join "", 16)) / 65536))].Move
@@ -244,14 +216,20 @@ function Get-Moves ([string[]]$movesHex) {
         "Move 4" = $moveArray[(($([Convert]::ToInt32($movesHex[8..15] -join "", 16)) / 65536))].Move
 
     }
-
-    Write-Host $moveIDs."Move 1"
-    Write-Host $moveIDs."Move 2"
-    Write-Host $moveIDs."Move 3"
-    Write-Host $moveIDs."Move 4"
-
     return $moveIDs
+}
 
+function Get-PP ([string[]]$PPHex) {
+
+    $PPamount = @{
+
+        "Move 1" = $([Convert]::ToInt32($PPHex -join "", 16) % 256)
+        "Move 2" = $(([Convert]::ToInt32($PPHex -join "", 16)) / 256 ) % 256
+        "Move 3" = $(([Convert]::ToInt32($PPHex -join "", 16)) / 65536) % 256
+        "Move 4" = $(([Convert]::ToInt32($PPHex -join "", 16)) / 16777216) % 256
+
+    }
+    return $PPamount
 }
 
 # Test
@@ -263,7 +241,6 @@ $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
 for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
     $pk3Data[$i / 2] = [convert]::ToByte($pokemonHEX.Substring($i, 2), 16)
 }
-
 
 $reversePokemonID = $pk3Data[0..7] -join ""
 $pokemonIDBytes = $pk3Data[3..0]
@@ -288,7 +265,8 @@ $evs = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."EVs"
 $misc = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Misc"
 $exp = Get-Exp -expHex $growth[8..15]
 $happiness = Get-Happiness -happinessHex $growth[16..24]
-$moves = Get-Moves -movesHex $moves[0..15]
+$moveNames = Get-Moves -movesHex $moves[0..15]
+$PP = Get-PP -PPHEx $moves[16..24]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -313,4 +291,5 @@ Write-Host "EVs [H]: $evs"
 Write-Host "Misc [H]: $misc"
 Write-Host "Exp: $exp"
 Write-Host "Happiness: $happiness"
-Write-Host "Moves: $($moves.'Move 1'),$($moves.'Move 2'),$($moves.'Move 3'),$($moves.'Move 4')" 
+Write-Host "Move Names: $($moveNames.'Move 1'),$($moveNames.'Move 2'),$($moveNames.'Move 3'),$($moveNames.'Move 4')" 
+Write-Host "PP: $($PP.'Move 1'),$($PP.'Move 2'),$($PP.'Move 3'),$($PP.'Move 4')"
