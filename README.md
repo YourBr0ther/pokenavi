@@ -42,6 +42,7 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * Successfully import the 80 bytes into PokeNavi
 
 ### Backend Development
+* Store Pokemon JSON in Mongo
 * Add Mongo local install or docker
 * Research how to handle crashes
 * Correct the dup MongoDB modules
