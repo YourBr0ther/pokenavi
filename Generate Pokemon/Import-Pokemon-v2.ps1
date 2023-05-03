@@ -209,12 +209,12 @@ function Get-abcdDATA ([string]$ABCDOrder) {
     foreach ($letter in [char[]]$ABCDOrder) {
 
         switch ($letter) {
-            "A" { $tempGrowth = $tempDataArray."$letter" }
-            "B" { $tempMoves = $tempDataArray."$letter" }
-            "C" { $tempEVs = $tempDataArray."$letter" }
-            "D" { $tempMisc = $tempDataArray."$letter" }
+            "A" { $tempEVs = $tempDataArray."$letter"; break }
+            "B" { $tempGrowth = $tempDataArray."$letter"; break }
+            "C" { $tempMisc = $tempDataArray."$letter"; break }            
+            "D" { $tempMoves = $tempDataArray."$letter"; break }
         }
-
+        
     }
 
     $DataArray = @{
@@ -232,19 +232,40 @@ function Get-Exp ([string[]]$expHex) { return [Convert]::ToInt32($expHex -join "
 
 function Get-Happiness ([string[]]$happinessHex) { return $(([Convert]::ToInt32($happinessHex -join "", 16) / 256) % 256 ) }
 
+function Get-Moves ([string[]]$movesHex) {
 
+    $moveList = "$Mappings\moves.csv"
+    $moveArray = Import-CSV -Path $moveList
+
+    $moveIDs = @{
+        "Move 1" = $moveArray[(($([Convert]::ToInt32($movesHex[0..7] -join "", 16)) % 65536))].Move
+        "Move 2" = $moveArray[(($([Convert]::ToInt32($movesHex[0..7] -join "", 16)) / 65536))].Move
+        "Move 3" = $moveArray[(($([Convert]::ToInt32($movesHex[8..15] -join "", 16)) % 65536))].Move
+        "Move 4" = $moveArray[(($([Convert]::ToInt32($movesHex[8..15] -join "", 16)) / 65536))].Move
+
+    }
+
+    Write-Host $moveIDs."Move 1"
+    Write-Host $moveIDs."Move 2"
+    Write-Host $moveIDs."Move 3"
+    Write-Host $moveIDs."Move 4"
+
+    return $moveIDs
+
+}
 
 # Test
 $pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 # Mankey
 #$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
+#$pk3Data = Get-PokemonBytes -Path $pokemonPath
 $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
 for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
     $pk3Data[$i / 2] = [convert]::ToByte($pokemonHEX.Substring($i, 2), 16)
 }
 
-#$pk3Data = Get-PokemonBytes -Path $pokemonPath
-$reversePokemonID = $pokemonHEX[0..7] -join ""
+
+$reversePokemonID = $pk3Data[0..7] -join ""
 $pokemonIDBytes = $pk3Data[3..0]
 $PokemonIDHex = ($pk3Data[3..0] | ForEach-Object { $_.ToString("X2") }) -join ""
 $normalPokemonID = ($pokemonIDBytes | ForEach-Object { $_.ToString("X2") }) -join ""
@@ -265,8 +286,9 @@ $growth = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Growth"
 $moves = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Moves"
 $evs = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."EVs"
 $misc = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Misc"
-$exp = Get-Exp -expHex $moves[8..15]
-$happiness = Get-Happiness -happinessHex $moves[16..24]
+$exp = Get-Exp -expHex $growth[8..15]
+$happiness = Get-Happiness -happinessHex $growth[16..24]
+$moves = Get-Moves -movesHex $moves[0..15]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -291,3 +313,4 @@ Write-Host "EVs [H]: $evs"
 Write-Host "Misc [H]: $misc"
 Write-Host "Exp: $exp"
 Write-Host "Happiness: $happiness"
+Write-Host "Moves: $($moves.'Move 1'),$($moves.'Move 2'),$($moves.'Move 3'),$($moves.'Move 4')" 
