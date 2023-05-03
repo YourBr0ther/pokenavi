@@ -217,7 +217,6 @@ function Get-abcdDATA ([string]$ABCDOrder) {
 
     }
 
-    
     $DataArray = @{
         "Growth" = $tempGrowth
         "Moves"  = $tempMoves
