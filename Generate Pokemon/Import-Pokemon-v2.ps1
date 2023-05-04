@@ -299,6 +299,19 @@ function Get-LevelMet ([string[]]$levelMetHex) {
     return (([Convert]::ToInt32($levelMetHex -join "", 16) / 65536) % 256 ) -band 127
 }
 
+function Get-GameCartridge ([string[]]$gameCartridgeHex) {
+
+    $gameCartridgeList = "$Mappings\gameCartridge.csv"
+    $gameCartridgeArray = Import-CSV -Path $gameCartridgeList
+    $gameCartridgeID = [Math]::Floor(([Convert]::ToInt32($gameCartridgeHex -join "", 16) / 8388608) % 16)
+
+    return $gameCartridgeArray[$gameCartridgeID].Cartridge
+}
+
+function Get-BallCaught ([string[]]$ballCaughtHex) {
+    
+}
+
 # Test
 $pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 # Mankey
@@ -341,6 +354,8 @@ $Conditions = Get-Conditions -ConditionsHex $evs[8..23]
 $pokerus = Get-PokerusStatus -pokerusHEX $misc[0..7]
 $locationCaught = Get-LocationCaught -locationCaughtHex $misc[0..7]
 $levelMet = Get-LevelMet -levelMetHex $misc[0..7]
+$gameCartridge = Get-GameCartridge -gameCartridgeHex $misc[0..7]
+$ballCaught = Get-BallCaught -ballCaughtHex $misc[0..7]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -374,3 +389,5 @@ Write-Host "Conditions: $($Conditions.'Cool'),$($Conditions.'Beauty'),$($Conditi
 Write-Host "Pokerus: $pokerus"
 Write-Host "Location Caught: $locationCaught"
 Write-Host "Level Met: $levelMet"
+Write-Host "Game Cartridge: $gameCartridge"
+Write-Host "Ball Caugh: $ballCaught"
