@@ -216,6 +216,8 @@ function Get-HeldItem ([string[]]$heldItem) {
 
 function Get-PokemonSpecies ([string[]]$localDexNumber) {
 
+   return [Convert]::ToInt32($localDexNumber -join "", 16) 
+
 }
 
 function Get-Exp ([string[]]$expHex) { return [Convert]::ToInt32($expHex -join "", 16) }
