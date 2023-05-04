@@ -201,6 +201,23 @@ function Get-abcdDATA ([string]$ABCDOrder) {
     return $DataArray
 }
 
+function Get-HeldItem ([string[]]$heldItem) {
+    
+    $heldItemList = "$Mappings\heldItems.csv"
+    $heldItemsArray = Import-Csv -Path $heldItemList
+    $hex1 = [Convert]::ToInt32($heldItem -join "", 16)
+    $hex2 = [Convert]::ToInt32("10000", 16)
+    $result = $hex1 / $hex2
+    $hexResult = [Convert]::ToString($result, 16)
+    $heldItem = $heldItemsArray[$hexResult].Item
+    
+    return $heldItem
+}
+
+function Get-PokemonSpecies ([string[]]$localDexNumber) {
+
+}
+
 function Get-Exp ([string[]]$expHex) { return [Convert]::ToInt32($expHex -join "", 16) }
 
 function Get-Happiness ([string[]]$happinessHex) { return $(([Convert]::ToInt32($happinessHex -join "", 16) / 256) % 256 ) }
@@ -267,6 +284,8 @@ $growth = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Growth"
 $moves = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Moves"
 $evs = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."EVs"
 $misc = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Misc"
+$heldItem = Get-HeldItem -heldItem $growth[0..3]
+$localDexNumber = Get-PokemonSpecies -localDexNumber $growth[4..7]
 $exp = Get-Exp -expHex $growth[8..15]
 $happiness = Get-Happiness -happinessHex $growth[16..24]
 $moveNames = Get-Moves -movesHex $moves[0..15]
@@ -294,6 +313,8 @@ Write-Host "Growth [H]: $growth"
 Write-Host "Moves [H]: $moves"
 Write-Host "EVs [H]: $evs"
 Write-Host "Misc [H]: $misc"
+Write-Host "Held Item: $heldItem"
+Write-Host "Local Dex Number: $localDexNumber"
 Write-Host "Exp: $exp"
 Write-Host "Happiness: $happiness"
 Write-Host "Move Names: $($moveNames.'Move 1'),$($moveNames.'Move 2'),$($moveNames.'Move 3'),$($moveNames.'Move 4')" 

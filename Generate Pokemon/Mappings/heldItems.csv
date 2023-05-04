@@ -1,0 +1,403 @@
+ID,Item
+0000,No Item
+0001,Master Ball
+0002,Ultra Ball
+0003,Great Ball
+0004,Poke Ball
+0005,Safari Ball
+0006,Net Ball
+0007,Dive Ball
+0008,Nest Ball
+0009,Repeat Ball
+000A,Timer Ball
+000B,Luxury Ball
+000C,Premier Ball
+000D,Potion
+000E,Antidote
+000F,Burn Heal
+0010,Ice Heal
+0011,Awakening
+0012,Parlyz Heal
+0013,Full Restore
+0014,Max Potion
+0015,Hyper Potion
+0016,Super Potion
+0017,Full Heal
+0018,Revive
+0019,Max Revive
+001A,Fresh Water
+001B,Soda Pop
+001C,Lemonade
+001D,MooMoo Milk
+001E,Energy Powder
+001F,Energy Root
+0020,Heal Powder
+0021,Revival Herb
+0022,Ether
+0023,Max Ether
+0024,Elixir
+0025,Max Elixir
+0026,Lava Cookie
+0027,Blue Flute
+0028,Yellow Flute
+0029,Red Flute
+002A,Black Flute
+002B,White Flute
+002C,Berry Juice
+002D,Sacred Ash
+002E,Shoal Salt
+002F,Shoal Shell
+0030,Red Shard
+0031,Blue Shard
+0032,Yellow Shard
+0033,Green Shard
+003F,HP Up
+0040,Protein
+0041,Iron
+0042,Carbos
+0043,Calcium
+0044,Rare Candy
+0045,PP Up
+0046,Zinc
+0047,PP Max
+0049,Guard Spec
+004A,Dire Hit
+004B,X Attack
+004C,X Defend
+004D,X Speed
+004E,X Accuracy
+004F,X Special
+0050,Poke Doll
+0051,Fluffy Tail
+0053,Super Repel
+0054,Max Repel
+0055,Escape Rope
+0056,Repel
+005D,Sun Stone
+005E,Moon Stone
+005F,Fire Stone
+0060,Thunder Stone
+0061,Water Stone
+0062,Leaf Stone
+0067,Tiny Mushroom
+0068,Big Mushroom
+006A,Pearl
+006B,Big Pearl
+006C,Stardust
+006D,Star Piece
+006E,Nugget
+006F,Heart Scale
+0079,Orange Mail
+007A,Harbor Mail
+007B,Glitter Mail
+007C,Mech Mail
+007D,Wood Mail
+007E,Wave Mail
+007F,Bead Mail
+0080,Shadow Mail
+0081,Tropic Mail
+0082,Dream Mail
+0083,Fab Mail
+0084,Retro Mail
+0085,Cheri Berry
+0086,Chesto Berry
+0087,Pecha Berry
+0088,Rawst Berry
+0089,Aspear Berry
+008A,Leppa Berry
+008B,Oran Berry
+008C,Persim Berry
+008D,Lum Berry
+008E,Sitrus Berry
+008F,Figy Berry
+0090,Wiki Berry
+0091,Mago Berry
+0092,Aguav Berry
+0093,Iapapa Berry
+0094,Razz Berry
+0095,Bluk Berry
+0096,Nanab Berry
+0097,Wepear Berry
+0098,Pinap Berry
+0099,Pomeg Berry
+009A,Kelpsy Berry
+009B,Qualot Berry
+009C,Hondew Berry
+009D,Grepa Berry
+009E,Tamato Berry
+009F,Cornn Berry
+00A0,Magost Berry
+00A1,Rabuta Berry
+00A2,Nomel Berry
+00A3,Spelon Berry
+00A4,Pamtre Berry
+00A5,Watmel Berry
+00A6,Durin Berry
+00A7,Belue Berry
+00A8,Liechi Berry
+00A9,Ganlon Berry
+00AA,Salac Berry
+00AB,Petaya Berry
+00AC,Apicot Berry
+00AD,Lansat Berry
+00AE,Starf Berry
+00AF,Enigma Berry
+00B3,Bright Powder
+00B4,White Herb
+00B5,Macho Brace
+00B6,Exp Share
+00B7,Quick Claw
+00B8,Soothe Bell
+00B9,Mental Herb
+00BA,Choice Band
+00BB,King's Rock
+00BC,Silver Powder
+00BD,Amulet Coin
+00BE,Cleanse Tag
+00BF,Soul Dew
+00C0,Deep Sea Tooth
+00C1,Deep Sea Scale
+00C2,Smoke Ball
+00C3,Everstone
+00C4,Focus Band
+00C5,Lucky Egg
+00C6,Scope Lens
+00C7,Metal Coat
+00C8,Leftovers
+00C9,Dragon Scale
+00CA,Light Ball
+00CB,Soft Sand
+00CC,Hard Stone
+00CD,Miracle Seed
+00CE,Black Glasses
+00CF,Black Belt
+00D0,Magnet
+00D1,Mystic Water
+00D2,Sharp Beak
+00D3,Poison Barb
+00D4,Nevermelt Ice
+00D5,Spell Tag
+00D6,Twisted Spoon
+00D7,Charcoal
+00D8,Dragon Fang
+00D9,Silk Scarf
+00DA,Up-Grade
+00DB,Shell Bell
+00DC,Sea Incense
+00DD,Lax Incense
+00DE,Lucky Punch
+00DF,Metal Powder
+00E0,Thick Club
+00E1,Stick
+00FE,Red Scarf
+00FF,Blue Scarf
+0100,Pink Scarf
+0101,Green Scarf
+0102,Yellow Scarf
+0103,Mach Bike
+0104,Coin Case
+0105,ItemFinder
+0106,Old Rod
+0107,Good Rod
+0108,Super Rod
+0109,S.S. Ticket
+010A,Contest Pass
+010C,Wailmer Pail
+010D,Devon's Goods
+010E,Soot Sack
+010F,Basement Key
+0110,Acro Bike
+0111,PokeBlock Case
+0112,Letter
+0113,Eon Ticket
+0114,Red Orb
+0115,Blue Orb
+0116,Scanner
+0117,Go-Goggles
+0118,Meteorite
+0119,Rm.1 Key
+011A,Rm.2 Key
+011B,Rm.4 Key
+011C,Rm.6 Key
+011D,Storage Key
+011E,Root Fossil
+011F,Claw Fossil
+0120,Devon Scope
+0121,TM01 (Focus Punch)
+0122,TM02 (Dragon Claw)
+0123,TM03 (Water Pulse)
+0124,TM04 (Calm Mind)
+0125,TM05 (Roar)
+0126,TM06 (Toxic)
+0127,TM07 (Hail)
+0128,TM08 (Bulk Up)
+0129,TM09 (Bullet Seed)
+012A,TM10 (Hidden Power)
+012B,TM11 (Sunny Day)
+012C,TM12 (Taunt)
+012D,TM13 (Ice Beam)
+012E,TM14 (Blizzard)
+012F,TM15 (Hyper Beam)
+0130,TM16 (Light Screen)
+0131,TM17 (Protect)
+0132,TM18 (Rain Dance)
+0133,TM19 (Giga Drain)
+0134,TM20 (Safeguard)
+0135,TM21 (Frustration)
+0136,TM22 (Solar Beam)
+0137,TM23 (Iron Tail)
+0138,TM24 (Thunderbolt)
+0139,TM25 (Thunder)
+013A,TM26 (Earthquake)
+013B,TM27 (Return)
+013C,TM28 (Dig)
+013D,TM29 (Psychic)
+013E,TM30 (Shadow Ball)
+013F,TM31 (Brick Break)
+0140,TM32 (Double Team)
+0141,TM33 (Reflect)
+0142,TM34 (Shock Wave)
+0143,TM35 (Flamethrower)
+0144,TM36 (Sludge Bomb)
+0145,TM37 (Sandstorm)
+0146,TM38 (Fire Blast)
+0147,TM39 (Rock Tomb)
+0148,TM40 (Aerial Ace)
+0149,TM41 (Torment)
+014A,TM42 (Facade)
+014B,TM43 (Secret Power)
+014C,TM44 (Rest)
+014D,TM45 (Attract)
+014E,TM46 (Thief)
+014F,TM47 (Steel Wing)
+0150,TM48 (Skill Swap)
+0151,TM49 (Snatch)
+0152,TM50 (Overheat)
+0153,HM01 (Cut)
+0154,HM02 (Fly)
+0155,HM03 (Surf)
+0156,HM04 (Strength)
+0157,HM05 (Flash)
+0158,HM06 (Rock Smash)
+0159,HM07 (Waterfall)
+015A-Hex,HM08 (Dive)
+015D,{Oak's Parcel}
+015E,{Poke Flute}
+015F,{Secret Key}
+0160,{Bike Voucher}
+0161,{Gold Teeth}
+0162,{Old Amber}
+0163,{Card Key}
+0164,{Elevator Key}
+0165,{Dome Fossil}
+0166,{Helix Fossil}
+0167,{Silph Scope}
+0168,{Bicycle}
+0169,{Town Map}
+016A,{Battle Searcher}
+016B,{Voice Checker}
+016C,{TM Case}
+016D,{Berry Bag}
+016E,{Help TV}
+016F,{Tri-Pass}
+0170,{Rainbow Pass}
+0171,{Tea}
+0172,{Mystery Ticket}
+0173,{Aurora Ticket}
+0174,{Konaire}
+0175,{Ruby Plate}
+0176,{Sapphire Plate}
+01F4,[Jail Key] Safe Key
+01F5,[Elevator Key] Elevator Key
+01F6,[Small Tablet] Bonsly Card
+01F7,[F-Disk] Machine Part
+01F8,[R-Disk] Gonzap's Key
+01F9,[L-Disk] Data ROM
+01FA,[D-Disk] ID Card
+01FB,[U-Disk] Music Disc
+01FC,[Subway Key] _System Lever
+01FD,[Maingate Key] Mayor's Note
+01FE,[Card Key] Miror Radar
+01FF,[Down St. Key] Poke Snack
+0200,[DNA Sample 1] Cologne Case
+0201,[Bayleef DNA] Joy Scent
+0202,[DNA Sample 2] Excite Scent
+0203,[Quilava DNA] Vivid Scent
+0204,[DNA Sample 3] Sun Shard
+0205,[Croconaw DNA] Moon Shard
+0206,[DNA Sample 4] Bonsly Photo
+0207,[Sudowoodo DNA] Cry Analyzer
+0208,[DNA Sample 5]
+0209,[Misdreavus DNA]
+020A,[DNA Sample 6]
+020B,[Mightyena DNA] Krane Memo 1
+020C,[DNA Sample 7] Krane Memo 2
+020D,[Raikou DNA] Krane Memo 3
+020E,[DNA Sample 8] Krane Memo 4
+020F,[Entei DNA] Krane Memo 5
+0210,[DNA Sample 9] Voice Case 1
+0211,[Suicune DNA] Voice Case 2
+0212,[Data ROM] Voice Case 3
+0213,[Steel Teeth] Voice Case 4
+0214,[Gear] Voice Case 5
+0215,[Red ID Badge] Disc Case
+0216,[Green ID Badge] Battle CD 01
+0217,[Blue ID Badge] Battle CD 02
+0218,[Yellow ID Badge] Battle CD 03
+0219,[Time Flute] Battle CD 04
+021A,[Ein File S] Battle CD 05
+021B,[Ein File H] Battle CD 06
+021C,[Ein File C] Battle CD 07
+021D,[Ein File P] Battle CD 08
+021E,[Cologne Case] Battle CD 09
+021F,[Joy Scent] Battle CD 10
+0220,[Excite Scent] Battle CD 11
+0221,[Vivid Scent] Battle CD 12
+0222,[Powerup Part] Battle CD 13
+0223,[Ein File F] Battle CD 14
+0224,Battle CD 15
+0225,Battle CD 16
+0226,Battle CD 17
+0227,Battle CD 18
+0228,Battle CD 19
+0229,Battle CD 20
+022A,Battle CD 21
+022B,Battle CD 22
+022C,Battle CD 23
+022D,Battle CD 24
+022E,Battle CD 25
+022F,Battle CD 26
+0230,Battle CD 27
+0231,Battle CD 28
+0232,Battle CD 29
+0233,Battle CD 30
+0234,Battle CD 31
+0235,Battle CD 32
+0236,Battle CD 33
+0237,Battle CD 34
+0238,Battle CD 35
+0239,Battle CD 36
+023A,Battle CD 37
+023B,Battle CD 38
+023C,Battle CD 39
+023D,Battle CD 40
+023E,Battle CD 41
+023F,Battle CD 42
+0240,Battle CD 43
+0241,Battle CD 44
+0242,Battle CD 45
+0243,Battle CD 46
+0244,Battle CD 47
+0245,Battle CD 48
+0246,Battle CD 49
+0247,Battle CD 50
+0248,Battle CD 51
+0249,Battle CD 52
+024A,Battle CD 53
+024B,Battle CD 54
+024C,Battle CD 55
+024D,Battle CD 56
+024E,Battle CD 57
+024F,Battle CD 58
+0250,Battle CD 59
+0251,Battle CD 60
