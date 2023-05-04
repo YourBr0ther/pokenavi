@@ -20,7 +20,7 @@ function Get-Nature {
         [String]$PokemonID
     )
 
-    $natureList = "$Mappings\Natures.csv"
+    $natureList = "$Mappings\natures.csv"
     $natureArray = Import-CSV -Path $natureList
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
     $id = $($PokemonIDDC % 25)
@@ -317,7 +317,7 @@ function Get-BallCaught ([string[]]$ballCaughtHex) {
 }
 
 function Get-TrainerGender ([string[]]$trainerGenderHex) {
-    $gender = [Math]::Floor([Convert]::ToInt32($ballCaughtHex -join "", 16) /2147483648) % 2
+    $gender = [Math]::Floor([Convert]::ToInt32($trainerGenderHex -join "", 16) /2147483648) % 2
     if ($gender -eq 1) {return "Female"} else {return "Male"}
 
 }
