@@ -292,12 +292,64 @@ function Get-BallCaught ([string[]]$ballCaughtHex) {
     $ballCaughtList = "$Mappings\ballCaught.csv"
     $ballCaughtArray = Import-CSV -Path $ballCaughtList
     $ballCaughtID = [Math]::Floor(([Convert]::ToInt32($ballCaughtHex -join "", 16) / 134217728) % 16)
-    return $ballCaughtArray[$ballCaughtID-1].Ball
+    return $ballCaughtArray[$ballCaughtID - 1].Ball
 }
 
 function Get-TrainerGender ([string[]]$trainerGenderHex) {
-    $gender = [Math]::Floor([Convert]::ToInt32($trainerGenderHex -join "", 16) /2147483648) % 2
-    if ($gender -eq 1) {return "Female"} else {return "Male"}
+    $gender = [Math]::Floor([Convert]::ToInt32($trainerGenderHex -join "", 16) / 2147483648) % 2
+    if ($gender -eq 1) { return "Female" } else { return "Male" }
+}
+
+function Get-IndividualValues ([string[]]$IndividualValuesHex) {
+    $IndividualValues = @{
+        "Special Attack"  = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 1048576) % 32)
+        "Special Defense" = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 33554432) % 32)
+        "HP"              = [Math]::Floor([Convert]::ToInt32($IndividualValuesHex -join "", 16) % 32)
+        "Attack"          = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 32) % 32)
+        "Defense"         = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 1024) % 32)
+        "Speed"           = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 32768) % 32)
+        
+    }
+    return $IndividualValues
+}
+
+
+function Get-EggFlag ([string[]]$eggFlagHex) { 
+    $eggFlagNumber = [Math]::Floor(([Convert]::ToInt32($eggFlagHex -join "", 16) / 1073741824 ) % 2)
+    if ($eggFlagNumber -eq 0 ) { return $true } else { return $false } 
+}
+
+function Get-HiddenAbilityStatus ([string[]]$hiddenAbilityHex) {
+    $hiddenAbilityNumber = [Math]::Floor(([Convert]::ToInt32($hiddenAbilityHex -join "", 16) / 2147483648 ) % 2)
+    if ($hiddenAbilityNumber -eq 1 ) { return $true } else { return $false } 
+}
+
+function Get-ContestInformation ([string[]]$contestInformationHex) {
+
+    $contests = @{
+        Cool           = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16)) % 8))"
+        Beauty         = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 8 ) % 8))"
+        Cute           = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 64 ) % 8))"
+        Samrt          = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 512 ) % 8))"
+        Tough          = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 4096 ) % 8))"
+        Campion        = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 32768 ) % 2))"
+        BattleLevel50  = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 65536 ) % 2))"
+        BattleLevel100 = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 131072 ) % 2))"
+        SketchRibbon   = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 262144 ) % 2))"
+        HardWorker     = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 524288 ) % 2))"
+        Special1       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 1048576 ) % 2))"
+        Special2       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 2097152 ) % 2))"
+        Special3       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 4194304 ) % 2))"
+        Special4       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 8388608 ) % 2))"
+        Special5       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 16777216 ) % 2))"
+        Special6       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 67108864 ) % 2))"
+    }
+    return $contests
+}
+
+function Get-Obedience ([string[]]$ObedienceHex) {
+    $obedienceNumber = [Math]::Floor($(([Convert]::ToInt32($ObedienceHex -join "", 16)) / 2147483648 ) % 2)
+    If ($obedienceNumber -eq 0) { return "Not Obedient" } else { return "Obedient" }
 }
 
 # Test
@@ -345,6 +397,11 @@ $levelMet = Get-LevelMet -levelMetHex $misc[0..7]
 $gameCartridge = Get-GameCartridge -gameCartridgeHex $misc[0..7]
 $ballCaught = Get-BallCaught -ballCaughtHex $misc[0..7]
 $trainerGender = Get-TrainerGender -trainerGenderHex $misc[0..7]
+$IndividualValues = Get-IndividualValues -IndividualValuesHex $misc[8..15]
+$isEgg = Get-EggFlag -eggFlagHex $misc[8..15]
+$hasHiddenAbility = Get-HiddenAbilityStatus -hiddenAbilityHex $misc[8..15]
+$contests = Get-ContestInformation -contestInformationHex $misc[16..23]
+$isObedient = Get-Obedience -ObedienceHex $misc[16..23]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -381,3 +438,9 @@ Write-Host "Level Met: $levelMet"
 Write-Host "Game Cartridge: $gameCartridge"
 Write-Host "Ball Caught: $ballCaught"
 Write-Host "Trainer Gender: $trainerGender"
+Write-Host "Individual Values: $($IndividualValues.'HP'),$($IndividualValues.'Attack'),$($IndividualValues.'Defense'),$($IndividualValues.'Speed'),$($IndividualValues.'Special Attack'),$($IndividualValues.'Special Defense')"
+Write-Host "Egg Status: $isEgg"
+Write-Host "Hidden Ability Status: $hasHiddenAbility"
+Write-Host "Contest Information: $($contests.Cool),$($contests.Beauty),$($contests.Cute),$($contests.Smart),$($contests.Tough),$($contests.Campion),$($contests.BattleLevel50),$($contests.BattleLevel50),$($contests.SketchRibbon),$($contests.SketchRibbon),$($contests.Special1),$($contests.Special2),$($contests.Special3),$($contests.Special4),$($contests.Special5),$($contests.Special6)"
+Write-Host "Obediant Status: $isObedient"
+
