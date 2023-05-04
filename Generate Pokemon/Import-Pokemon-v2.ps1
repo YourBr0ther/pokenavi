@@ -313,6 +313,11 @@ function Get-IndividualValues ([string[]]$IndividualValuesHex) {
     return $IndividualValues
 }
 
+function Get-EggFlag ([string[]]$eggFlagHex) { 
+    [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 1073741824 ) % 2)
+    if ($1 -eq 0 ) { return $true } else { return $false } 
+}
+
 # Test
 $pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 # Mankey
@@ -359,6 +364,7 @@ $gameCartridge = Get-GameCartridge -gameCartridgeHex $misc[0..7]
 $ballCaught = Get-BallCaught -ballCaughtHex $misc[0..7]
 $trainerGender = Get-TrainerGender -trainerGenderHex $misc[0..7]
 $IndividualValues = Get-IndividualValues -IndividualValuesHex $misc[8..15]
+$isEgg = Get-EggFlag -eggFlagHex $misc[8..15]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -396,3 +402,4 @@ Write-Host "Game Cartridge: $gameCartridge"
 Write-Host "Ball Caught: $ballCaught"
 Write-Host "Trainer Gender: $trainerGender"
 Write-Host "Individual Values: $($IndividualValues.'HP'),$($IndividualValues.'Attack'),$($IndividualValues.'Defense'),$($IndividualValues.'Speed'),$($IndividualValues.'Special Attack'),$($IndividualValues.'Special Defense')"
+Write-Host "Egg Status: $isEgg"
