@@ -35,9 +35,13 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
     node server.js
 
 ### Authentic Attributes
-* Import a authentic Gen1 through Gen3 Pokemon
+* Missing Attributes
+  * IVs
+  * Egg Flag
+  * Abilities
+  * Ribbons
+  * Obedient
 * Add second Type
-* Solving decryption of the DATA block [G.A.M.E.]
 * Implement the new JSON format
 * Successfully import the 80 bytes into PokeNavi
 
