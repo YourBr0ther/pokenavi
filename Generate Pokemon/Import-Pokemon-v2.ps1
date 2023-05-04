@@ -1,7 +1,7 @@
 Clear-Host
 
 # Variables
-$pokemonPath = ".\Generate Pokemon\Sample PK3\056 - MANKEY - 07372DF9118F.ek3"
+$pokemonPath = ".\Generate Pokemon\Sample PK3\005 - CHARMELEON - D97425D07CE5.ek3"
 $Mappings = ".\Generate Pokemon\Mappings"
 
 function Get-PokemonBytes {
@@ -374,7 +374,6 @@ $hexOXR = [Convert]::ToString(([Convert]::ToUInt32($TrainerIDHex, 16) -bxor [Con
 $nature = Get-Nature -PokemonID $PokemonIDHex
 #$gender = Get-Gender -PokemonID $PokemonIDHex -PokemonSpecies $localDexNumber
 $ABCDOrder = Get-ABCDOrder -PokemonID $PokemonIDHex
-$ABCDOrder = "ABCD"
 $decryptionKey = Get-DecryptionKey -PokemonID $PokemonIDHex -TrainerID $TrainerIDHex
 $isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
 $pokemonName = Get-Name -nameBytes $pk3Data[8..19]

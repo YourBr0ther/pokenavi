@@ -58,7 +58,7 @@ async function primeChatBot(selectedPokemon) {
         // Send pkmnSheet via the message array to ChatGPT and put response in response variable
         try {
             response = await openai.createChatCompletion({
-                model: "gpt-3.5-turbo",
+                model: "gpt-4",
                 messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
                 temperature: 0.7,
                 max_tokens: 1,
@@ -402,7 +402,7 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
     try {
         const response = await sendChatToPokemon(userMessage);
 
-        res.json({ assistantResponse: `Pokemon: ${response}` });
+        res.json({ assistantResponse: `${response}` });
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" });
     }
