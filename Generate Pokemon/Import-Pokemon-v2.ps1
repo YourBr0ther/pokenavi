@@ -309,7 +309,11 @@ function Get-GameCartridge ([string[]]$gameCartridgeHex) {
 }
 
 function Get-BallCaught ([string[]]$ballCaughtHex) {
-    
+    $ballCaughtList = "$Mappings\ballCaught.csv"
+    $ballCaughtArray = Import-CSV -Path $ballCaughtList
+    $ballCaughtID = [Math]::Floor(([Convert]::ToInt32($ballCaughtHex -join "", 16) / 134217728) % 16)
+    return $ballCaughtArray[$ballCaughtID-1].Ball
+
 }
 
 # Test
