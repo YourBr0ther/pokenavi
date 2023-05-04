@@ -19,7 +19,6 @@ function Get-Nature {
         [Parameter(Mandatory = $true)]
         [String]$PokemonID
     )
-
     $natureList = "$Mappings\natures.csv"
     $natureArray = Import-CSV -Path $natureList
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
@@ -33,7 +32,6 @@ function Get-Gender {
         [String]$PokemonID,
         [String]$PokemonSpecies
     )
-
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
     $apiUrl = "https://pokeapi.co/api/v2/gender/female"
     $response = Invoke-RestMethod -Uri $apiUrl
@@ -66,7 +64,6 @@ function Get-ABCDOrder {
         [Parameter(Mandatory = $true)]
         [String]$PokemonID
     )
-
     $ABCDList = "$Mappings\ABCD-Structure.csv"
     $ABCDArray = Import-CSV -Path $ABCDList
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
@@ -90,10 +87,8 @@ function Get-DecryptionKey {
         [String]$TrainerIDHex,
         [String]$PokemonIDHex
     )
-
     $trainerIDInt = [Convert]::ToInt32($TrainerIDHex, 16)
     $pokemonIDInt = [Convert]::ToInt32($PokemonIDHex, 16)
-
     $signedResult = $pokemonIDInt -bxor $trainerIDInt
     $bytes = [BitConverter]::GetBytes($signedResult)
     $result = [BitConverter]::ToUInt32($bytes, 0)
@@ -104,7 +99,6 @@ function Get-ShinyStatus {
     param (
         [decimal]$decryptionKey
     )
-
     $XResult = ($decryptionKey / 65536) -bxor ($decryptionKey % 65536)
     if ($XResult -gt 8) { return $false } else { return $true }
 }
@@ -113,28 +107,23 @@ function Get-Name {
     param (
         [Byte[]]$nameBytes
     )
-
     $characterList = "$Mappings\charMap.csv" # Replace this with the correct file path
     $csvData = Import-Csv -Path $characterList -Delimiter ',' -Header Key, Value
     $characterArray = @{}
     foreach ($row in $csvData) {
         $characterArray[$row.Key] = $row.Value
     }
-
     $nameHex = ($nameBytes | ForEach-Object { $_.ToString("X2") }) -join ""
-    
     $name = ""
     for ($i = 0; $i -lt $nameHex.length; $i += 2) {
         
         $letter = $nameHex[$i] + $nameHex[$i + 1]  
-        if ($letter -eq "FF") { break } else { $name += $characterArray[$letter] }
-        
+        if ($letter -eq "FF") { break } else { $name += $characterArray[$letter] } 
     }
     return $name
 }
 
 function Get-Markings([int]$byte27) {
-
     $marks = @{
         "Circle"   = [Convert]::ToInt32("0001", 2)
         "Square"   = [Convert]::ToInt32("0010", 2)
@@ -152,7 +141,6 @@ function Get-Markings([int]$byte27) {
 }
 
 function Get-abcdDATA ([string]$ABCDOrder) {
-
     for ($h = 0; $h -le 4; $h++) {
         $dataStructure = ""
 
@@ -204,7 +192,6 @@ function Get-abcdDATA ([string]$ABCDOrder) {
 }
 
 function Get-HeldItem ([string[]]$heldItem) {
-    
     $heldItemList = "$Mappings\heldItems.csv"
     $heldItemsArray = Import-Csv -Path $heldItemList
     $hex1 = [Convert]::ToInt32($heldItem -join "", 16)
@@ -212,14 +199,11 @@ function Get-HeldItem ([string[]]$heldItem) {
     $result = $hex1 / $hex2
     $hexResult = [Convert]::ToString($result, 16)
     $heldItem = $heldItemsArray[$hexResult].Item
-    
     return $heldItem
 }
 
 function Get-PokemonSpecies ([string[]]$localDexNumber) {
-
     return [Convert]::ToInt32($localDexNumber -join "", 16) 
-
 }
 
 function Get-Exp ([string[]]$expHex) { return [Convert]::ToInt32($expHex -join "", 16) }
@@ -265,7 +249,6 @@ function Get-EffortValues ([string[]]$EVsHex) {
         
     }
     return $EffortValues
-    
 }
 
 function Get-Conditions ([string[]]$conditionsHex) {
@@ -295,16 +278,13 @@ function Get-LocationCaught ([string[]]$locationCaughtHex) {
 }
 
 function Get-LevelMet ([string[]]$levelMetHex) {
-    Write-Host $levelMetHex
     return (([Convert]::ToInt32($levelMetHex -join "", 16) / 65536) % 256 ) -band 127
 }
 
 function Get-GameCartridge ([string[]]$gameCartridgeHex) {
-
     $gameCartridgeList = "$Mappings\gameCartridge.csv"
     $gameCartridgeArray = Import-CSV -Path $gameCartridgeList
     $gameCartridgeID = [Math]::Floor(([Convert]::ToInt32($gameCartridgeHex -join "", 16) / 8388608) % 16)
-
     return $gameCartridgeArray[$gameCartridgeID].Cartridge
 }
 
@@ -313,13 +293,11 @@ function Get-BallCaught ([string[]]$ballCaughtHex) {
     $ballCaughtArray = Import-CSV -Path $ballCaughtList
     $ballCaughtID = [Math]::Floor(([Convert]::ToInt32($ballCaughtHex -join "", 16) / 134217728) % 16)
     return $ballCaughtArray[$ballCaughtID-1].Ball
-
 }
 
 function Get-TrainerGender ([string[]]$trainerGenderHex) {
     $gender = [Math]::Floor([Convert]::ToInt32($trainerGenderHex -join "", 16) /2147483648) % 2
     if ($gender -eq 1) {return "Female"} else {return "Male"}
-
 }
 
 # Test
