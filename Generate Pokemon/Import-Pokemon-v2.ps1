@@ -218,7 +218,7 @@ function Get-HeldItem ([string[]]$heldItem) {
 
 function Get-PokemonSpecies ([string[]]$localDexNumber) {
 
-   return [Convert]::ToInt32($localDexNumber -join "", 16) 
+    return [Convert]::ToInt32($localDexNumber -join "", 16) 
 
 }
 
@@ -256,12 +256,12 @@ function Get-PP ([string[]]$PPHex) {
 function Get-EffortValues ([string[]]$EVsHex) {
 
     $EffortValues = @{
-        "Special Attack" = [Convert]::ToInt32($EVsHex[15..14] -join "", 16)
+        "Special Attack"  = [Convert]::ToInt32($EVsHex[15..14] -join "", 16)
         "Special Defense" = [Convert]::ToInt32($EVsHex[13..12] -join "", 16)
-        "HP" = [Convert]::ToInt32($EVsHex[6..7] -join "", 16)
-        "Attack" = [Convert]::ToInt32($EVsHex[4..5] -join "", 16)
-        "Defense" = [Convert]::ToInt32($EVsHex[2..3] -join "", 16)
-        "Speed" = [Convert]::ToInt32($EVsHex[0..1] -join "", 16)
+        "HP"              = [Convert]::ToInt32($EVsHex[6..7] -join "", 16)
+        "Attack"          = [Convert]::ToInt32($EVsHex[4..5] -join "", 16)
+        "Defense"         = [Convert]::ToInt32($EVsHex[2..3] -join "", 16)
+        "Speed"           = [Convert]::ToInt32($EVsHex[0..1] -join "", 16)
         
     }
     return $EffortValues
@@ -271,11 +271,11 @@ function Get-EffortValues ([string[]]$EVsHex) {
 function Get-Conditions ([string[]]$conditionsHex) {
 
     $conditionsInformation = @{
-        "Cool" = [Convert]::ToInt32($conditionsHex[2..3] -join "", 16)
+        "Cool"   = [Convert]::ToInt32($conditionsHex[2..3] -join "", 16)
         "Beauty" = [Convert]::ToInt32($conditionsHex[0..1] -join "", 16)
-        "Cute" = [Convert]::ToInt32($conditionsHex[10..11] -join "", 16)
-        "Smart" = [Convert]::ToInt32($conditionsHex[8..9] -join "", 16)
-        "Tough" = [Convert]::ToInt32($conditionsHex[6..7] -join "", 16)
+        "Cute"   = [Convert]::ToInt32($conditionsHex[10..11] -join "", 16)
+        "Smart"  = [Convert]::ToInt32($conditionsHex[8..9] -join "", 16)
+        "Tough"  = [Convert]::ToInt32($conditionsHex[6..7] -join "", 16)
         "Luster" = [Convert]::ToInt32($conditionsHex[4..5] -join "", 16)
 
     }
@@ -286,9 +286,17 @@ function Get-Conditions ([string[]]$conditionsHex) {
 function Get-PokerusStatus ([string[]]$pokerusHex) { return [Convert]::ToInt32($pokerusHex -join "", 16) % 256 }
 
 function Get-LocationCaught ([string[]]$locationCaughtHex) {
-    
-    
 
+    $locationCaughtList = "$Mappings\locationCaught.csv"
+    $locationCaughtArray = Import-CSV -Path $locationCaughtList
+    $locationID = ([Convert]::ToInt32($locationCaughtHex -join "", 16) / 256) % 256
+    return $locationCaughtArray[$locationID].Location
+
+}
+
+function Get-LevelMet ([string[]]$levelMetHex) {
+    Write-Host $levelMetHex
+    return (([Convert]::ToInt32($levelMetHex -join "", 16) / 65536) % 256 ) -band 127
 }
 
 # Test
@@ -331,6 +339,8 @@ $PP = Get-PP -PPHex $moves[16..24]
 $EffortValues = Get-EffortValues -EVsHex $evs[0..15]
 $Conditions = Get-Conditions -ConditionsHex $evs[8..23]
 $pokerus = Get-PokerusStatus -pokerusHEX $misc[0..7]
+$locationCaught = Get-LocationCaught -locationCaughtHex $misc[0..7]
+$levelMet = Get-LevelMet -levelMetHex $misc[0..7]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -362,3 +372,5 @@ Write-Host "PP: $($PP.'Move 1'),$($PP.'Move 2'),$($PP.'Move 3'),$($PP.'Move 4')"
 Write-Host "EVs: $($EffortValues.'HP'),$($EffortValues.'Attack'),$($EffortValues.'Defense'),$($EffortValues.'Speed'),$($EffortValues.'Special Attack'),$($EffortValues.'Special Defense')"
 Write-Host "Conditions: $($Conditions.'Cool'),$($Conditions.'Beauty'),$($Conditions.'Cute'),$($Conditions.'Smart'),$($Conditions.'Tough'),$($Conditions.'Luster')"
 Write-Host "Pokerus: $pokerus"
+Write-Host "Location Caught: $locationCaught"
+Write-Host "Level Met: $levelMet"
