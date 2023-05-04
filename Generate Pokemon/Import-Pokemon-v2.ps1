@@ -253,7 +253,18 @@ function Get-PP ([string[]]$PPHex) {
     return $PPamount
 }
 
-function Get-EffortValues {
+function Get-EffortValues ([string[]]$EVsHex) {
+
+    $EffortValues = @{
+        "Special Attack" = [Convert]::ToInt32($EVsHex[15..14] -join "", 16)
+        "Special Defense" = [Convert]::ToInt32($EVsHex[13..12] -join "", 16)
+        "HP" = [Convert]::ToInt32($EVsHex[6..7] -join "", 16)
+        "Attack" = [Convert]::ToInt32($EVsHex[4..5] -join "", 16)
+        "Defense" = [Convert]::ToInt32($EVsHex[2..3] -join "", 16)
+        "Speed" = [Convert]::ToInt32($EVsHex[0..1] -join "", 16)
+        
+    }
+    return $EffortValues
     
 }
 
@@ -294,7 +305,7 @@ $exp = Get-Exp -expHex $growth[8..15]
 $happiness = Get-Happiness -happinessHex $growth[16..24]
 $moveNames = Get-Moves -movesHex $moves[0..15]
 $PP = Get-PP -PPHex $moves[16..24]
-$EffortValues = Get-EffortValues -EVsHex $evs
+$EffortValues = Get-EffortValues -EVsHex $evs[0..15]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -323,4 +334,4 @@ Write-Host "Exp: $exp"
 Write-Host "Happiness: $happiness"
 Write-Host "Move Names: $($moveNames.'Move 1'),$($moveNames.'Move 2'),$($moveNames.'Move 3'),$($moveNames.'Move 4')" 
 Write-Host "PP: $($PP.'Move 1'),$($PP.'Move 2'),$($PP.'Move 3'),$($PP.'Move 4')"
-Write-Host "EVs :$EffortValues"
+Write-Host "EVs: $($EffortValues.'HP'),$($EffortValues.'Attack'),$($EffortValues.'Defense'),$($EffortValues.'Speed'),$($EffortValues.'Special Attack'),$($EffortValues.'Special Defense')"
