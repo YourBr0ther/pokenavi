@@ -316,6 +316,12 @@ function Get-BallCaught ([string[]]$ballCaughtHex) {
 
 }
 
+function Get-TrainerGender ([string[]]$trainerGenderHex) {
+    $gender = [Math]::Floor([Convert]::ToInt32($ballCaughtHex -join "", 16) /2147483648) % 2
+    if ($gender -eq 1) {return "Female"} else {return "Male"}
+
+}
+
 # Test
 $pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 # Mankey
@@ -360,6 +366,7 @@ $locationCaught = Get-LocationCaught -locationCaughtHex $misc[0..7]
 $levelMet = Get-LevelMet -levelMetHex $misc[0..7]
 $gameCartridge = Get-GameCartridge -gameCartridgeHex $misc[0..7]
 $ballCaught = Get-BallCaught -ballCaughtHex $misc[0..7]
+$trainerGender = Get-TrainerGender -trainerGenderHex $misc[0..7]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -394,4 +401,5 @@ Write-Host "Pokerus: $pokerus"
 Write-Host "Location Caught: $locationCaught"
 Write-Host "Level Met: $levelMet"
 Write-Host "Game Cartridge: $gameCartridge"
-Write-Host "Ball Caugh: $ballCaught"
+Write-Host "Ball Caught: $ballCaught"
+Write-Host "Trainer Gender: $trainerGender"
