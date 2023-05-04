@@ -326,32 +326,30 @@ function Get-HiddenAbilityStatus ([string[]]$hiddenAbilityHex) {
 
 function Get-ContestInformation ([string[]]$contestInformationHex) {
 
-    Write-Host $contestInformationHex
     $contests = @{
-        Cool           = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16)) % 8)
-        Beauty         = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 8 ) % 8)
-        Cute           = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 64 ) % 8)
-        Samrt          = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 512 ) % 8)
-        Tough          = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 4096 ) % 8)
-        Campion        = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 32768 ) % 2)
-        BattleLevel50  = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 65536 ) % 2)
-        BattleLevel100 = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 131072 ) % 2)
-        SketchRibbon   = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 262144 ) % 2)
-        HardWorker     = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 524288 ) % 2)
-        Special1       = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 1048576 ) % 2)
-        Special2       = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 2097152 ) % 2)
-        Special3       = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 4194304 ) % 2)
-        Special4       = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 8388608 ) % 2)
-        Special5       = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 16777216 ) % 2)
-        Special6       = [Math]::Floor(([Convert]::ToInt64($contestInformationHex -join "", 16) / 67108864 ) % 2)
-
+        Cool           = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16)) % 8))"
+        Beauty         = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 8 ) % 8))"
+        Cute           = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 64 ) % 8))"
+        Samrt          = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 512 ) % 8))"
+        Tough          = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 4096 ) % 8))"
+        Campion        = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 32768 ) % 2))"
+        BattleLevel50  = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 65536 ) % 2))"
+        BattleLevel100 = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 131072 ) % 2))"
+        SketchRibbon   = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 262144 ) % 2))"
+        HardWorker     = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 524288 ) % 2))"
+        Special1       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 1048576 ) % 2))"
+        Special2       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 2097152 ) % 2))"
+        Special3       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 4194304 ) % 2))"
+        Special4       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 8388608 ) % 2))"
+        Special5       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 16777216 ) % 2))"
+        Special6       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 67108864 ) % 2))"
     }
     return $contests
 }
 
 function Get-Obedience ([string[]]$ObedienceHex) {
-    $obedienceNumber = [Math]::Floor($(([Convert]::ToInt32($ObedienceHex -join "", 16)) / 2147483648 )% 2)
-    If ($obedienceNumber -eq 0) {return "Not Obedient"} else {return "Obedient"}
+    $obedienceNumber = [Math]::Floor($(([Convert]::ToInt32($ObedienceHex -join "", 16)) / 2147483648 ) % 2)
+    If ($obedienceNumber -eq 0) { return "Not Obedient" } else { return "Obedient" }
 }
 
 # Test
@@ -402,8 +400,8 @@ $trainerGender = Get-TrainerGender -trainerGenderHex $misc[0..7]
 $IndividualValues = Get-IndividualValues -IndividualValuesHex $misc[8..15]
 $isEgg = Get-EggFlag -eggFlagHex $misc[8..15]
 $hasHiddenAbility = Get-HiddenAbilityStatus -hiddenAbilityHex $misc[8..15]
-#$contests = Get-ContestInformation -contestInformationHex $misc(16..23)
-$isObedient = Get-Obedience -ObedienceHex $misc(16..23)
+$contests = Get-ContestInformation -contestInformationHex $misc[16..23]
+$isObedient = Get-Obedience -ObedienceHex $misc[16..23]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -443,6 +441,6 @@ Write-Host "Trainer Gender: $trainerGender"
 Write-Host "Individual Values: $($IndividualValues.'HP'),$($IndividualValues.'Attack'),$($IndividualValues.'Defense'),$($IndividualValues.'Speed'),$($IndividualValues.'Special Attack'),$($IndividualValues.'Special Defense')"
 Write-Host "Egg Status: $isEgg"
 Write-Host "Hidden Ability Status: $hasHiddenAbility"
-#Write-Host "Contest Information: $($contests.Cool),$($contests.Beauty),$($contests.Cute),$($contests.Smart),$($contests.Tough),$($contests.Campion),$($contests.BattleLevel50),$($contests.BattleLevel50),$($contests.SketchRibbon),$($contests.SketchRibbon),$($contests.Special1),$($contests.Special2),$($contests.Special3),$($contests.Special4),$($contests.Special5),$($contests.Special6)"
+Write-Host "Contest Information: $($contests.Cool),$($contests.Beauty),$($contests.Cute),$($contests.Smart),$($contests.Tough),$($contests.Campion),$($contests.BattleLevel50),$($contests.BattleLevel50),$($contests.SketchRibbon),$($contests.SketchRibbon),$($contests.Special1),$($contests.Special2),$($contests.Special3),$($contests.Special4),$($contests.Special5),$($contests.Special6)"
 Write-Host "Obediant Status: $isObedient"
 
