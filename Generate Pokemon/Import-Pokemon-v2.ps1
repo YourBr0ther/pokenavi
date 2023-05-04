@@ -1,7 +1,7 @@
 Clear-Host
 
 # Variables
-$pokemonPath = ".\Generate Pokemon\Sample PK3\CHARMELEON.pk3"
+$pokemonPath = ".\Generate Pokemon\Sample PK3\CHARMELEON.ek3"
 $Mappings = ".\Generate Pokemon\Mappings"
 
 function Get-PokemonBytes {
@@ -107,7 +107,7 @@ function Get-Name {
     param (
         [Byte[]]$nameBytes
     )
-    $characterList = "$Mappings\charMap.csv" # Replace this with the correct file path
+    $characterList = "$Mappings\charMap.csv"
     $csvData = Import-Csv -Path $characterList -Delimiter ',' -Header Key, Value
     $characterArray = @{}
     foreach ($row in $csvData) {
@@ -141,6 +141,10 @@ function Get-Markings([int]$byte27) {
 }
 
 function Get-abcdDATA ([string]$ABCDOrder) {
+
+    Write-Host $ABCDOrder
+
+
     for ($h = 0; $h -le 4; $h++) {
         $dataStructure = ""
 
@@ -353,28 +357,30 @@ function Get-Obedience ([string[]]$ObedienceHex) {
 }
 
 # Test
-$pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
+#$pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 # Mankey
 #$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
-#$pk3Data = Get-PokemonBytes -Path $pokemonPath
-$pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
-for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
-    $pk3Data[$i / 2] = [convert]::ToByte($pokemonHEX.Substring($i, 2), 16)
-}
+$pk3Data = Get-PokemonBytes -Path $pokemonPath
+# $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
+# for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
+#     $pk3Data[$i / 2] = [convert]::ToByte($pokemonHEX.Substring($i, 2), 16)
+# }
+
+$pokemonString = ($pk3Data | ForEach-Object { $_.ToString("X2") }) -join ""
+#Write-Host $pokemonString
+$PokemonHex = $pokemonString
 
 $reversePokemonID = $pk3Data[0..7] -join ""
-$pokemonIDBytes = $pk3Data[3..0]
 $PokemonIDHex = ($pk3Data[3..0] | ForEach-Object { $_.ToString("X2") }) -join ""
-$normalPokemonID = ($pokemonIDBytes | ForEach-Object { $_.ToString("X2") }) -join ""
 $TrainerIDHex = ($pk3Data[7..4] | ForEach-Object { "{0:X2}" -f $_ }) -join ""
 $TrainerID = Get-TrainerID $pk3Data[4..7]
 $secretTrainerIDHex = ($pk3Data[7..6] | ForEach-Object { "{0:X2}" -f $_ }) -join ""
 $secretTrainerID = Get-SecretTrainerID $pk3Data[4..7]
 $hexOXR = [Convert]::ToString(([Convert]::ToInt32($TrainerIDHex, 16) -bxor [Convert]::ToInt32($PokemonIDHex, 16)), 16)
-$nature = Get-Nature -PokemonID $normalPokemonID
-#$gender = Get-Gender -PokemonID $normalPokemonID -PokemonSpecies $localDexNumber
-$ABCDOrder = Get-ABCDOrder -PokemonID $normalPokemonID
-$decryptionKey = Get-DecryptionKey -PokemonID $normalPokemonID -TrainerID $TrainerIDHex
+$nature = Get-Nature -PokemonID $PokemonIDHex
+#$gender = Get-Gender -PokemonID $PokemonIDHex -PokemonSpecies $localDexNumber
+$ABCDOrder = Get-ABCDOrder -PokemonID $PokemonIDHex
+$decryptionKey = Get-DecryptionKey -PokemonID $PokemonIDHex -TrainerID $TrainerIDHex
 $isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
 $pokemonName = Get-Name -nameBytes $pk3Data[8..19]
 $trainerName = Get-Name -nameBytes $pk3Data[20..26]
@@ -406,7 +412,6 @@ $isObedient = Get-Obedience -ObedienceHex $misc[16..23]
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
 Write-Host "PokemonID - [R]: $reversePokemonID"
-Write-Host "PokemonID - [N]: $normalPokemonID"
 Write-Host "PokemonID - [H]: $PokemonIDHex"
 Write-Host "Nature: $nature"
 #Write-Host "Gender: $gender" # this will get enabled via the species number
