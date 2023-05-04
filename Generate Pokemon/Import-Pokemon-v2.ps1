@@ -292,12 +292,25 @@ function Get-BallCaught ([string[]]$ballCaughtHex) {
     $ballCaughtList = "$Mappings\ballCaught.csv"
     $ballCaughtArray = Import-CSV -Path $ballCaughtList
     $ballCaughtID = [Math]::Floor(([Convert]::ToInt32($ballCaughtHex -join "", 16) / 134217728) % 16)
-    return $ballCaughtArray[$ballCaughtID-1].Ball
+    return $ballCaughtArray[$ballCaughtID - 1].Ball
 }
 
 function Get-TrainerGender ([string[]]$trainerGenderHex) {
-    $gender = [Math]::Floor([Convert]::ToInt32($trainerGenderHex -join "", 16) /2147483648) % 2
-    if ($gender -eq 1) {return "Female"} else {return "Male"}
+    $gender = [Math]::Floor([Convert]::ToInt32($trainerGenderHex -join "", 16) / 2147483648) % 2
+    if ($gender -eq 1) { return "Female" } else { return "Male" }
+}
+
+function Get-IndividualValues ([string[]]$IndividualValuesHex) {
+    $IndividualValues = @{
+        "Special Attack"  = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 1048576) % 32)
+        "Special Defense" = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 33554432) % 32)
+        "HP"              = [Math]::Floor([Convert]::ToInt32($IndividualValuesHex -join "", 16) % 32)
+        "Attack"          = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 32) % 32)
+        "Defense"         = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 1024) % 32)
+        "Speed"           = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 32768) % 32)
+        
+    }
+    return $IndividualValues
 }
 
 # Test
@@ -345,6 +358,7 @@ $levelMet = Get-LevelMet -levelMetHex $misc[0..7]
 $gameCartridge = Get-GameCartridge -gameCartridgeHex $misc[0..7]
 $ballCaught = Get-BallCaught -ballCaughtHex $misc[0..7]
 $trainerGender = Get-TrainerGender -trainerGenderHex $misc[0..7]
+$IndividualValues = Get-IndividualValues -IndividualValuesHex $misc[8..15]
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -381,3 +395,4 @@ Write-Host "Level Met: $levelMet"
 Write-Host "Game Cartridge: $gameCartridge"
 Write-Host "Ball Caught: $ballCaught"
 Write-Host "Trainer Gender: $trainerGender"
+Write-Host "Individual Values: $($IndividualValues.'HP'),$($IndividualValues.'Attack'),$($IndividualValues.'Defense'),$($IndividualValues.'Speed'),$($IndividualValues.'Special Attack'),$($IndividualValues.'Special Defense')"
