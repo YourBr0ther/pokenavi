@@ -37,8 +37,10 @@ function Get-Gender {
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
     $apiUrl = "https://pokeapi.co/api/v2/gender/female"
     $response = Invoke-RestMethod -Uri $apiUrl
+    $url = $response.pokemon_species_details[$i].pokemon_species.url
+    $speciesNumber = $url.Split('/')[-2]
     $allFemalePokemon = $response.pokemon_species_details
-    for ($i = 0; $i -le $allFemalePokemon.count; $i++) { if ($PokemonSpecies -eq $($response.pokemon_species_details[$i].pokemon_species.name)) { $FemaleRatio = $($response.pokemon_species_details[$i].rate / 8); break } }
+    for ($i = 0; $i -le $allFemalePokemon.count; $i++) { if ($PokemonSpecies -eq $speciesNumber) { $FemaleRatio = $($response.pokemon_species_details[$i].rate / 8); break } }
     $decimalValue = $PokemonIDDC % 256
     $genderThresholds = @{
         '12.5%' = 30
@@ -275,7 +277,7 @@ $secretTrainerIDHex = ($pk3Data[7..6] | ForEach-Object { "{0:X2}" -f $_ }) -join
 $secretTrainerID = Get-SecretTrainerID $pk3Data[4..7]
 $hexOXR = [Convert]::ToString(([Convert]::ToInt32($TrainerIDHex, 16) -bxor [Convert]::ToInt32($PokemonIDHex, 16)), 16)
 $nature = Get-Nature -PokemonID $normalPokemonID
-#$gender = Get-Gender -PokemonID $normalPokemonID
+#$gender = Get-Gender -PokemonID $normalPokemonID -PokemonSpecies $localDexNumber
 $ABCDOrder = Get-ABCDOrder -PokemonID $normalPokemonID
 $decryptionKey = Get-DecryptionKey -PokemonID $normalPokemonID -TrainerID $TrainerIDHex
 $isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
