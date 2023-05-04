@@ -1,7 +1,7 @@
 Clear-Host
 
 # Variables
-$pokemonPath = ".\Generate Pokemon\Sample PK3\CHARMELEON.pk3"
+$pokemonPath = ".\Generate Pokemon\Sample PK3\CHARMELEON.ek3"
 $Mappings = ".\Generate Pokemon\Mappings"
 
 function Get-PokemonBytes {
@@ -10,7 +10,7 @@ function Get-PokemonBytes {
         [String]
         $Path
     )
-    $pk3Data = $([System.IO.File]::ReadAllBytes($Path))[0..78]
+    $pk3Data = $([System.IO.File]::ReadAllBytes($Path))[0..79]
     return $pk3Data
 }
 
@@ -87,8 +87,8 @@ function Get-DecryptionKey {
         [String]$TrainerIDHex,
         [String]$PokemonIDHex
     )
-    $trainerIDInt = [Convert]::ToInt32($TrainerIDHex, 16)
-    $pokemonIDInt = [Convert]::ToInt32($PokemonIDHex, 16)
+    $trainerIDInt = [Convert]::ToUInt32($TrainerIDHex, 16)
+    $pokemonIDInt = [Convert]::ToUInt32($PokemonIDHex, 16)
     $signedResult = $pokemonIDInt -bxor $trainerIDInt
     $bytes = [BitConverter]::GetBytes($signedResult)
     $result = [BitConverter]::ToUInt32($bytes, 0)
@@ -107,7 +107,7 @@ function Get-Name {
     param (
         [Byte[]]$nameBytes
     )
-    $characterList = "$Mappings\charMap.csv" # Replace this with the correct file path
+    $characterList = "$Mappings\charMap.csv"
     $csvData = Import-Csv -Path $characterList -Delimiter ',' -Header Key, Value
     $characterArray = @{}
     foreach ($row in $csvData) {
@@ -125,10 +125,10 @@ function Get-Name {
 
 function Get-Markings([int]$byte27) {
     $marks = @{
-        "Circle"   = [Convert]::ToInt32("0001", 2)
-        "Square"   = [Convert]::ToInt32("0010", 2)
-        "Triangle" = [Convert]::ToInt32("0100", 2)
-        "Heart"    = [Convert]::ToInt32("1000", 2)
+        "Circle"   = [Convert]::ToUInt32("0001", 2)
+        "Square"   = [Convert]::ToUInt32("0010", 2)
+        "Triangle" = [Convert]::ToUInt32("0100", 2)
+        "Heart"    = [Convert]::ToUInt32("1000", 2)
     }
 
     $combinedMarks = @()
@@ -144,7 +144,7 @@ function Get-abcdDATA ([string]$ABCDOrder) {
     for ($h = 0; $h -le 4; $h++) {
         $dataStructure = ""
 
-        for ($i = 31; $i -le 78; $i += 12) {
+        for ($i = 32; $i -le 79; $i += 12) {
             $blocks = @()
             $reversedBlocks = @()
             $decryptedBlocks = @()
@@ -158,7 +158,7 @@ function Get-abcdDATA ([string]$ABCDOrder) {
                 }
                 $blocks += $block
                 $reversedBlocks += $reversedBlock
-                $decryptedBlock = [Convert]::ToString(([Convert]::ToInt32($reversedBlock, 16) -bxor [Convert]::ToInt32($hexOXR, 16)), 16)
+                $decryptedBlock = [Convert]::ToString(([Convert]::ToUInt32($reversedBlock, 16) -bxor [Convert]::ToUInt32($hexOXR, 16)), 16)
                 $decryptedBlocks += $decryptedBlock.PadLeft(8, '0')
 
             }
@@ -194,31 +194,29 @@ function Get-abcdDATA ([string]$ABCDOrder) {
 function Get-HeldItem ([string[]]$heldItem) {
     $heldItemList = "$Mappings\heldItems.csv"
     $heldItemsArray = Import-Csv -Path $heldItemList
-    $hex1 = [Convert]::ToInt32($heldItem -join "", 16)
-    $hex2 = [Convert]::ToInt32("10000", 16)
+    $hex1 = [Convert]::ToUInt32($heldItem -join "", 16)
+    $hex2 = [Convert]::ToUInt32("10000", 16)
     $result = $hex1 / $hex2
     $hexResult = [Convert]::ToString($result, 16)
     $heldItem = $heldItemsArray[$hexResult].Item
     return $heldItem
 }
 
-function Get-PokemonSpecies ([string[]]$localDexNumber) {
-    return [Convert]::ToInt32($localDexNumber -join "", 16) 
-}
+function Get-PokemonSpecies ([string[]]$localDexNumber) { return [Convert]::ToUInt32($localDexNumber -join "", 16) }
 
-function Get-Exp ([string[]]$expHex) { return [Convert]::ToInt32($expHex -join "", 16) }
+function Get-Exp ([string[]]$expHex) { return [Convert]::ToUInt32($expHex -join "", 16) }
 
-function Get-Happiness ([string[]]$happinessHex) { return $(([Convert]::ToInt32($happinessHex -join "", 16) / 256) % 256 ) }
+function Get-Happiness ([string[]]$happinessHex) { return $(([Convert]::ToUInt32($happinessHex -join "", 16) / 256) % 256 ) }
 
 function Get-Moves ([string[]]$movesHex) {
 
     $moveList = "$Mappings\moves.csv"
     $moveArray = Import-CSV -Path $moveList
     $moveIDs = @{
-        "Move 1" = $moveArray[(($([Convert]::ToInt32($movesHex[0..7] -join "", 16)) % 65536))].Move
-        "Move 2" = $moveArray[(($([Convert]::ToInt32($movesHex[0..7] -join "", 16)) / 65536))].Move
-        "Move 3" = $moveArray[(($([Convert]::ToInt32($movesHex[8..15] -join "", 16)) % 65536))].Move
-        "Move 4" = $moveArray[(($([Convert]::ToInt32($movesHex[8..15] -join "", 16)) / 65536))].Move
+        "Move 1" = $moveArray[(($([Convert]::ToUInt32($movesHex[0..7] -join "", 16)) % 65536))].Move
+        "Move 2" = $moveArray[(($([Convert]::ToUInt32($movesHex[0..7] -join "", 16)) / 65536))].Move
+        "Move 3" = $moveArray[(($([Convert]::ToUInt32($movesHex[8..15] -join "", 16)) % 65536))].Move
+        "Move 4" = $moveArray[(($([Convert]::ToUInt32($movesHex[8..15] -join "", 16)) / 65536))].Move
 
     }
     return $moveIDs
@@ -228,10 +226,10 @@ function Get-PP ([string[]]$PPHex) {
 
     $PPamount = @{
 
-        "Move 1" = [Convert]::ToInt32($PPHex[6..7] -join "", 16)
-        "Move 2" = [Convert]::ToInt32($PPHex[4..5] -join "", 16)
-        "Move 3" = [Convert]::ToInt32($PPHex[2..3] -join "", 16)
-        "Move 4" = [Convert]::ToInt32($PPHex[0..1] -join "", 16)
+        "Move 1" = [Convert]::ToUInt32($PPHex[6..7] -join "", 16)
+        "Move 2" = [Convert]::ToUInt32($PPHex[4..5] -join "", 16)
+        "Move 3" = [Convert]::ToUInt32($PPHex[2..3] -join "", 16)
+        "Move 4" = [Convert]::ToUInt32($PPHex[0..1] -join "", 16)
         
     }
     return $PPamount
@@ -240,12 +238,12 @@ function Get-PP ([string[]]$PPHex) {
 function Get-EffortValues ([string[]]$EVsHex) {
 
     $EffortValues = @{
-        "Special Attack"  = [Convert]::ToInt32($EVsHex[15..14] -join "", 16)
-        "Special Defense" = [Convert]::ToInt32($EVsHex[13..12] -join "", 16)
-        "HP"              = [Convert]::ToInt32($EVsHex[6..7] -join "", 16)
-        "Attack"          = [Convert]::ToInt32($EVsHex[4..5] -join "", 16)
-        "Defense"         = [Convert]::ToInt32($EVsHex[2..3] -join "", 16)
-        "Speed"           = [Convert]::ToInt32($EVsHex[0..1] -join "", 16)
+        "Special Attack"  = [Convert]::ToUInt32($EVsHex[15..14] -join "", 16)
+        "Special Defense" = [Convert]::ToUInt32($EVsHex[13..12] -join "", 16)
+        "HP"              = [Convert]::ToUInt32($EVsHex[6..7] -join "", 16)
+        "Attack"          = [Convert]::ToUInt32($EVsHex[4..5] -join "", 16)
+        "Defense"         = [Convert]::ToUInt32($EVsHex[2..3] -join "", 16)
+        "Speed"           = [Convert]::ToUInt32($EVsHex[0..1] -join "", 16)
         
     }
     return $EffortValues
@@ -254,60 +252,60 @@ function Get-EffortValues ([string[]]$EVsHex) {
 function Get-Conditions ([string[]]$conditionsHex) {
 
     $conditionsInformation = @{
-        "Cool"   = [Convert]::ToInt32($conditionsHex[2..3] -join "", 16)
-        "Beauty" = [Convert]::ToInt32($conditionsHex[0..1] -join "", 16)
-        "Cute"   = [Convert]::ToInt32($conditionsHex[10..11] -join "", 16)
-        "Smart"  = [Convert]::ToInt32($conditionsHex[8..9] -join "", 16)
-        "Tough"  = [Convert]::ToInt32($conditionsHex[6..7] -join "", 16)
-        "Luster" = [Convert]::ToInt32($conditionsHex[4..5] -join "", 16)
+        "Cool"   = [Convert]::ToUInt32($conditionsHex[2..3] -join "", 16)
+        "Beauty" = [Convert]::ToUInt32($conditionsHex[0..1] -join "", 16)
+        "Cute"   = [Convert]::ToUInt32($conditionsHex[10..11] -join "", 16)
+        "Smart"  = [Convert]::ToUInt32($conditionsHex[8..9] -join "", 16)
+        "Tough"  = [Convert]::ToUInt32($conditionsHex[6..7] -join "", 16)
+        "Luster" = [Convert]::ToUInt32($conditionsHex[4..5] -join "", 16)
 
     }
     return $conditionsInformation
 
 }
 
-function Get-PokerusStatus ([string[]]$pokerusHex) { return [Convert]::ToInt32($pokerusHex -join "", 16) % 256 }
+function Get-PokerusStatus ([string[]]$pokerusHex) { return [Convert]::ToUInt32($pokerusHex -join "", 16) % 256 }
 
 function Get-LocationCaught ([string[]]$locationCaughtHex) {
 
     $locationCaughtList = "$Mappings\locationCaught.csv"
     $locationCaughtArray = Import-CSV -Path $locationCaughtList
-    $locationID = ([Convert]::ToInt32($locationCaughtHex -join "", 16) / 256) % 256
+    $locationID = ([Convert]::ToUInt32($locationCaughtHex -join "", 16) / 256) % 256
     return $locationCaughtArray[$locationID].Location
 
 }
 
 function Get-LevelMet ([string[]]$levelMetHex) {
-    return (([Convert]::ToInt32($levelMetHex -join "", 16) / 65536) % 256 ) -band 127
+    return (([Convert]::ToUInt32($levelMetHex -join "", 16) / 65536) % 256 ) -band 127
 }
 
 function Get-GameCartridge ([string[]]$gameCartridgeHex) {
     $gameCartridgeList = "$Mappings\gameCartridge.csv"
     $gameCartridgeArray = Import-CSV -Path $gameCartridgeList
-    $gameCartridgeID = [Math]::Floor(([Convert]::ToInt32($gameCartridgeHex -join "", 16) / 8388608) % 16)
+    $gameCartridgeID = [Math]::Floor(([Convert]::ToUInt32($gameCartridgeHex -join "", 16) / 8388608) % 16)
     return $gameCartridgeArray[$gameCartridgeID].Cartridge
 }
 
 function Get-BallCaught ([string[]]$ballCaughtHex) {
     $ballCaughtList = "$Mappings\ballCaught.csv"
     $ballCaughtArray = Import-CSV -Path $ballCaughtList
-    $ballCaughtID = [Math]::Floor(([Convert]::ToInt32($ballCaughtHex -join "", 16) / 134217728) % 16)
+    $ballCaughtID = [Math]::Floor(([Convert]::ToUInt32($ballCaughtHex -join "", 16) / 134217728) % 16)
     return $ballCaughtArray[$ballCaughtID - 1].Ball
 }
 
 function Get-TrainerGender ([string[]]$trainerGenderHex) {
-    $gender = [Math]::Floor([Convert]::ToInt32($trainerGenderHex -join "", 16) / 2147483648) % 2
+    $gender = [Math]::Floor([Convert]::ToUInt32($trainerGenderHex -join "", 16) / 2147483648) % 2
     if ($gender -eq 1) { return "Female" } else { return "Male" }
 }
 
 function Get-IndividualValues ([string[]]$IndividualValuesHex) {
     $IndividualValues = @{
-        "Special Attack"  = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 1048576) % 32)
-        "Special Defense" = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 33554432) % 32)
-        "HP"              = [Math]::Floor([Convert]::ToInt32($IndividualValuesHex -join "", 16) % 32)
-        "Attack"          = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 32) % 32)
-        "Defense"         = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 1024) % 32)
-        "Speed"           = [Math]::Floor(([Convert]::ToInt32($IndividualValuesHex -join "", 16) / 32768) % 32)
+        "Special Attack"  = [Math]::Floor(([Convert]::ToUInt32($IndividualValuesHex -join "", 16) / 1048576) % 32)
+        "Special Defense" = [Math]::Floor(([Convert]::ToUInt32($IndividualValuesHex -join "", 16) / 33554432) % 32)
+        "HP"              = [Math]::Floor([Convert]::ToUInt32($IndividualValuesHex -join "", 16) % 32)
+        "Attack"          = [Math]::Floor(([Convert]::ToUInt32($IndividualValuesHex -join "", 16) / 32) % 32)
+        "Defense"         = [Math]::Floor(([Convert]::ToUInt32($IndividualValuesHex -join "", 16) / 1024) % 32)
+        "Speed"           = [Math]::Floor(([Convert]::ToUInt32($IndividualValuesHex -join "", 16) / 32768) % 32)
         
     }
     return $IndividualValues
@@ -315,66 +313,69 @@ function Get-IndividualValues ([string[]]$IndividualValuesHex) {
 
 
 function Get-EggFlag ([string[]]$eggFlagHex) { 
-    $eggFlagNumber = [Math]::Floor(([Convert]::ToInt32($eggFlagHex -join "", 16) / 1073741824 ) % 2)
+    $eggFlagNumber = [Math]::Floor(([Convert]::ToUInt32($eggFlagHex -join "", 16) / 1073741824 ) % 2)
     if ($eggFlagNumber -eq 0 ) { return $true } else { return $false } 
 }
 
 function Get-HiddenAbilityStatus ([string[]]$hiddenAbilityHex) {
-    $hiddenAbilityNumber = [Math]::Floor(([Convert]::ToInt32($hiddenAbilityHex -join "", 16) / 2147483648 ) % 2)
+    $hiddenAbilityNumber = [Math]::Floor(([Convert]::ToUInt32($hiddenAbilityHex -join "", 16) / 2147483648 ) % 2)
     if ($hiddenAbilityNumber -eq 1 ) { return $true } else { return $false } 
 }
 
 function Get-ContestInformation ([string[]]$contestInformationHex) {
 
     $contests = @{
-        Cool           = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16)) % 8))"
-        Beauty         = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 8 ) % 8))"
-        Cute           = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 64 ) % 8))"
-        Samrt          = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 512 ) % 8))"
-        Tough          = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 4096 ) % 8))"
-        Campion        = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 32768 ) % 2))"
-        BattleLevel50  = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 65536 ) % 2))"
-        BattleLevel100 = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 131072 ) % 2))"
-        SketchRibbon   = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 262144 ) % 2))"
-        HardWorker     = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 524288 ) % 2))"
-        Special1       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 1048576 ) % 2))"
-        Special2       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 2097152 ) % 2))"
-        Special3       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 4194304 ) % 2))"
-        Special4       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 8388608 ) % 2))"
-        Special5       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 16777216 ) % 2))"
-        Special6       = "$(([Math]::Floor([Convert]::ToInt32($contestInformationHex -join '', 16) / 67108864 ) % 2))"
+        Cool           = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16)) % 8))"
+        Beauty         = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 8 ) % 8))"
+        Cute           = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 64 ) % 8))"
+        Samrt          = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 512 ) % 8))"
+        Tough          = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 4096 ) % 8))"
+        Campion        = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 32768 ) % 2))"
+        BattleLevel50  = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 65536 ) % 2))"
+        BattleLevel100 = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 131072 ) % 2))"
+        SketchRibbon   = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 262144 ) % 2))"
+        HardWorker     = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 524288 ) % 2))"
+        Special1       = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 1048576 ) % 2))"
+        Special2       = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 2097152 ) % 2))"
+        Special3       = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 4194304 ) % 2))"
+        Special4       = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 8388608 ) % 2))"
+        Special5       = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 16777216 ) % 2))"
+        Special6       = "$(([Math]::Floor([Convert]::ToUInt32($contestInformationHex -join '', 16) / 67108864 ) % 2))"
     }
     return $contests
 }
 
 function Get-Obedience ([string[]]$ObedienceHex) {
-    $obedienceNumber = [Math]::Floor($(([Convert]::ToInt32($ObedienceHex -join "", 16)) / 2147483648 ) % 2)
+    $obedienceNumber = [Math]::Floor($(([Convert]::ToUInt32($ObedienceHex -join "", 16)) / 2147483648 ) % 2)
     If ($obedienceNumber -eq 0) { return "Not Obedient" } else { return "Obedient" }
 }
 
 # Test
-$pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
+#$pokemonHEX = "9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4"
 # Mankey
 #$pokemonHEX = "8F11F92D198BF0A6CAE9E2D7DCEDFF0807000202BDC2CCC3CDFFFF00370700003800000084010000006500000A002B0043000000231E1400000001000000000000000000007A042247A8803D000000"
-#$pk3Data = Get-PokemonBytes -Path $pokemonPath
-$pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
-for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
-    $pk3Data[$i / 2] = [convert]::ToByte($pokemonHEX.Substring($i, 2), 16)
-}
+$pk3Data = Get-PokemonBytes -Path $pokemonPath
+# $pk3Data = [byte[]]::new($pokemonHEX.Length / 2)
+# for ($i = 0; $i -lt $pokemonHEX.Length; $i += 2) {
+#     $pk3Data[$i / 2] = [convert]::ToByte($pokemonHEX.Substring($i, 2), 16)
+# }
+
+$pokemonString = ($pk3Data | ForEach-Object { $_.ToString("X2") }) -join ""
+#Write-Host $pokemonString
+$PokemonHex = $pokemonString
 
 $reversePokemonID = $pk3Data[0..7] -join ""
-$pokemonIDBytes = $pk3Data[3..0]
 $PokemonIDHex = ($pk3Data[3..0] | ForEach-Object { $_.ToString("X2") }) -join ""
-$normalPokemonID = ($pokemonIDBytes | ForEach-Object { $_.ToString("X2") }) -join ""
 $TrainerIDHex = ($pk3Data[7..4] | ForEach-Object { "{0:X2}" -f $_ }) -join ""
 $TrainerID = Get-TrainerID $pk3Data[4..7]
 $secretTrainerIDHex = ($pk3Data[7..6] | ForEach-Object { "{0:X2}" -f $_ }) -join ""
 $secretTrainerID = Get-SecretTrainerID $pk3Data[4..7]
-$hexOXR = [Convert]::ToString(([Convert]::ToInt32($TrainerIDHex, 16) -bxor [Convert]::ToInt32($PokemonIDHex, 16)), 16)
-$nature = Get-Nature -PokemonID $normalPokemonID
-#$gender = Get-Gender -PokemonID $normalPokemonID -PokemonSpecies $localDexNumber
-$ABCDOrder = Get-ABCDOrder -PokemonID $normalPokemonID
-$decryptionKey = Get-DecryptionKey -PokemonID $normalPokemonID -TrainerID $TrainerIDHex
+$hexOXR = [Convert]::ToString(([Convert]::ToUInt32($TrainerIDHex, 16) -bxor [Convert]::ToUInt32($PokemonIDHex, 16)), 16)
+$nature = Get-Nature -PokemonID $PokemonIDHex
+#$gender = Get-Gender -PokemonID $PokemonIDHex -PokemonSpecies $localDexNumber
+$ABCDOrder = Get-ABCDOrder -PokemonID $PokemonIDHex
+$ABCDOrder = "ABCD"
+$decryptionKey = Get-DecryptionKey -PokemonID $PokemonIDHex -TrainerID $TrainerIDHex
 $isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
 $pokemonName = Get-Name -nameBytes $pk3Data[8..19]
 $trainerName = Get-Name -nameBytes $pk3Data[20..26]
@@ -406,7 +407,6 @@ $isObedient = Get-Obedience -ObedienceHex $misc[16..23]
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
 Write-Host "PokemonID - [R]: $reversePokemonID"
-Write-Host "PokemonID - [N]: $normalPokemonID"
 Write-Host "PokemonID - [H]: $PokemonIDHex"
 Write-Host "Nature: $nature"
 #Write-Host "Gender: $gender" # this will get enabled via the species number

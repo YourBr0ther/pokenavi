@@ -1,0 +1,38 @@
+PokemonHEX: 9DE847FFE1DD6E3BBDBBCDBDC9C9C8FF80430202C5D9E2FFFFFF00A4F100007C3529C47C3529C47C3529C4593429C4013529C47C7329C47C0EACE45875F8C97C3529C4163529C47C3529C4623529C4
+PokemonID - [R]: 1572327125522522111059
+PokemonID - [H]: FF47E89D
+Nature: Timid
+ABCD Order: CADB
+TrainerID - [H]: 3B6EDDE1
+TrainerID - [N]: 56801
+Secret TrainerID - [H]: 3B6E
+Secret TrainerID - [N]: 15214
+DecrptionKey: 3291035004
+Shiny Status: False
+Pokemon Name: CASCOON
+Trainer Name: Ken
+Markings: No Markings
+
+Growth [H]: 000001250000007d00004600
+Moves [H]: 0000006a000000000000001e
+EVs [H]: 000000000000000000000000
+Misc [H]: 20853b000dd1402400000000
+Held Item: No Item
+Local Dex Number: 293
+Exp: 125
+Happiness: 70
+Move Names: Harden,No Move,No Move,No Move
+PP: 30,0,0,0
+EVs: 0,0,0,0,0,0
+Conditions: 0,0,0,0,0,0
+Pokerus: 0
+Location Caught: Petalburg Woods [THE UNDER SUBWAY]
+Level Met: 5
+Game Cartridge: Pokemon Sapphire
+Ball Caught: Poke Ball
+Trainer Gender: Male
+Individual Values: 4,1,16,2,29,6
+Egg Status: True
+Hidden Ability Status: False
+Contest Information: 0,0,0,,0,0,0,0,0,0,0,0,0,0,0,0
+Obediant Status: Not Obedient
