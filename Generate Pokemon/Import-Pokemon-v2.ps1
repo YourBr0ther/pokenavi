@@ -432,6 +432,6 @@ Write-Host "Trainer Gender: $trainerGender"
 Write-Host "Individual Values: $($IndividualValues.'HP'),$($IndividualValues.'Attack'),$($IndividualValues.'Defense'),$($IndividualValues.'Speed'),$($IndividualValues.'Special Attack'),$($IndividualValues.'Special Defense')"
 Write-Host "Egg Status: $isEgg"
 Write-Host "Hidden Ability Status: $hasHiddenAbility"
-Write-Host "Contest Information: $($contests.Cool),$($contests.Beauty),$($contests.Cute),$($contests.Smart),$($contests.Tough),$($contests.Campion),$($contests.BattleLevel50),$($contests.BattleLevel50),$($contests.SketchRibbon),$($contests.SketchRibbon),$($contests.Special1),$($contests.Special2),$($contests.Special3),$($contests.Special4),$($contests.Special5),$($contests.Special6)"
+Write-Host "Contest Information: $($contests.Cool),$($contests.Beauty),$($contests.Cute),$($contests.Smart),$($contests.Tough),$($contests.Campion),$($contests.BattleLevel50),$($contests.BattleLevel100),$($contests.SketchRibbon),$($contests.SketchRibbon),$($contests.Special1),$($contests.Special2),$($contests.Special3),$($contests.Special4),$($contests.Special5),$($contests.Special6)"
 Write-Host "Obediant Status: $isObedient"
 

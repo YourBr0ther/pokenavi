@@ -31,7 +31,7 @@ async function primeChatBot(selectedPokemon) {
         console.log("Pokemon for priming: " + selectedPokemon.pokemon.name);
 
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
-        await loadMessagesFromMongoDB(pokedexNumber, userId)
+        await loadMessagesFromMongoDB(pokedexNumber, userId, 4096)
 
         const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
 
@@ -58,7 +58,7 @@ async function primeChatBot(selectedPokemon) {
         // Send pkmnSheet via the message array to ChatGPT and put response in response variable
         try {
             response = await openai.createChatCompletion({
-                model: "gpt-3.5-turbo",
+                model: "gpt-4",
                 messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
                 temperature: 0.7,
                 max_tokens: 1,
@@ -105,18 +105,25 @@ async function saveMessagesToMongoDB(pokedexNumber) {
     }
 }
 
-async function loadMessagesFromMongoDB(pokedexNumber, userId) {
+async function loadMessagesFromMongoDB(pokedexNumber, userId, tokenLimit) {
     try {
         await client.connect();
 
         const database = client.db('InteractionHistory');
         const collection = database.collection('chats');
-        const userId = global.userId
 
-        const cursor = collection.find({ 'pokedexNumber': pokedexNumber, 'userId': userId });
+        const cursor = collection.find({ 'pokedexNumber': pokedexNumber, 'userId': userId }).sort({ _id: -1 });
         const results = await cursor.toArray();
 
-        interactionHistoryLogs[pokedexNumber] = results.filter(isMessageWithinDuration);
+        // Filter messages based on token limit
+        let tokenCount = 0;
+        const filteredResults = results.filter((message) => {
+            const messageTokenCount = message.text.length; // You may need to adjust this line based on the actual message structure
+            tokenCount += messageTokenCount;
+            return tokenCount <= tokenLimit;
+        });
+
+        interactionHistoryLogs[pokedexNumber] = filteredResults.filter(isMessageWithinDuration);
         runningMemoryLogs[pokedexNumber] = interactionHistoryLogs[pokedexNumber].slice();
     } catch (error) {
         console.error(`Error loading interaction history for Pokemon #${pokedexNumber} and user ${userId} from MongoDB:`, error);
@@ -124,6 +131,7 @@ async function loadMessagesFromMongoDB(pokedexNumber, userId) {
         await client.close();
     }
 }
+
 
 // Check if a message is within the specified duration
 function isMessageWithinDuration(message) {
@@ -402,7 +410,7 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
     try {
         const response = await sendChatToPokemon(userMessage);
 
-        res.json({ assistantResponse: `Pokemon: ${response}` });
+        res.json({ assistantResponse: `${response}` });
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" });
     }
