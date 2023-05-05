@@ -32,11 +32,10 @@ function Get-Gender {
         [String]$PokemonID,
         [String]$PokemonSpecies
     )
-    Write-Host $PokemonSpecies
     $regionalDex = "https://pokeapi.co/api/v2/pokedex/2/"
     $responseDex = Invoke-RestMethod -Uri $regionalDex
     $responseDex
-    $PokemonSpeciesName = $responseDex.pokemon_entries.pokemon_species[$PokemonSpecies-1].Name
+    $PokemonSpeciesName = $responseDex.pokemon_entries.pokemon_species[$PokemonSpecies - 1].Name
     
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
     $apiUrl = "https://pokeapi.co/api/v2/gender/female"
@@ -56,9 +55,7 @@ function Get-Gender {
         0.25 { $genderThreshold = $genderThresholds['25%'] }
         0.5 { $genderThreshold = $genderThresholds['50%'] }
         0.75 { $genderThreshold = $genderThresholds['75%'] }
-        default {
-            throw "Invalid female ratio specified. Please use a valid value: 0.125, 0.25, 0.5, or 0.75."
-        }
+        default {        }
     }
     if ($decimalValue -le $genderThreshold) { return "Female" } else { return "Male" }
 }
@@ -194,6 +191,7 @@ function Get-abcdDATA ([string]$ABCDOrder) {
     }   
     return $DataArray
 }
+
 
 function Get-HeldItem ([string[]]$heldItem) {
     $heldItemList = "$Mappings\heldItems.csv"
@@ -371,10 +369,10 @@ $isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
 $pokemonName = Get-Name -nameBytes $pk3Data[8..19]
 $trainerName = Get-Name -nameBytes $pk3Data[20..26]
 $markings = Get-Markings -markingByte $pk3Data[27]
-$growth = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Growth"
-$moves = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Moves"
-$evs = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."EVs"
-$misc = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Misc"
+$growth = $(Get-abcdDATA -ABCDOrder $existingOrder)."Growth"
+$moves = $(Get-abcdDATA -ABCDOrder $existingOrder)."Moves"
+$evs = $(Get-abcdDATA -ABCDOrder $existingOrder)."EVs"
+$misc = $(Get-abcdDATA -ABCDOrder $existingOrder)."Misc"
 $heldItem = Get-HeldItem -heldItem $growth[0..3]
 $localDexNumber = Get-PokemonSpecies -localDexNumber $growth[4..7]
 $exp = Get-Exp -expHex $growth[8..15]
@@ -434,4 +432,5 @@ Write-Host "Egg Status: $isEgg"
 Write-Host "Hidden Ability Status: $hasHiddenAbility"
 Write-Host "Contest Information: $($contests.Cool),$($contests.Beauty),$($contests.Cute),$($contests.Smart),$($contests.Tough),$($contests.Campion),$($contests.BattleLevel50),$($contests.BattleLevel100),$($contests.SketchRibbon),$($contests.SketchRibbon),$($contests.Special1),$($contests.Special2),$($contests.Special3),$($contests.Special4),$($contests.Special5),$($contests.Special6)"
 Write-Host "Obediant Status: $isObedient"
+
 
