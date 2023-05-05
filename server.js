@@ -410,7 +410,7 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
     try {
         const response = await sendChatToPokemon(userMessage);
 
-        res.json({ assistantResponse: `${response}` });
+        res.json({ assistantResponse: `Pokemon: ${response}` });
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" });
     }
