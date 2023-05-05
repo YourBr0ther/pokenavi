@@ -224,42 +224,93 @@ async function getAllPokemon() {
     let allPokemon = [];
     const userId = global.userId; // Make sure to set global.userId before calling this function
 
-    // Create a regular expression to match the file name pattern
-    const filePattern = new RegExp(`^${userId}\.([^.]+)\.json$`);
+    // Connection URL
+    const url = `mongodb://${process.env.MONGODB_SERVER}:27017`;
 
-    for (const file of jsonFileNames) {
-        // Check if the file name matches the desired pattern
-        if (filePattern.test(file)) {
-            const filePath = `${directoryPath}/${file}`;
-            const data = await fs.promises.readFile(filePath);
-            const pokemon = JSON.parse(data);
+    // Database and Collection names
+    const dbName = 'Pokemon';
+    const collectionName = userId;
+    console.log(collectionName)
+
+    // Create a new MongoClient
+    const client = new MongoClient(url);
+
+    try {
+        // Connect to the MongoDB server
+        await client.connect();
+
+        // Get the Pokemon database and the user's collection
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+
+        // Find all documents in the user's collection
+        const cursor = collection.find();
+
+        // Iterate through the documents and extract Pokemon names and Pokedex numbers
+        await cursor.forEach(doc => {
             allPokemon.push({
-                species: pokemon.pokemon.species,
-                pokedexNumber: pokemon.pokemon.nationalPokedexNumber,
+                species: doc.pokemon.species,
+                pokedexNumber: doc.pokemon.nationalPokedexNumber,
             });
-        }
+        });
+    } catch (err) {
+        console.error(err);
+    } finally {
+        // Close the connection to the MongoDB server
+        //await client.close();
     }
+
     return allPokemon;
 }
 
 // Get a Pokemon JSON by its PokedexNumber instead of its JSON Index
 async function getPokemonByPokedexNumber(pokedexNumber) {
-    try {
-        // for each of the JSON files, look to see if the seleted pokedmon's natonal dex number matches te PokedexNumber
-        for (const fileName of jsonFileNames) {
-            const fileData = await fsPromises.readFile(`./JSON/${fileName}`, 'utf8');
-            const pokemonData = JSON.parse(fileData);
-            if (pokemonData.pokemon.nationalPokedexNumber == pokedexNumber) {
-                console.log(`Found ${pokemonData.pokemon.species}`);
-                return pokemonData;
-            }
-        }
+    const userId = global.userId; // Make sure to set global.userId before calling this function
 
-        console.log(`Pokemon not found`);
-        return null;
+    // Connection URL
+    const url = `mongodb://${process.env.MONGODB_SERVER}:27017`;
+
+    // Database and Collection names
+    const dbName = 'Pokemon';
+    const collectionName = userId;
+
+    // Create a new MongoClient
+    const client = new MongoClient(url);
+
+    try {
+        // Connect to the MongoDB server
+        await client.connect();
+
+        // Get the Pokemon database and the user's collection
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+        
+        // Find all documents in the user's collection
+        const cursor = collection.find();
+
+        // Print all documents
+        console.log(`All documents in the '${collectionName}' collection:`);
+        await cursor.forEach(doc => {
+            console.log(doc);
+        });
+
+        console.log('Pokemon Number: ' + pokedexNumber)
+        // Find the Pokemon document with the specified Pokedex number
+        const pokemonData = await collection.findOne({ 'pokemon.nationalPokedexNumber': Number(pokedexNumber) });
+        console.log(pokemonData)
+        if (pokemonData) {
+            console.log(`Found ${pokemonData.pokemon.species}`);
+            return pokemonData;
+        } else {
+            console.log(`Pokemon not found`);
+            return null;
+        }
     } catch (error) {
         console.error(`Error getting Pokémon by Pokedex number:`, error);
         return null;
+    } finally {
+        // Close the connection to the MongoDB server
+        //await client.close();
     }
 }
 
@@ -440,16 +491,22 @@ app.post('/switch', isAuthenticated, async (req, res) => {
     }
 });
 
-// API endpoint to handle form data submission
 app.post('/api/submit-data', async (req, res) => {
     console.log('Received data:', req.body);
 
     const userId = global.userId;
-    // Save JSON data to the './JSON' folder
-    const jsonFolder = './JSON';
+
+    // Connection URL
+    const url = `mongodb://${process.env.MONGODB_SERVER}:27017`;
+
+    // Database and Collection names
+    const dbName = 'Pokemon';
+    const collectionName = userId;
+
+    // Create a new MongoClient
+    const client = new MongoClient(url);
+
     const speciesName = capitalizeAndReplace(req.body.pokemon.species)
-    const fileName = `${userId}-${speciesName}.json`;
-    const filePath = path.join(jsonFolder, fileName);
     const pokeData = await getPokemonEntries(speciesName);
     console.log(pokeData)
 
@@ -478,32 +535,35 @@ app.post('/api/submit-data', async (req, res) => {
     };
 
     try {
-        // Create the JSON folder if it doesn't exist
-        await fs.promises.mkdir(jsonFolder, { recursive: true });
+        // Connect to the MongoDB server
+        await client.connect();
 
-        // Read the existing JSON data from the file if it exists
-        let existingData = {};
-        if (fs.existsSync(filePath)) {
-            const fileData = await fs.promises.readFile(filePath, 'utf-8');
-            existingData = JSON.parse(fileData);
-        }
+        // Get the Pokemon database and the user's collection
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+
+        // Query to find the existing document with the specified species
+        const existingData = await collection.findOne({ 'pokemon.species': speciesName });
 
         // Merge the received JSON with the existing JSON and the template JSON
         const mergedData = {
             ...existingData,
             ...req.body,
-            system: { ...existingData.system, ...req.body.system, ...template.system },
-            pokemon: { ...existingData.pokemon, ...req.body.pokemon, ...template.pokemon },
+            system: { ...existingData?.system, ...req.body.system, ...template.system },
+            pokemon: { ...existingData?.pokemon, ...req.body.pokemon, ...template.pokemon },
         };
 
-        // Write the merged JSON data back to the file
-        await fs.promises.writeFile(filePath, JSON.stringify(mergedData, null, 2));
+        // Upsert the merged JSON data to the collection
+        await collection.updateOne({ 'pokemon.species': speciesName }, { $set: mergedData }, { upsert: true });
 
         // Send a success response
         res.status(200).json({ message: 'Data saved successfully' });
     } catch (error) {
         console.error('Error saving JSON data:', error);
         res.status(500).json({ message: 'Error saving data' });
+    } finally {
+        // Close the connection to the MongoDB server
+        await client.close();
     }
 });
 
