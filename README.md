@@ -35,10 +35,6 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
     node server.js
 
 ### Authentic Attributes
-* Missing Attributes
-  * Pokemon Name
-  * Trainer Name
-  * Gender
 * Add second Type
 * Implement the new JSON format
 * Successfully import the 80 bytes into PokeNavi
