@@ -5,9 +5,6 @@ const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
 const openai = new OpenAIApi(configuration);
 const express = require("express");
 const bodyParser = require("body-parser");
-const fs = require('fs');
-const path = require('path');
-const fsPromises = require('fs').promises;
 const axios = require('axios');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
@@ -17,8 +14,6 @@ const { MongoClient } = require('mongodb');
 const uri = `mongodb://${process.env.MONGODB_SERVER}/InteractionHistory`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/loginDemo`, { useNewUrlParser: true, useUnifiedTopology: true });
-const directoryPath = path.join(__dirname, './JSON/');
-const jsonFileNames = fs.readdirSync(directoryPath).filter(file => path.extname(file) === '.json');
 const runningMemoryLogs = {}
 const interactionHistoryLogs = {}
 const conversationMemoryDuration = 7 * 24 * 60 * 60 * 1000
