@@ -2,7 +2,7 @@ const submitButton = document.getElementById("submit");
 const menuButton = document.getElementById("menu");
 const createButton = document.getElementById("create");
 const userMessage = document.getElementById("prompt");
-const messages = document.getElementById("outputContainer");
+const chatMessages = document.getElementById("chat-messages");
 
 function populateDropdown(pokemonList) {
   const dropdown = document.getElementById('switch');
@@ -21,43 +21,46 @@ function populateDropdown(pokemonList) {
   }
 }
 
+function addSystemMessage(messageText) {
+  const messageElement = document.createElement("li");
+  messageElement.classList.add("received-message");
+  messageElement.textContent = messageText;
+  chatMessages.appendChild(messageElement);
+}
+
+function addUserMessage(messageText) {
+  const messageElement = document.createElement("li");
+  messageElement.classList.add("sent-message");
+  messageElement.textContent = messageText;
+  chatMessages.appendChild(messageElement);
+}
+
 const scrollToBottom = () => {
-  messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+  chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
 };
 
 const submitMessage = async () => {
   const message = userMessage.value;
   userMessage.value = "";
 
-  const li = document.createElement("li");
-  li.textContent = `   User: ${message}`;
-  messages.appendChild(li);
-
-  scrollToBottom()
+  addUserMessage(`${message}`);
+  scrollToBottom();
 
   const response = await fetch("/prompt", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ userMessage: message })
-
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ userMessage: message })
   });
 
   const data = await response.json();
   const assistantResponse = data.assistantResponse;
-  console.log(data.systemName)
 
-  playSound()
+  playSound();
 
-  const liAssistant = document.createElement("li");
-  liAssistant.textContent = `   ${assistantResponse}`;
-  console.log(liAssistant.textContent);
-  messages.appendChild(liAssistant);
-
-  setTimeout(() => {
-    scrollToBottom();
-  }, 0);
+  addSystemMessage(assistantResponse);
+  scrollToBottom();
 };
 
 submitButton.addEventListener("click", submitMessage);
@@ -106,11 +109,11 @@ const switchPrompt = async () => {
     pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokedexNumber}.png?${cacheBuster}`;
   }
 
-  messages.innerHTML = "";
+  chatMessages.innerHTML = "";
 
   const liAssistant = document.createElement("li");
   liAssistant.textContent = `${assistantResponse}`;
-  messages.appendChild(liAssistant);
+  chatMessages.appendChild(liAssistant);
 
   scrollToBottom();
 
@@ -137,13 +140,15 @@ userMessage.addEventListener("keydown", (e) => {
 
 const switchDropdown = document.getElementById("switch");
 
-switchDropdown.addEventListener("change", async () => {
-  if (switchDropdown.value) {
-    messages.innerHTML = "Switching!";
-    await switchPrompt();
-    switchDropdown.value = "";
-  }
-});
+if (switchDropdown) {
+  switchDropdown.addEventListener("change", async () => {
+    if (switchDropdown.value) {
+      chatMessages.innerHTML = "Switching!";
+      await switchPrompt();
+      switchDropdown.value = "";
+    }
+  });
+}
 
 document.getElementById('create').addEventListener('click', function () {
   window.location.href = "create";

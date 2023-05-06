@@ -127,7 +127,6 @@ async function loadMessagesFromMongoDB(pokedexNumber, userId, tokenLimit) {
     }
 }
 
-
 // Check if a message is within the specified duration
 function isMessageWithinDuration(message) {
     const messageTimestamp = new Date(message.timestamp).getTime();
@@ -456,7 +455,7 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
     try {
         const response = await sendChatToPokemon(userMessage);
 
-        res.json({ assistantResponse: `Pokemon: ${response}` });
+        res.json({ assistantResponse: `${response}` });
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" });
     }

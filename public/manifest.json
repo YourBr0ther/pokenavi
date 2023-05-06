@@ -3,17 +3,17 @@
     "short_name": "PokeNavi",
     "icons": [
       {
-        "src": "poke-radar-192.png",
+        "src": "images/poke-radar-192.png",
         "type": "image/png",
         "sizes": "192x192"
       },
       {
-        "src": "poke-radar-512.png",
+        "src": "images/poke-radar-512.png",
         "type": "image/png",
         "sizes": "512x512"
       }
     ],
-    "start_url": ".",
+    "start_url": "login.ejs",
     "display": "standalone",
     "theme_color": "#000000",
     "background_color": "#D3D3D3"
