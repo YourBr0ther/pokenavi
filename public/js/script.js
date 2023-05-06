@@ -101,6 +101,7 @@ const switchPrompt = async () => {
   const assistantResponse = data.assistantResponse || `Switched to ${data.pokedexNumber}`;
 
   const pokemonImg = document.getElementById("sprite");
+  const chatWindow = document.getElementById("chat-window"); // Get the chat-window element
   const cacheBuster = new Date().getTime();
 
   if (pokedexNumber === "133") {
@@ -110,6 +111,9 @@ const switchPrompt = async () => {
   }
 
   chatMessages.innerHTML = "";
+
+  updateChatWindowBgImage(pokemonImg.src);
+
 
   const liAssistant = document.createElement("li");
   liAssistant.textContent = `${assistantResponse}`;
@@ -122,6 +126,17 @@ const switchPrompt = async () => {
 
   submitButton.disabled = false;
 };
+
+function updateChatWindowBgImage(imageUrl) {
+  const chatWindow = document.getElementById("chat-window");
+  const newStyleSheet = document.createElement("style");
+  newStyleSheet.innerHTML = `
+    #chat-window::before {
+      background-image: url('${imageUrl}');
+    }
+  `;
+  document.head.appendChild(newStyleSheet);
+}
 
 function playSound() {
   var audio = document.getElementById("myAudio");

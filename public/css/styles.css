@@ -162,7 +162,9 @@ select {
   margin-left: auto;
 }
 
-.bordered-window {
+.bordered-window { 
+  position: relative; /* This is required for the positioning of the ::before pseudo-element */
+  overflow: hidden;
   border: 1px solid black;
   width: 100%;
   height: 550px;
@@ -176,6 +178,22 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 0;
+}
+
+#chat-window::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 26.7%;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');
+  background-size: cover; /* To resize the background image to cover the entire container */
+  background-position: bottom 90%;  opacity: 0.5; /* Adjust the opacity for the desired transparency (0.5 means 50% transparent) */
+  z-index: -1; /* Set the z-index to -1 to place the background image behind the chat content */
+  transform: scaleX(-1)
 }
 
 .text-input {
