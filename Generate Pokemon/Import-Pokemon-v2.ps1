@@ -34,7 +34,6 @@ function Get-Gender {
     )
     $regionalDex = "https://pokeapi.co/api/v2/pokedex/2/"
     $responseDex = Invoke-RestMethod -Uri $regionalDex
-    $responseDex
     $PokemonSpeciesName = $responseDex.pokemon_entries.pokemon_species[$PokemonSpecies - 1].Name
     
     $PokemonIDDC = [System.Convert]::ToInt64($PokemonID, 16)
@@ -205,6 +204,18 @@ function Get-HeldItem ([string[]]$heldItem) {
 }
 
 function Get-PokemonSpecies ([string[]]$localDexNumber) { return [Convert]::ToUInt32($localDexNumber -join "", 16) }
+
+function Get-PokemonSpeciesName([int]$PokemonSpecies) { 
+
+    $regionalDex = "https://pokeapi.co/api/v2/pokedex/2/"
+    $responseDex = Invoke-RestMethod -Uri $regionalDex
+    $responseDex
+    $url = $responseDex.pokemon_entries.pokemon_species[$PokemonSpecies - 1].url
+    $regex = '/(\d+)/'
+    $match = [regex]::Match($url, $regex)
+    $number = $match.Groups[1].Value
+    return $number
+}
 
 function Get-Exp ([string[]]$expHex) { return [Convert]::ToUInt32($expHex -join "", 16) }
 
@@ -432,5 +443,88 @@ Write-Host "Egg Status: $isEgg"
 Write-Host "Hidden Ability Status: $hasHiddenAbility"
 Write-Host "Contest Information: $($contests.Cool),$($contests.Beauty),$($contests.Cute),$($contests.Smart),$($contests.Tough),$($contests.Campion),$($contests.BattleLevel50),$($contests.BattleLevel100),$($contests.SketchRibbon),$($contests.SketchRibbon),$($contests.Special1),$($contests.Special2),$($contests.Special3),$($contests.Special4),$($contests.Special5),$($contests.Special6)"
 Write-Host "Obediant Status: $isObedient"
+
+function Fill-JSON {
+    param (
+        [string]$TrainerName,
+        [string]$TrainerGender,
+        [string]$TrainerAge,
+        [string]$PokemonName,
+        [string]$PokemonSpecies,
+        [string]$PokemonGender,
+        [array]$PokemonTraits,
+        [string]$PokemonAge,
+        [string]$PokemonHobby,
+        [array]$PokemonEntries,
+        [int]$NationalPokedexNumber,
+        [string]$SystemResponse,
+        [string]$SystemMemory,
+        [string]$SystemTopicsToExplore,
+        [string]$SystemPreviousConversationPoints,
+        [string]$SystemCurrentTopic,
+        [string]$SystemDreams,
+        [string]$SystemInnerDialogue,
+        [string]$SystemPrivateThoughts,
+        [array]$SystemRules
+    )
+
+    $jsonObject = @{
+        trainer = @{
+            name   = $TrainerName
+            gender = $TrainerGender
+            age    = $TrainerAge
+        }
+        pokemon = @{
+            name                  = $PokemonName
+            species               = $PokemonSpecies
+            gender                = $PokemonGender
+            traits                = $PokemonTraits
+            age                   = $PokemonAge
+            hobby                 = $PokemonHobby
+            entries               = $PokemonEntries
+            nationalPokedexNumber = $NationalPokedexNumber
+        }
+        system  = @{
+            response                     = $SystemResponse
+            memory                       = $SystemMemory
+            topics_to_explore            = $SystemTopicsToExplore
+            previous_conversation_points = $SystemPreviousConversationPoints
+            current_topic                = $SystemCurrentTopic
+            dreams                       = $SystemDreams
+            inner_dialogue               = $SystemInnerDialogue
+            private_thoughts             = $SystemPrivateThoughts
+            rules                        = $SystemRules
+        }
+    }
+
+    $json = $jsonObject | ConvertTo-Json -Depth 5
+    return $json
+}
+
+$json = Fill-JSON `
+    -ID '64556518615c7529391ec629' `
+    -TrainerName $trainerName `
+    -TrainerGender $trainerGender `
+    -TrainerAge $trainerAg `
+    -PokemonName $pokemonName `
+    -PokemonSpecies $PokemonSpecies `
+    -PokemonGender $gender `
+    -PokemonTraits @('bold', 'smart') `
+    -PokemonAge $pokemonAge `
+    -PokemonHobby 'weather' `
+    -PokemonEntries @('entry1', 'entry2', 'entry3', 'entry4', 'entry5') `
+    -NationalPokedexNumber $pokemonDexNumber `
+    -SystemResponse 'Response text based on the user input' `
+    -SystemMemory 'key-value store of things I should remember about myself and the user' `
+    -SystemTopicsToExplore 'detailed description of interesting topics to explore further' `
+    -SystemPreviousConversationPoints 'list of previous conversation points' `
+    -SystemCurrentTopic 'detailed description of the current topic' `
+    -SystemDreams 'Create simulated detailed description of the system dreams based on previous conversations' `
+    -SystemInnerDialogue 'Create simulated inner_dialogue based on the conversation' `
+    -SystemPrivateThoughts 'Create simulated private thoughts based on the conversation' `
+    -SystemRules @('rule1', 'rule2', 'rule3')
+
+Write-Output $json
+
 
 
