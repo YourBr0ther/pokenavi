@@ -209,7 +209,7 @@ select {
 
 input[type="text"] {
   width: 100%;
-  text-align: center;
+  text-align: left;
   margin: 10px 0;
   box-sizing: border-box;
 }
