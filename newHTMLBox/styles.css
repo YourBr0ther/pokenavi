@@ -21,6 +21,15 @@ body {
     flex: 1;
     padding: 10px;
     overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.received-message {
+    background-color: #f1f1f1;
+    color: #000;
+    align-self: flex-start;
 }
 
 .chat-input {
@@ -56,10 +65,13 @@ button:hover {
     background-color: #f1f1f1;
     border-radius: 4px;
     word-wrap: break-word;
+    max-width: 90%; /* Limit the message width to 90% of the chat window width */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
+
 
 .sent-message {
     background-color: #0095f6;
     color: #fff;
-    align-self: flex-end;
+    margin-left: auto; /* Add this line to push the user's messages to the right side */
 }

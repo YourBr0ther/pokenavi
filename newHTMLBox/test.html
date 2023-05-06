@@ -18,4 +18,48 @@
     </div>
     <script src="script.js"></script>
 </body>
+<script>
+    const sendButton = document.getElementById("send-button");
+const inputMessage = document.getElementById("input-message");
+const chatMessages = document.getElementById("chat-messages");
+
+sendButton.addEventListener("click", sendMessage);
+
+function addSystemMessage(messageText) {
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message", "received-message");
+    messageElement.textContent = messageText;
+    chatMessages.appendChild(messageElement);
+}
+
+function sendMessage() {
+    const message = inputMessage.value.trim();
+    if (message) {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "sent-message");
+        messageElement.textContent = message;
+        chatMessages.appendChild(messageElement);
+
+        // Scroll to the bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Clear the input field
+        inputMessage.value = "";
+
+        // Generate a simple system response
+        setTimeout(() => {
+            addSystemMessage("System: Received your message!");
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1000);
+    }
+}
+
+// Handle the Enter key for sending messages
+inputMessage.addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+});
+
+</script>
 </html>
