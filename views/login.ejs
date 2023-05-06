@@ -169,5 +169,11 @@
     </div>
   </div>
 </body>
+<script>
+  document.querySelector(".form").addEventListener("submit", function(event) {
+    var usernameInput = document.getElementById("username");
+    usernameInput.value = usernameInput.value.toLowerCase();
+  });
+</script>
 
 </html>
