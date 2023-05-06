@@ -51,8 +51,6 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
   * Select 6 for Party
   * Check boxes showing all registered Pokemon
   * Save button on selected Pokemon
-* Switch to chat bubbles
-* Research new html elements
 * Transparent sprite in bordered window element
 * Comment the HTML
 
