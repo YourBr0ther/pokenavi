@@ -174,9 +174,6 @@ async function sendChatToPokemon(prompt) {
 
         // Send user response with previous message array
         try {
-            // Log the entire primeRunningMemory array
-            runningMemoryLogs[pokedexNumber].forEach((message, index) => {
-            });
             // Get ChatGPT's response
             response = await openai.createChatCompletion({
                 model: "gpt-4",
@@ -189,15 +186,56 @@ async function sendChatToPokemon(prompt) {
             console.error(error)
             process.exit(1)
         }
-
-        // Get just the string response
         const output_json = response.data.choices
-        const output = output_json[0].message.content
-        // Save ChatGPT's response to runningMemoryLogs and interactionHistoryLogs array
-        runningMemoryLogs[pokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
-        interactionHistoryLogs[pokedexNumber].push({ role: "system", content: output, timestamp: new Date().toISOString() });
+        const firstOutput = output_json[0].message.content
+
+        const toneFile = "You are a verifier for all Pokemon who are allowed to talk. You will review each sentence and make adjustments to make sure the input looks correct for the type of Pokemon and the Pokemon's Nature and the Pokemon's age. You will provide just the updated sentence with no headers or additional commentary."
+
+        let toneMap = [];
+        let primeToneresponse
+        let toneResponse
+
+        // Push the pkmnSheet to the primeRunningMemory array
+        toneMap.push({
+            role: "system",
+            content: toneFile,
+        });
+
+        // Send the toneMap to ChatGPT to prime the bot for tone changes
+        try {
+            primeToneresponse = await openai.createChatCompletion({
+                model: "gpt-4",
+                messages: toneMap.map(({ role, content }) => ({ role, content })),
+                temperature: 0.7,
+                max_tokens: 50, // Increase the number of tokens
+            });
+        } catch (error) {
+            console.error(error);
+            process.exit(1)
+        }
+
+
+        // Send for tone and emotion
+        try {
+            toneResponse = await openai.createChatCompletion({
+                model: "gpt-4",
+                messages: [...toneMap, { role: "user", content: firstOutput }], // Pass messages as an array
+                temperature: 0.7,
+                max_tokens: 100,
+            });
+        } catch (error) {
+            console.log("Failing")
+            console.error(error)
+            process.exit(1)
+        }
+        const secondOutput_json = toneResponse.data.choices
+        const secondOutput = secondOutput_json[0].message.content
+
+
+        runningMemoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
+        interactionHistoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
         const pokemonName = global.selectedPokemon.pokemon.name
-        console.log(pokemonName + ': ' + output)
+        console.log(pokemonName + ': ' + secondOutput)
 
         // Save messages to MongoDB
         saveMessagesToMongoDB(pokedexNumber)
@@ -206,7 +244,7 @@ async function sendChatToPokemon(prompt) {
         await new Promise(resolve => setTimeout(resolve, 200));
 
         // Return OpenAI's response
-        return output
+        return secondOutput
 
     } catch (error) {
         console.error("Error in sendChatToPokemon:", error);
@@ -224,7 +262,6 @@ async function getAllPokemon() {
     // Database and Collection names
     const dbName = 'Pokemon';
     const collectionName = userId;
-    console.log(collectionName)
 
     // Create a new MongoClient
     const client = new MongoClient(url);
@@ -278,22 +315,14 @@ async function getPokemonByPokedexNumber(pokedexNumber) {
         // Get the Pokemon database and the user's collection
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
-        
+
         // Find all documents in the user's collection
         const cursor = collection.find();
-
-        // Print all documents
-        console.log(`All documents in the '${collectionName}' collection:`);
-        await cursor.forEach(doc => {
-            console.log(doc);
-        });
 
         console.log('Pokemon Number: ' + pokedexNumber)
         // Find the Pokemon document with the specified Pokedex number
         const pokemonData = await collection.findOne({ 'pokemon.nationalPokedexNumber': Number(pokedexNumber) });
-        console.log(pokemonData)
         if (pokemonData) {
-            console.log(`Found ${pokemonData.pokemon.species}`);
             return pokemonData;
         } else {
             console.log(`Pokemon not found`);
@@ -333,7 +362,7 @@ function capitalizeAndReplace(string) {
     // Capitalize each word
     string = string.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     return string;
-  }
+}
 
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
@@ -415,39 +444,39 @@ app.get('/logout', (req, res) => {
 app.get('/create', (req, res) => {
     // Query the PokeAPI for all Pokemon species
     const speciesPromise = axios.get('https://pokeapi.co/api/v2/pokemon?limit=1000')
-      .then(response => {
-        // Extract the names of the Pokemon species
-        const speciesNames = response.data.results.map(pokemon => capitalizeAndReplace(pokemon.name));
-        return speciesNames;
-      })
-      .catch(error => {
-        console.log(error);
-        res.status(500).send('Error retrieving Pokemon data');
-      });
-  
+        .then(response => {
+            // Extract the names of the Pokemon species
+            const speciesNames = response.data.results.map(pokemon => capitalizeAndReplace(pokemon.name));
+            return speciesNames;
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).send('Error retrieving Pokemon data');
+        });
+
     // Query the PokeAPI for all Pokemon natures
     const naturesPromise = axios.get('https://pokeapi.co/api/v2/nature')
-      .then(response => {
-        // Extract the names of the natures
-        const natureNames = response.data.results.map(nature => capitalizeAndReplace(nature.name));
-        return natureNames;
-      })
-      .catch(error => {
-        console.log(error);
-        res.status(500).send('Error retrieving Pokemon data');
-      });
-  
+        .then(response => {
+            // Extract the names of the natures
+            const natureNames = response.data.results.map(nature => capitalizeAndReplace(nature.name));
+            return natureNames;
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).send('Error retrieving Pokemon data');
+        });
+
     // Wait for both promises to resolve, then render the create template
     Promise.all([speciesPromise, naturesPromise])
-      .then(([speciesNames, natureNames]) => {
-        // Render the create template, passing the species and nature names as variables
-        res.render('create', { speciesNames, natureNames });
-      })
-      .catch(error => {
-        console.log(error);
-        res.status(500).send('Error retrieving Pokemon data');
-      });
-  });
+        .then(([speciesNames, natureNames]) => {
+            // Render the create template, passing the species and nature names as variables
+            res.render('create', { speciesNames, natureNames });
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).send('Error retrieving Pokemon data');
+        });
+});
 
 app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
@@ -463,7 +492,6 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
 
 app.post('/switch', isAuthenticated, async (req, res) => {
     const pokedexNumber = req.body.pokedexNumber;
-    console.log('Species Received: ' + pokedexNumber);
     try {
         const selectedPokemon = await getPokemonByPokedexNumber(pokedexNumber);
         global.selectedPokemon = selectedPokemon;
@@ -486,8 +514,6 @@ app.post('/switch', isAuthenticated, async (req, res) => {
 });
 
 app.post('/api/submit-data', async (req, res) => {
-    console.log('Received data:', req.body);
-
     const userId = global.userId;
 
     // Connection URL
@@ -502,7 +528,6 @@ app.post('/api/submit-data', async (req, res) => {
 
     const speciesName = capitalizeAndReplace(req.body.pokemon.species)
     const pokeData = await getPokemonEntries(speciesName);
-    console.log(pokeData)
 
     // JSON object to be added
     const template = {
