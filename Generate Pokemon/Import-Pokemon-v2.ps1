@@ -209,12 +209,16 @@ function Get-PokemonSpeciesName([int]$PokemonSpecies) {
 
     $regionalDex = "https://pokeapi.co/api/v2/pokedex/2/"
     $responseDex = Invoke-RestMethod -Uri $regionalDex
-    $responseDex
     $url = $responseDex.pokemon_entries.pokemon_species[$PokemonSpecies - 1].url
     $regex = '/(\d+)/'
     $match = [regex]::Match($url, $regex)
+    $name = $responseDex.pokemon_entries.pokemon_species[$PokemonSpecies - 1].name
     $number = $match.Groups[1].Value
-    return $number
+    $dexInformation = @{
+        'Species' = $name
+        'Number'  = $number
+    }
+    return $dexInformation
 }
 
 function Get-Exp ([string[]]$expHex) { return [Convert]::ToUInt32($expHex -join "", 16) }
@@ -363,6 +367,58 @@ function Get-Obedience ([string[]]$ObedienceHex) {
     If ($obedienceNumber -eq 0) { return "Not Obedient" } else { return "Obedient" }
 }
 
+function Get-TrainerInformation {
+
+    $trainerArray = @{
+        'Name'   = Read-Host "Trainer's Name: "
+        'Gender' = Read-Host "Trainer's Gender: "
+        'Age'    = Read-Host "Trainer's Age: " 
+    }
+
+    return $trainerArray
+}
+
+function Get-PokemonHobby {
+    $hobby = Read-Host "Pokemon Hobby: "
+
+    return $hobby
+}
+
+function Get-PokeDexEntries {
+
+    param (
+        [Parameter(Mandatory = $true)]
+        [int]$id
+    )
+
+    $url = "https://pokeapi.co/api/v2/pokemon-species/$id"
+
+    $response = Invoke-RestMethod -Uri $url -Method Get
+
+    $flavortextArray = @()
+    for ($i = 0; $i -le $response.flavor_text_entries.count; $i++) {
+    
+        if ($response.flavor_text_entries[$i].language.name -eq "en") {
+            $flavorTextArray += ($response.flavor_text_entries[$i].flavor_text -replace "`r`n|`r|`n", " ").Trim()
+        }
+    }
+    $flavorTextArray = $flavortextArray | Select-Object -Unique
+
+    if ($flavorTextArray.Count -gt 4) {
+        $flavorTextArray = $flavorTextArray | Select-Object -First 4
+    }
+
+    return $flavorTextArray
+
+}
+
+function Get-PokemonAge {
+
+    $pokemonAge = Read-Host "Pokemon Age: "
+
+    return $pokemonAge
+}
+
 $pk3Data = Get-PokemonBytes -Path $pokemonPath
 $PokemonHex = ($pk3Data | ForEach-Object { $_.ToString("X2") }) -join ""
 $reversePokemonID = $pk3Data[0..7] -join ""
@@ -380,10 +436,10 @@ $isShiny = Get-ShinyStatus -decryptionKey $decryptionKey
 $pokemonName = Get-Name -nameBytes $pk3Data[8..19]
 $trainerName = Get-Name -nameBytes $pk3Data[20..26]
 $markings = Get-Markings -markingByte $pk3Data[27]
-$growth = $(Get-abcdDATA -ABCDOrder $existingOrder)."Growth"
-$moves = $(Get-abcdDATA -ABCDOrder $existingOrder)."Moves"
-$evs = $(Get-abcdDATA -ABCDOrder $existingOrder)."EVs"
-$misc = $(Get-abcdDATA -ABCDOrder $existingOrder)."Misc"
+$growth = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Growth"
+$moves = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Moves"
+$evs = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."EVs"
+$misc = $(Get-abcdDATA -ABCDOrder $ABCDOrder)."Misc"
 $heldItem = Get-HeldItem -heldItem $growth[0..3]
 $localDexNumber = Get-PokemonSpecies -localDexNumber $growth[4..7]
 $exp = Get-Exp -expHex $growth[8..15]
@@ -403,6 +459,12 @@ $isEgg = Get-EggFlag -eggFlagHex $misc[8..15]
 $hasHiddenAbility = Get-HiddenAbilityStatus -hiddenAbilityHex $misc[8..15]
 $contests = Get-ContestInformation -contestInformationHex $misc[16..23]
 $isObedient = Get-Obedience -ObedienceHex $misc[16..23]
+$pokemonSpecies = $(Get-PokemonSpeciesName -PokemonSpecies $localDexNumber).Species
+$nationalDexNumber = $(Get-PokemonSpeciesName -PokemonSpecies $localDexNumber).number
+$trainerInformation = Get-TrainerInformation
+$hobby = Get-PokemonHobby
+$pokedexEntries = Get-PokeDexEntries -id $nationalDexNumber
+$pokemonAge = Get-PokemonAge
 
 Write-Host ""
 Write-Host "PokemonHEX: $pokemonHEX"
@@ -410,6 +472,8 @@ Write-Host "PokemonID - [R]: $reversePokemonID"
 Write-Host "PokemonID - [H]: $PokemonIDHex"
 Write-Host "Nature: $nature"
 Write-Host "Gender: $gender" # this will get enabled via the species number
+Write-Host "Species: $pokemonSpecies"
+Write-Host "National Dex Number: $nationalDexNumber"
 Write-Host "ABCD Order: $ABCDOrder"
 Write-Host "TrainerID - [H]: $TrainerIDHex" 
 Write-Host "TrainerID - [N]: $TrainerID"
@@ -443,8 +507,14 @@ Write-Host "Egg Status: $isEgg"
 Write-Host "Hidden Ability Status: $hasHiddenAbility"
 Write-Host "Contest Information: $($contests.Cool),$($contests.Beauty),$($contests.Cute),$($contests.Smart),$($contests.Tough),$($contests.Campion),$($contests.BattleLevel50),$($contests.BattleLevel100),$($contests.SketchRibbon),$($contests.SketchRibbon),$($contests.Special1),$($contests.Special2),$($contests.Special3),$($contests.Special4),$($contests.Special5),$($contests.Special6)"
 Write-Host "Obediant Status: $isObedient"
+Write-Host "TrainerName: $($trainerInformation.Name)"
+Write-Host "TrainerGender: $($trainerInformation.Gender)"
+Write-Host "TrainerAge: $($trainerInformation.Age)"
+Write-Host "Pokemon's Hobby: $hobby"
+Write-Host "Pokedex Entries: $($pokedexEntries[0])"
+Write-Host "Pokemon Age: $pokemonAge"
 
-function Fill-JSON {
+function Update-JSON {
     param (
         [string]$TrainerName,
         [string]$TrainerGender,
@@ -452,7 +522,7 @@ function Fill-JSON {
         [string]$PokemonName,
         [string]$PokemonSpecies,
         [string]$PokemonGender,
-        [array]$PokemonTraits,
+        [string]$nature,
         [string]$PokemonAge,
         [string]$PokemonHobby,
         [array]$PokemonEntries,
@@ -476,9 +546,9 @@ function Fill-JSON {
         }
         pokemon = @{
             name                  = $PokemonName
+            nature                = $nature
             species               = $PokemonSpecies
             gender                = $PokemonGender
-            traits                = $PokemonTraits
             age                   = $PokemonAge
             hobby                 = $PokemonHobby
             entries               = $PokemonEntries
@@ -501,19 +571,18 @@ function Fill-JSON {
     return $json
 }
 
-$json = Fill-JSON `
-    -ID '64556518615c7529391ec629' `
-    -TrainerName $trainerName `
-    -TrainerGender $trainerGender `
-    -TrainerAge $trainerAg `
+$json = Update-JSON `
+    -TrainerName $($trainerInformation.Name) `
+    -TrainerGender $($trainerInformation.Gender) `
+    -TrainerAge $($trainerInformation.Age) `
     -PokemonName $pokemonName `
     -PokemonSpecies $PokemonSpecies `
     -PokemonGender $gender `
-    -PokemonTraits @('bold', 'smart') `
+    -nature $nature `
     -PokemonAge $pokemonAge `
-    -PokemonHobby 'weather' `
-    -PokemonEntries @('entry1', 'entry2', 'entry3', 'entry4', 'entry5') `
-    -NationalPokedexNumber $pokemonDexNumber `
+    -PokemonHobby $hobby `
+    -PokemonEntries $pokedexEntries `
+    -NationalPokedexNumber $nationalDexNumber `
     -SystemResponse 'Response text based on the user input' `
     -SystemMemory 'key-value store of things I should remember about myself and the user' `
     -SystemTopicsToExplore 'detailed description of interesting topics to explore further' `
@@ -522,9 +591,7 @@ $json = Fill-JSON `
     -SystemDreams 'Create simulated detailed description of the system dreams based on previous conversations' `
     -SystemInnerDialogue 'Create simulated inner_dialogue based on the conversation' `
     -SystemPrivateThoughts 'Create simulated private thoughts based on the conversation' `
-    -SystemRules @('rule1', 'rule2', 'rule3')
+    -SystemRules @('You can use Pokemon sounds at the end or beginning of your responses', 'Response more like a Pokemon that can talk and less like an AI', 'If you are unable to provide a reply, you can fake a pokemon noise or confusion')
 
-Write-Output $json
-
-
-
+$jsonFilePath = Join-Path -Path $downloadsFolderPath -ChildPath "output.json"
+Set-Content -Path $jsonFilePath -Value $json
