@@ -179,7 +179,7 @@ async function sendChatToPokemon(prompt) {
             });
             // Get ChatGPT's response
             response = await openai.createChatCompletion({
-                model: "gpt-3.5-turbo",
+                model: "gpt-4",
                 messages: runningMemoryLogs[pokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
                 temperature: 0.7,
                 max_tokens: 100,
