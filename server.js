@@ -173,13 +173,17 @@ async function sendChatToPokemon(prompt) {
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
 
         // Send user response with previous message array
+        runningMemoryLogs[pokedexNumber].forEach((element) => {
+            console.log(element);
+          });
+        console.time("1st Response");
         try {
             // Get ChatGPT's response
             response = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: runningMemoryLogs[pokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
                 temperature: 0.7,
-                max_tokens: 100,
+                //max_tokens: 100,
             });
         } catch (error) {
             console.log("Failing")
@@ -188,7 +192,7 @@ async function sendChatToPokemon(prompt) {
         }
         const output_json = response.data.choices
         const firstOutput = output_json[0].message.content
-
+        
         const toneFile = "You are a verifier for all Pokemon who are allowed to talk. You will review each sentence and make adjustments to make sure the input looks correct for the type of Pokemon and the Pokemon's Nature and the Pokemon's age. You will provide just the updated sentence with no headers or additional commentary."
 
         let toneMap = [];
@@ -201,19 +205,27 @@ async function sendChatToPokemon(prompt) {
             content: toneFile,
         });
 
+        console.timeEnd("1st Response");
+
+        console.time("2nd Response");
+        toneMap.forEach((element) => {
+            console.log(element);
+          });
         // Send the toneMap to ChatGPT to prime the bot for tone changes
         try {
             primeToneresponse = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: toneMap.map(({ role, content }) => ({ role, content })),
                 temperature: 0.7,
-                max_tokens: 50, // Increase the number of tokens
+                //max_tokens: 100,
             });
         } catch (error) {
             console.error(error);
             process.exit(1)
         }
 
+        console.timeEnd("2nd Response");
+        console.time("3rd Response");
 
         // Send for tone and emotion
         try {
@@ -221,8 +233,12 @@ async function sendChatToPokemon(prompt) {
                 model: "gpt-4",
                 messages: [...toneMap, { role: "user", content: firstOutput }], // Pass messages as an array
                 temperature: 0.7,
-                max_tokens: 100,
+                //max_tokens: 100,
             });
+            toneMap.forEach((element) => {
+                console.log(element);
+              });
+
         } catch (error) {
             console.log("Failing")
             console.error(error)
@@ -242,6 +258,7 @@ async function sendChatToPokemon(prompt) {
 
         // Add a delay of 200 milliseconds
         await new Promise(resolve => setTimeout(resolve, 200));
+        console.timeEnd("3rd Response");
 
         // Return OpenAI's response
         return secondOutput
