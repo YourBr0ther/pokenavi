@@ -36,13 +36,9 @@ async function primeChatBot(selectedPokemon) {
     let response;
 
     if (selectedPokemon) {
-        //console.log(isPlainObject(selectedPokemon)); // true
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
         await loadMessagesFromMongoDB(pokedexNumber, 4096);
-        //console.log('Selected Pokemon:', selectedPokemon);
-        const [pkmnSheet, string2] = await createStringArrayFromJSON(selectedPokemon);        
-        //console.log(`pkmnSheet`, pkmnSheet); // Modify this line to log the object itself
-        //console.log(`dex`, string2); // Modify this line to log the object itself
+        const [pkmnSheet, string2] = await createStringArrayFromJSON(selectedPokemon);
 
         if (!runningMemoryLogs[pokedexNumber]) {
             runningMemoryLogs[pokedexNumber] = [];
@@ -77,10 +73,6 @@ async function primeChatBot(selectedPokemon) {
     }
 }
 
-function isPlainObject(obj) {
-    return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
-}
-
 async function saveMessagesToMongoDB(pokedexNumber) {
 
     try {
@@ -100,7 +92,7 @@ async function saveMessagesToMongoDB(pokedexNumber) {
         }
     } catch (error) {
         console.error(`Error saving messages to MongoDB for Pokemon #${pokedexNumber} and user ${global.userId}:`, error);
-    } 
+    }
 }
 
 async function loadMessagesFromMongoDB(pokedexNumber, tokenLimit) {
@@ -109,7 +101,6 @@ async function loadMessagesFromMongoDB(pokedexNumber, tokenLimit) {
         const database = interactionHistoryConnection.client.db('InteractionHistory');
         const collection = database.collection('chats');
         const userId = global.userId
-        //console.log(`User ID: ` + userId)
         const cursor = collection.find({ 'pokedexNumber': pokedexNumber, 'userId': userId }).sort({ _id: -1 });
 
         const results = await cursor.toArray();
@@ -127,7 +118,6 @@ async function loadMessagesFromMongoDB(pokedexNumber, tokenLimit) {
     }
 }
 
-// Check if a message is within the specified duration
 function isMessageWithinDuration(message) {
     const messageTimestamp = new Date(message.timestamp).getTime();
     const currentTimestamp = new Date().getTime();
@@ -135,11 +125,8 @@ function isMessageWithinDuration(message) {
     return currentTimestamp - messageTimestamp <= conversationMemoryDuration;
 }
 
-// Function to create a two string array from a JSON file
 function createStringArrayFromJSON(jsObject) {
     const jsonString = JSON.stringify(jsObject);
-    //console.log(`Checker: `, jsonString);
-
     const json = JSON.parse(jsonString);
 
     if (
@@ -172,7 +159,6 @@ function createStringArrayFromJSON(jsObject) {
     return [string1, string2];
 }
 
-// Send a message to the Pokemon with message array as well
 async function sendChatToPokemon(prompt) {
     try {
         let selectedPokemon;
@@ -196,11 +182,9 @@ async function sendChatToPokemon(prompt) {
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
 
         runningMemoryLogs[pokedexNumber].forEach((element) => {
-            //console.log(element);
         });
         console.time("1st Response");
         try {
-            // Get ChatGPT's response
             response = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: runningMemoryLogs[pokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
@@ -218,23 +202,17 @@ async function sendChatToPokemon(prompt) {
         const toneFile = "You are a verifier for all Pokemon who are allowed to talk. You will review each sentence and make adjustments to make sure the input looks correct for the type of Pokemon and the Pokemon's Nature and the Pokemon's age. You will provide just the updated sentence with no headers or additional commentary."
 
         let toneMap = [];
-        let primeToneresponse
         let toneResponse
 
-        // Push the pkmnSheet to the primeRunningMemory array
         toneMap.push({
             role: "system",
             content: toneFile,
         });
 
         console.timeEnd("1st Response");
-
         console.time("2nd Response");
-        toneMap.forEach((element) => {
-            //console.log(element);
-        });
-        // Send the toneMap to ChatGPT to prime the bot for tone changes
         try {
+            let primeToneresponse
             primeToneresponse = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: toneMap.map(({ role, content }) => ({ role, content })),
@@ -252,14 +230,10 @@ async function sendChatToPokemon(prompt) {
         try {
             toneResponse = await openai.createChatCompletion({
                 model: "gpt-4",
-                messages: [...toneMap, { role: "user", content: firstOutput }], // Pass messages as an array
+                messages: [...toneMap, { role: "user", content: firstOutput }],
                 temperature: 0.7,
                 max_tokens: 100,
             });
-            toneMap.forEach((element) => {
-                //console.log(element);
-            });
-
         } catch (error) {
             console.log("Failing")
             console.error(error)
@@ -287,29 +261,16 @@ async function getAllPokemon() {
     const userId = global.userId;
 
     try {
-        //console.log(`Connecting to MongoDB server at mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon...`);
         await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
-
-        //console.log(`Retrieving Pokemon model for user ${userId}...`);
         const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
-
-        //console.log(`Querying all Pokemon for user ${userId}...`);
         const pokemonDocs = await PokemonModel.find();
-
-        //console.log(`Mapping Pokemon documents to output format...`);
         allPokemon = pokemonDocs.map((doc) => ({
             species: doc.pokemon.species,
             pokedexNumber: doc.pokemon.nationalPokedexNumber,
         }));
-
-        //console.log(`Found ${allPokemon.length} Pokemon for user ${userId}.`);
     } catch (err) {
         console.error(err);
-    } finally {
-        //console.log(`Closing MongoDB connection...`);
-        //await mongoose.connection.close();
     }
-
     return allPokemon;
 }
 
@@ -317,21 +278,13 @@ async function getPokemonByPokedexNumber(pokedexNumber) {
     const userId = global.userId;
 
     try {
-        //console.log('Pokemon Number: ' + pokedexNumber);
-
-        //console.log(`Connecting to MongoDB server at mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon...`);
         await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
-
-        //console.log(`Retrieving Pokemon model for user ${userId}...`);
         const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
-
-        //console.log(`Querying Pokemon with Pokedex number ${pokedexNumber} for user ${userId}...`);
         const pokemonData = await PokemonModel.findOne({
             'pokemon.nationalPokedexNumber': Number(pokedexNumber),
         });
 
         if (pokemonData) {
-            //console.log(`Found Pokemon with Pokedex number ${pokedexNumber}:`, pokemonData);
             return pokemonData;
         } else {
             console.log(`Pokemon with Pokedex number ${pokedexNumber} not found`);
@@ -340,9 +293,6 @@ async function getPokemonByPokedexNumber(pokedexNumber) {
     } catch (error) {
         console.error(`Error getting Pokémon by Pokedex number:`, error);
         return null;
-    } finally {
-        //console.log(`Closing MongoDB connection...`);
-        //await mongoose.connection.close();
     }
 }
 
@@ -489,22 +439,14 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
 app.post('/switch', isAuthenticated, async (req, res) => {
     try {
         const pokedexNumber = req.body.pokedexNumber;
-        //console.log(`PokedexNumber: ` + pokedexNumber);
         const selectedPokemon = await getPokemonByPokedexNumber(pokedexNumber);
-
-        // Convert selectedPokemon to a JSON string
         const selectedPokemonJson = JSON.stringify(selectedPokemon);
-        //console.log(`Selected Pokemon JSON: `, selectedPokemonJson);
-
         global.selectedPokemon = selectedPokemonJson;
-
         if (!selectedPokemon) {
             res.status(404).json({ error: "Pokémon not found" });
             return;
         }
-
         primeChatBot(selectedPokemon);
-
         res.json({
             assistantResponse: "Switched to new Pokémon!",
             pokedexNumber: selectedPokemon.pokemon.NationalPokedexNumber
