@@ -41,7 +41,7 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 ### Backend Development
 * Add Mongo local install or docker
 * Research how to handle crashes
-* PokeCORE integration [GPT4 needed]
+* PokeCORE integration [work in progress]
 
 ### Frontend Development
 * Figure out how to stop input if not authenticated
