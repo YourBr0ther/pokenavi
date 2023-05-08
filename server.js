@@ -199,7 +199,7 @@ async function sendChatToPokemon(prompt) {
         const output_json = response.data.choices
         const firstOutput = output_json[0].message.content
 
-        const toneFile = "You will verify all text provided to you to ensure the Pokemon's nature and age are reflected correctly. The text needs to be understandable. You will provide just the updated sentence with no headers or additional commentary. Pokemon Age: 5, Pokemon Nature: Shy. Don't mention anything within these guidelines."
+        const toneFile = "You will verify all text provided to you to ensure the Pokemon's nature and age are reflected correctly. The text needs to be understandable. You will provide just the updated sentence with no headers or additional commentary."
 
         let toneMap = [];
         let toneResponse
