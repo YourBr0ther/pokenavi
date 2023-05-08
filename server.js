@@ -10,47 +10,50 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
-const { MongoClient } = require('mongodb');
-const uri = `mongodb://${process.env.MONGODB_SERVER}/InteractionHistory`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/loginDemo`, { useNewUrlParser: true, useUnifiedTopology: true });
+const { modelFromJson } = require('mongoose');
+const PokemonSchema = new mongoose.Schema({
+    pokemon: {
+        species: { type: String, required: true },
+        nationalPokedexNumber: { type: Number, required: true },
+    },
+});
+
+let userId
+
+const uriLoginDemo = `mongodb://${process.env.MONGODB_SERVER}/loginDemo`;
+const uriInteractionHistory = `mongodb://${process.env.MONGODB_SERVER}/InteractionHistory`;
+const uriPokemonList = `mongodb://${process.env.MONGODB_SERVER}/Pokemon`;
+const LoginDemoConnection = mongoose.createConnection(uriLoginDemo, { useNewUrlParser: true, useUnifiedTopology: true });
+const interactionHistoryConnection = mongoose.createConnection(uriInteractionHistory, { useNewUrlParser: true, useUnifiedTopology: true });
+const PokemonListConnection = mongoose.createConnection(uriPokemonList, { useNewUrlParser: true, useUnifiedTopology: true });
+
+const createUserModel = require('./models/User');
+const User = createUserModel(LoginDemoConnection);
 const runningMemoryLogs = {}
 const interactionHistoryLogs = {}
 const conversationMemoryDuration = 7 * 24 * 60 * 60 * 1000
-let userId
 
 async function primeChatBot(selectedPokemon) {
     let response;
 
     if (selectedPokemon) {
-        console.log("Pokemon for priming: " + selectedPokemon.pokemon.name);
-
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
         await loadMessagesFromMongoDB(pokedexNumber, userId, 4096)
-
         const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
-
         if (!runningMemoryLogs[pokedexNumber]) {
             runningMemoryLogs[pokedexNumber] = [];
         }
-
         runningMemoryLogs[pokedexNumber].push({
             role: "system",
             content: pkmnSheet,
             timestamp: new Date().toISOString(),
         });
-
-        // Create a temporary array called primeRunningMemory
         const primeRunningMemory = runningMemoryLogs[pokedexNumber].slice();
-
-        // Push the pkmnSheet to the primeRunningMemory array
         primeRunningMemory.push({
             role: "system",
             content: pkmnSheet,
             timestamp: new Date().toISOString(),
         });
-
-        // Send pkmnSheet via the message array to ChatGPT and put response in response variable
         try {
             response = await openai.createChatCompletion({
                 model: "gpt-4",
@@ -71,18 +74,12 @@ async function primeChatBot(selectedPokemon) {
 }
 
 async function saveMessagesToMongoDB(pokedexNumber) {
-    const localClient = new MongoClient(uri);
 
     try {
 
-        await localClient.connect();
-
-        const database = localClient.db('InteractionHistory');
+        const database = interactionHistoryConnection.db('InteractionHistory');
         const collection = database.collection('chats');
-
         let lastTwoMessages = interactionHistoryLogs[pokedexNumber].slice(-2);
-
-        // Add the userId to each message
         lastTwoMessages.forEach(message => {
             message.userId = global.userId;
             message.pokedexNumber = pokedexNumber;
@@ -102,18 +99,14 @@ async function saveMessagesToMongoDB(pokedexNumber) {
 
 async function loadMessagesFromMongoDB(pokedexNumber, userId, tokenLimit) {
     try {
-        await client.connect();
-
-        const database = client.db('InteractionHistory');
+        const database = interactionHistoryConnection.db('InteractionHistory');
         const collection = database.collection('chats');
 
         const cursor = collection.find({ 'pokedexNumber': pokedexNumber, 'userId': userId }).sort({ _id: -1 });
         const results = await cursor.toArray();
-
-        // Filter messages based on token limit
         let tokenCount = 0;
         const filteredResults = results.filter((message) => {
-            const messageTokenCount = message.text.length; // You may need to adjust this line based on the actual message structure
+            const messageTokenCount = message.text.length
             tokenCount += messageTokenCount;
             return tokenCount <= tokenLimit;
         });
@@ -122,8 +115,6 @@ async function loadMessagesFromMongoDB(pokedexNumber, userId, tokenLimit) {
         runningMemoryLogs[pokedexNumber] = interactionHistoryLogs[pokedexNumber].slice();
     } catch (error) {
         console.error(`Error loading interaction history for Pokemon #${pokedexNumber} and user ${userId} from MongoDB:`, error);
-    } finally {
-        await client.close();
     }
 }
 
@@ -164,18 +155,13 @@ async function sendChatToPokemon(prompt) {
         const pokedexNumber = global.selectedPokemon.pokemon.nationalPokedexNumber
         const trainerName = global.selectedPokemon.trainer.name
         console.log(trainerName + ': ' + prompt)
-
-        // ChatGPT Response
         let response
-
-        // Save prompt as user response to runningMemoryLogs and interactionHistoryLogs array
         runningMemoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
 
-        // Send user response with previous message array
         runningMemoryLogs[pokedexNumber].forEach((element) => {
             console.log(element);
-          });
+        });
         console.time("1st Response");
         try {
             // Get ChatGPT's response
@@ -192,7 +178,7 @@ async function sendChatToPokemon(prompt) {
         }
         const output_json = response.data.choices
         const firstOutput = output_json[0].message.content
-        
+
         const toneFile = "You are a verifier for all Pokemon who are allowed to talk. You will review each sentence and make adjustments to make sure the input looks correct for the type of Pokemon and the Pokemon's Nature and the Pokemon's age. You will provide just the updated sentence with no headers or additional commentary."
 
         let toneMap = [];
@@ -210,7 +196,7 @@ async function sendChatToPokemon(prompt) {
         console.time("2nd Response");
         toneMap.forEach((element) => {
             console.log(element);
-          });
+        });
         // Send the toneMap to ChatGPT to prime the bot for tone changes
         try {
             primeToneresponse = await openai.createChatCompletion({
@@ -227,17 +213,16 @@ async function sendChatToPokemon(prompt) {
         console.timeEnd("2nd Response");
         console.time("3rd Response");
 
-        // Send for tone and emotion
         try {
             toneResponse = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: [...toneMap, { role: "user", content: firstOutput }], // Pass messages as an array
                 temperature: 0.7,
-                //max_tokens: 100,
+                max_tokens: 100,
             });
             toneMap.forEach((element) => {
                 console.log(element);
-              });
+            });
 
         } catch (error) {
             console.log("Failing")
@@ -247,20 +232,13 @@ async function sendChatToPokemon(prompt) {
         const secondOutput_json = toneResponse.data.choices
         const secondOutput = secondOutput_json[0].message.content
 
-
         runningMemoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
         const pokemonName = global.selectedPokemon.pokemon.name
         console.log(pokemonName + ': ' + secondOutput)
-
-        // Save messages to MongoDB
         saveMessagesToMongoDB(pokedexNumber)
-
-        // Add a delay of 200 milliseconds
         await new Promise(resolve => setTimeout(resolve, 200));
         console.timeEnd("3rd Response");
-
-        // Return OpenAI's response
         return secondOutput
 
     } catch (error) {
@@ -268,91 +246,69 @@ async function sendChatToPokemon(prompt) {
     }
 }
 
-// Function to read all JSON files and extract Pokemon names and Pokedex numbers
 async function getAllPokemon() {
     let allPokemon = [];
-    const userId = global.userId; // Make sure to set global.userId before calling this function
-
-    // Connection URL
-    const url = `mongodb://${process.env.MONGODB_SERVER}:27017`;
-
-    // Database and Collection names
-    const dbName = 'Pokemon';
-    const collectionName = userId;
-
-    // Create a new MongoClient
-    const client = new MongoClient(url);
-
+    const userId = global.userId;
+  
     try {
-        // Connect to the MongoDB server
-        await client.connect();
-
-        // Get the Pokemon database and the user's collection
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
-
-        // Find all documents in the user's collection
-        const cursor = collection.find();
-
-        // Iterate through the documents and extract Pokemon names and Pokedex numbers
-        await cursor.forEach(doc => {
-            allPokemon.push({
-                species: doc.pokemon.species,
-                pokedexNumber: doc.pokemon.nationalPokedexNumber,
-            });
-        });
+      //console.log(`Connecting to MongoDB server at mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon...`);
+      await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
+  
+      //console.log(`Retrieving Pokemon model for user ${userId}...`);
+      const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
+  
+      //console.log(`Querying all Pokemon for user ${userId}...`);
+      const pokemonDocs = await PokemonModel.find();
+  
+      //console.log(`Mapping Pokemon documents to output format...`);
+      allPokemon = pokemonDocs.map((doc) => ({
+        species: doc.pokemon.species,
+        pokedexNumber: doc.pokemon.nationalPokedexNumber,
+      }));
+  
+      console.log(`Found ${allPokemon.length} Pokemon for user ${userId}.`);
     } catch (err) {
-        console.error(err);
+      console.error(err);
     } finally {
-        // Close the connection to the MongoDB server
-        //await client.close();
+      console.log(`Closing MongoDB connection...`);
+      await mongoose.connection.close();
     }
-
+  
     return allPokemon;
-}
+  }
 
-// Get a Pokemon JSON by its PokedexNumber instead of its JSON Index
-async function getPokemonByPokedexNumber(pokedexNumber) {
-    const userId = global.userId; // Make sure to set global.userId before calling this function
-
-    // Connection URL
-    const url = `mongodb://${process.env.MONGODB_SERVER}:27017`;
-
-    // Database and Collection names
-    const dbName = 'Pokemon';
-    const collectionName = userId;
-
-    // Create a new MongoClient
-    const client = new MongoClient(url);
-
+  async function getPokemonByPokedexNumber(pokedexNumber) {
+    const userId = global.userId;
+  
     try {
-        // Connect to the MongoDB server
-        await client.connect();
-
-        // Get the Pokemon database and the user's collection
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
-
-        // Find all documents in the user's collection
-        const cursor = collection.find();
-
-        console.log('Pokemon Number: ' + pokedexNumber)
-        // Find the Pokemon document with the specified Pokedex number
-        const pokemonData = await collection.findOne({ 'pokemon.nationalPokedexNumber': Number(pokedexNumber) });
-        if (pokemonData) {
-            return pokemonData;
-        } else {
-            console.log(`Pokemon not found`);
-            return null;
-        }
-    } catch (error) {
-        console.error(`Error getting Pokémon by Pokedex number:`, error);
+      console.log('Pokemon Number: ' + pokedexNumber);
+  
+      //console.log(`Connecting to MongoDB server at mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon...`);
+      await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
+  
+      //console.log(`Retrieving Pokemon model for user ${userId}...`);
+      const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
+  
+      //console.log(`Querying Pokemon with Pokedex number ${pokedexNumber} for user ${userId}...`);
+      const pokemonData = await PokemonModel.findOne({
+        'pokemon.nationalPokedexNumber': Number(pokedexNumber),
+      });
+  
+      if (pokemonData) {
+        console.log(`Found Pokemon with Pokedex number ${pokedexNumber}:`, pokemonData);
+        return pokemonData;
+      } else {
+        console.log(`Pokemon with Pokedex number ${pokedexNumber} not found`);
         return null;
+      }
+    } catch (error) {
+      console.error(`Error getting Pokémon by Pokedex number:`, error);
+      return null;
     } finally {
-        // Close the connection to the MongoDB server
-        //await client.close();
+      console.log(`Closing MongoDB connection...`);
+      await mongoose.connection.close();
     }
-}
+  }
 
 function removeNewlines(text) {
     return text.replace(/\n|\f/g, ' ');
@@ -374,9 +330,7 @@ async function getPokemonEntries(species, count = 5) {
 }
 
 function capitalizeAndReplace(string) {
-    // Replace dashes with spaces
     string = string.replace(/-/g, ' ');
-    // Capitalize each word
     string = string.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     return string;
 }
@@ -389,12 +343,8 @@ function isAuthenticated(req, res, next) {
     }
 }
 
-// Define the web app
 const app = express()
 const port = process.env.PORT || 3000;
-const User = require('./models/User');
-
-// Set up EJS as the view engine
 app.set('view engine', 'ejs');
 app.use(express.static("public"))
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -404,26 +354,29 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
-// Set up session middleware
 app.use(session({
-    secret: `process.env.MONGODB_SECRET`,
+    secret: `${process.env.MONGODB_SECRET}`,
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: 'mongodb://192.168.0.4:27017/loginDemo' }),
+    store: MongoStore.create({ client: LoginDemoConnection.getClient() }),
 }));
 
-// Handle login form submission
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const user = await User.findOne({ username });
 
-    if (user && await bcrypt.compare(password, user.password)) {
-        req.session.user = { id: user._id, username: user.username };
-        global.userId = req.session.user.username
-        res.redirect('/');
-    } else {
+    try {
+        const user = await User.findOne({ username });
 
-        res.redirect('/login');
+        if (user && await bcrypt.compare(password, user.password)) {
+            req.session.user = { id: user._id, username: user.username };
+            global.userId = req.session.user.username;
+            res.redirect('/');
+        } else {
+            res.redirect('/login');
+        }
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).send('An error occurred while processing your request. Please try again later.');
     }
 });
 
@@ -436,12 +389,10 @@ app.get('/', isAuthenticated, async (req, res) => {
     }
 });
 
-// Render registration page
 app.get('/register', (req, res) => {
     res.render('register');
 });
 
-// Handle registration form submission
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -451,18 +402,14 @@ app.post('/register', async (req, res) => {
     res.redirect('/login');
 });
 
-// Handle logout
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/login');
 });
 
-// Define a route for the create page
 app.get('/create', (req, res) => {
-    // Query the PokeAPI for all Pokemon species
     const speciesPromise = axios.get('https://pokeapi.co/api/v2/pokemon?limit=1000')
         .then(response => {
-            // Extract the names of the Pokemon species
             const speciesNames = response.data.results.map(pokemon => capitalizeAndReplace(pokemon.name));
             return speciesNames;
         })
@@ -471,10 +418,8 @@ app.get('/create', (req, res) => {
             res.status(500).send('Error retrieving Pokemon data');
         });
 
-    // Query the PokeAPI for all Pokemon natures
     const naturesPromise = axios.get('https://pokeapi.co/api/v2/nature')
         .then(response => {
-            // Extract the names of the natures
             const natureNames = response.data.results.map(nature => capitalizeAndReplace(nature.name));
             return natureNames;
         })
@@ -483,10 +428,8 @@ app.get('/create', (req, res) => {
             res.status(500).send('Error retrieving Pokemon data');
         });
 
-    // Wait for both promises to resolve, then render the create template
     Promise.all([speciesPromise, naturesPromise])
         .then(([speciesNames, natureNames]) => {
-            // Render the create template, passing the species and nature names as variables
             res.render('create', { speciesNames, natureNames });
         })
         .catch(error => {
@@ -500,7 +443,6 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
 
     try {
         const response = await sendChatToPokemon(userMessage);
-
         res.json({ assistantResponse: `${response}` });
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" });
@@ -533,20 +475,8 @@ app.post('/switch', isAuthenticated, async (req, res) => {
 app.post('/api/submit-data', async (req, res) => {
     const userId = global.userId;
 
-    // Connection URL
-    const url = `mongodb://${process.env.MONGODB_SERVER}:27017`;
-
-    // Database and Collection names
-    const dbName = 'Pokemon';
-    const collectionName = userId;
-
-    // Create a new MongoClient
-    const client = new MongoClient(url);
-
     const speciesName = capitalizeAndReplace(req.body.pokemon.species)
     const pokeData = await getPokemonEntries(speciesName);
-
-    // JSON object to be added
     const template = {
         system: {
             response: "Response text based on the user input",
@@ -571,17 +501,10 @@ app.post('/api/submit-data', async (req, res) => {
     };
 
     try {
-        // Connect to the MongoDB server
-        await client.connect();
 
-        // Get the Pokemon database and the user's collection
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
-
-        // Query to find the existing document with the specified species
+        const database = PokemonListConnection.db(`${userId}`);
+        const collection = database.collection('chats');
         const existingData = await collection.findOne({ 'pokemon.species': speciesName });
-
-        // Merge the received JSON with the existing JSON and the template JSON
         const mergedData = {
             ...existingData,
             ...req.body,
@@ -589,17 +512,12 @@ app.post('/api/submit-data', async (req, res) => {
             pokemon: { ...existingData?.pokemon, ...req.body.pokemon, ...template.pokemon },
         };
 
-        // Upsert the merged JSON data to the collection
         await collection.updateOne({ 'pokemon.species': speciesName }, { $set: mergedData }, { upsert: true });
 
-        // Send a success response
         res.status(200).json({ message: 'Data saved successfully' });
     } catch (error) {
         console.error('Error saving JSON data:', error);
         res.status(500).json({ message: 'Error saving data' });
-    } finally {
-        // Close the connection to the MongoDB server
-        await client.close();
     }
 });
 
