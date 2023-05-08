@@ -163,7 +163,7 @@ select {
 }
 
 .bordered-window { 
-  position: relative; /* This is required for the positioning of the ::before pseudo-element */
+  position: relative; 
   overflow: hidden;
   border: 1px solid black;
   width: 100%;
@@ -190,9 +190,9 @@ select {
   height: 100%;
   image-rendering: pixelated;
   background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');
-  background-size: cover; /* To resize the background image to cover the entire container */
-  background-position: bottom 90%;  opacity: 0.5; /* Adjust the opacity for the desired transparency (0.5 means 50% transparent) */
-  z-index: -1; /* Set the z-index to -1 to place the background image behind the chat content */
+  background-size: cover; 
+  background-position: bottom 90%;  opacity: 0.5;
+  z-index: -1; 
   transform: scaleX(-1)
 }
 
