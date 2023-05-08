@@ -10,7 +10,6 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
-const { modelFromJson } = require('mongoose');
 const PokemonSchema = new mongoose.Schema({
     pokemon: {
         species: { type: String, required: true },
@@ -20,8 +19,8 @@ const PokemonSchema = new mongoose.Schema({
 
 let userId
 
-const uriLoginDemo = `mongodb://${process.env.MONGODB_SERVER}/loginDemo`;
-const uriInteractionHistory = `mongodb://${process.env.MONGODB_SERVER}/InteractionHistory`;
+const uriLoginDemo = `mongodb://${process.env.MONGODB_SERVER}:27017/loginDemo`;
+const uriInteractionHistory = `mongodb://${process.env.MONGODB_SERVER}:27017/InteractionHistory`;
 const uriPokemonList = `mongodb://${process.env.MONGODB_SERVER}/Pokemon`;
 const LoginDemoConnection = mongoose.createConnection(uriLoginDemo, { useNewUrlParser: true, useUnifiedTopology: true });
 const interactionHistoryConnection = mongoose.createConnection(uriInteractionHistory, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -37,9 +36,14 @@ async function primeChatBot(selectedPokemon) {
     let response;
 
     if (selectedPokemon) {
+        //console.log(isPlainObject(selectedPokemon)); // true
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
-        await loadMessagesFromMongoDB(pokedexNumber, userId, 4096)
-        const [pkmnSheet, string2] = createStringArrayFromJSON(selectedPokemon);
+        await loadMessagesFromMongoDB(pokedexNumber, 4096);
+        //console.log('Selected Pokemon:', selectedPokemon);
+        const [pkmnSheet, string2] = await createStringArrayFromJSON(selectedPokemon);        
+        //console.log(`pkmnSheet`, pkmnSheet); // Modify this line to log the object itself
+        //console.log(`dex`, string2); // Modify this line to log the object itself
+
         if (!runningMemoryLogs[pokedexNumber]) {
             runningMemoryLogs[pokedexNumber] = [];
         }
@@ -57,27 +61,31 @@ async function primeChatBot(selectedPokemon) {
         try {
             response = await openai.createChatCompletion({
                 model: "gpt-4",
-                messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
+                messages: primeRunningMemory.map(({ role, content }) => ({ role, content })),
                 temperature: 0.7,
-                max_tokens: 50,
+                max_tokens: 25,
             });
             console.log("Ready to receive requests");
             return response;
         } catch (error) {
             console.error(error);
-            process.exit(1)
+            process.exit(1);
         }
     } else {
         console.log("No selected pokemon");
-        process.exit(1)
+        process.exit(1);
     }
+}
+
+function isPlainObject(obj) {
+    return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
 }
 
 async function saveMessagesToMongoDB(pokedexNumber) {
 
     try {
 
-        const database = interactionHistoryConnection.db('InteractionHistory');
+        const database = interactionHistoryConnection.client.db('InteractionHistory');
         const collection = database.collection('chats');
         let lastTwoMessages = interactionHistoryLogs[pokedexNumber].slice(-2);
         lastTwoMessages.forEach(message => {
@@ -92,21 +100,22 @@ async function saveMessagesToMongoDB(pokedexNumber) {
         }
     } catch (error) {
         console.error(`Error saving messages to MongoDB for Pokemon #${pokedexNumber} and user ${global.userId}:`, error);
-    } finally {
-        await localClient.close();
-    }
+    } 
 }
 
-async function loadMessagesFromMongoDB(pokedexNumber, userId, tokenLimit) {
+async function loadMessagesFromMongoDB(pokedexNumber, tokenLimit) {
     try {
-        const database = interactionHistoryConnection.db('InteractionHistory');
-        const collection = database.collection('chats');
 
+        const database = interactionHistoryConnection.client.db('InteractionHistory');
+        const collection = database.collection('chats');
+        const userId = global.userId
+        //console.log(`User ID: ` + userId)
         const cursor = collection.find({ 'pokedexNumber': pokedexNumber, 'userId': userId }).sort({ _id: -1 });
+
         const results = await cursor.toArray();
         let tokenCount = 0;
         const filteredResults = results.filter((message) => {
-            const messageTokenCount = message.text.length
+            const messageTokenCount = message.text ? message.text.length : 0;
             tokenCount += messageTokenCount;
             return tokenCount <= tokenLimit;
         });
@@ -127,7 +136,22 @@ function isMessageWithinDuration(message) {
 }
 
 // Function to create a two string array from a JSON file
-function createStringArrayFromJSON(json) {
+function createStringArrayFromJSON(jsObject) {
+    const jsonString = JSON.stringify(jsObject);
+    //console.log(`Checker: `, jsonString);
+
+    const json = JSON.parse(jsonString);
+
+    if (
+        !json.pokemon ||
+        !json.system ||
+        !json.system.rules ||
+        !json.trainer
+    ) {
+        console.error("Error: The JSON object does not have the expected structure.");
+        return ["Invalid JSON", "Invalid JSON"];
+    }
+
     const string1 = [
         json.system.rules.join(', '),
         json.trainer.name,
@@ -145,22 +169,34 @@ function createStringArrayFromJSON(json) {
         json.pokemon.nationalPokedexNumber.toString()
     ];
 
-    // Return the pkmnSheet string and the NatonalPokedex number
     return [string1, string2];
 }
 
 // Send a message to the Pokemon with message array as well
 async function sendChatToPokemon(prompt) {
     try {
-        const pokedexNumber = global.selectedPokemon.pokemon.nationalPokedexNumber
-        const trainerName = global.selectedPokemon.trainer.name
+        let selectedPokemon;
+        try {
+            selectedPokemon = JSON.parse(global.selectedPokemon);
+        } catch (error) {
+            console.error("Error parsing global.selectedPokemon:", error);
+            return;
+        }
+
+        if (!selectedPokemon.pokemon) {
+            console.error("Error: selectedPokemon.pokemon is undefined");
+            return;
+        }
+
+        const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
+        const trainerName = selectedPokemon.trainer.name;
         console.log(trainerName + ': ' + prompt)
         let response
         runningMemoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
 
         runningMemoryLogs[pokedexNumber].forEach((element) => {
-            console.log(element);
+            //console.log(element);
         });
         console.time("1st Response");
         try {
@@ -169,7 +205,7 @@ async function sendChatToPokemon(prompt) {
                 model: "gpt-4",
                 messages: runningMemoryLogs[pokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
                 temperature: 0.7,
-                max_tokens: 100,
+                max_tokens: 25,
             });
         } catch (error) {
             console.log("Failing")
@@ -195,7 +231,7 @@ async function sendChatToPokemon(prompt) {
 
         console.time("2nd Response");
         toneMap.forEach((element) => {
-            console.log(element);
+            //console.log(element);
         });
         // Send the toneMap to ChatGPT to prime the bot for tone changes
         try {
@@ -203,7 +239,7 @@ async function sendChatToPokemon(prompt) {
                 model: "gpt-4",
                 messages: toneMap.map(({ role, content }) => ({ role, content })),
                 temperature: 0.7,
-                max_tokens: 100,
+                max_tokens: 25,
             });
         } catch (error) {
             console.error(error);
@@ -221,7 +257,7 @@ async function sendChatToPokemon(prompt) {
                 max_tokens: 100,
             });
             toneMap.forEach((element) => {
-                console.log(element);
+                //console.log(element);
             });
 
         } catch (error) {
@@ -234,7 +270,7 @@ async function sendChatToPokemon(prompt) {
 
         runningMemoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
-        const pokemonName = global.selectedPokemon.pokemon.name
+        const pokemonName = selectedPokemon.pokemon.name
         console.log(pokemonName + ': ' + secondOutput)
         saveMessagesToMongoDB(pokedexNumber)
         await new Promise(resolve => setTimeout(resolve, 200));
@@ -249,66 +285,66 @@ async function sendChatToPokemon(prompt) {
 async function getAllPokemon() {
     let allPokemon = [];
     const userId = global.userId;
-  
-    try {
-      //console.log(`Connecting to MongoDB server at mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon...`);
-      await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
-  
-      //console.log(`Retrieving Pokemon model for user ${userId}...`);
-      const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
-  
-      //console.log(`Querying all Pokemon for user ${userId}...`);
-      const pokemonDocs = await PokemonModel.find();
-  
-      //console.log(`Mapping Pokemon documents to output format...`);
-      allPokemon = pokemonDocs.map((doc) => ({
-        species: doc.pokemon.species,
-        pokedexNumber: doc.pokemon.nationalPokedexNumber,
-      }));
-  
-      console.log(`Found ${allPokemon.length} Pokemon for user ${userId}.`);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      console.log(`Closing MongoDB connection...`);
-      await mongoose.connection.close();
-    }
-  
-    return allPokemon;
-  }
 
-  async function getPokemonByPokedexNumber(pokedexNumber) {
-    const userId = global.userId;
-  
     try {
-      console.log('Pokemon Number: ' + pokedexNumber);
-  
-      //console.log(`Connecting to MongoDB server at mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon...`);
-      await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
-  
-      //console.log(`Retrieving Pokemon model for user ${userId}...`);
-      const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
-  
-      //console.log(`Querying Pokemon with Pokedex number ${pokedexNumber} for user ${userId}...`);
-      const pokemonData = await PokemonModel.findOne({
-        'pokemon.nationalPokedexNumber': Number(pokedexNumber),
-      });
-  
-      if (pokemonData) {
-        console.log(`Found Pokemon with Pokedex number ${pokedexNumber}:`, pokemonData);
-        return pokemonData;
-      } else {
-        console.log(`Pokemon with Pokedex number ${pokedexNumber} not found`);
-        return null;
-      }
-    } catch (error) {
-      console.error(`Error getting Pokémon by Pokedex number:`, error);
-      return null;
+        //console.log(`Connecting to MongoDB server at mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon...`);
+        await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
+
+        //console.log(`Retrieving Pokemon model for user ${userId}...`);
+        const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
+
+        //console.log(`Querying all Pokemon for user ${userId}...`);
+        const pokemonDocs = await PokemonModel.find();
+
+        //console.log(`Mapping Pokemon documents to output format...`);
+        allPokemon = pokemonDocs.map((doc) => ({
+            species: doc.pokemon.species,
+            pokedexNumber: doc.pokemon.nationalPokedexNumber,
+        }));
+
+        //console.log(`Found ${allPokemon.length} Pokemon for user ${userId}.`);
+    } catch (err) {
+        console.error(err);
     } finally {
-      console.log(`Closing MongoDB connection...`);
-      await mongoose.connection.close();
+        //console.log(`Closing MongoDB connection...`);
+        //await mongoose.connection.close();
     }
-  }
+
+    return allPokemon;
+}
+
+async function getPokemonByPokedexNumber(pokedexNumber) {
+    const userId = global.userId;
+
+    try {
+        //console.log('Pokemon Number: ' + pokedexNumber);
+
+        //console.log(`Connecting to MongoDB server at mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon...`);
+        await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
+
+        //console.log(`Retrieving Pokemon model for user ${userId}...`);
+        const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
+
+        //console.log(`Querying Pokemon with Pokedex number ${pokedexNumber} for user ${userId}...`);
+        const pokemonData = await PokemonModel.findOne({
+            'pokemon.nationalPokedexNumber': Number(pokedexNumber),
+        });
+
+        if (pokemonData) {
+            //console.log(`Found Pokemon with Pokedex number ${pokedexNumber}:`, pokemonData);
+            return pokemonData;
+        } else {
+            console.log(`Pokemon with Pokedex number ${pokedexNumber} not found`);
+            return null;
+        }
+    } catch (error) {
+        console.error(`Error getting Pokémon by Pokedex number:`, error);
+        return null;
+    } finally {
+        //console.log(`Closing MongoDB connection...`);
+        //await mongoose.connection.close();
+    }
+}
 
 function removeNewlines(text) {
     return text.replace(/\n|\f/g, ' ');
@@ -440,6 +476,7 @@ app.get('/create', (req, res) => {
 
 app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
+    console.log(userMessage)
 
     try {
         const response = await sendChatToPokemon(userMessage);
@@ -450,10 +487,17 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
 });
 
 app.post('/switch', isAuthenticated, async (req, res) => {
-    const pokedexNumber = req.body.pokedexNumber;
     try {
+        const pokedexNumber = req.body.pokedexNumber;
+        //console.log(`PokedexNumber: ` + pokedexNumber);
         const selectedPokemon = await getPokemonByPokedexNumber(pokedexNumber);
-        global.selectedPokemon = selectedPokemon;
+
+        // Convert selectedPokemon to a JSON string
+        const selectedPokemonJson = JSON.stringify(selectedPokemon);
+        //console.log(`Selected Pokemon JSON: `, selectedPokemonJson);
+
+        global.selectedPokemon = selectedPokemonJson;
+
         if (!selectedPokemon) {
             res.status(404).json({ error: "Pokémon not found" });
             return;
@@ -468,7 +512,7 @@ app.post('/switch', isAuthenticated, async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: "An error occurred while processing the request" });
-        process.exit(1)
+        process.exit(1);
     }
 });
 
