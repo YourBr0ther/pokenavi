@@ -59,7 +59,7 @@ async function primeChatBot(selectedPokemon) {
                 model: "gpt-4",
                 messages: primeRunningMemory.map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
                 temperature: 0.7,
-                max_tokens: 1,
+                max_tokens: 50,
             });
             console.log("Ready to receive requests");
             return response;
@@ -169,7 +169,7 @@ async function sendChatToPokemon(prompt) {
                 model: "gpt-4",
                 messages: runningMemoryLogs[pokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
                 temperature: 0.7,
-                //max_tokens: 100,
+                max_tokens: 100,
             });
         } catch (error) {
             console.log("Failing")
@@ -203,7 +203,7 @@ async function sendChatToPokemon(prompt) {
                 model: "gpt-4",
                 messages: toneMap.map(({ role, content }) => ({ role, content })),
                 temperature: 0.7,
-                //max_tokens: 100,
+                max_tokens: 100,
             });
         } catch (error) {
             console.error(error);
