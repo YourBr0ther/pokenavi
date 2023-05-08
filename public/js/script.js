@@ -47,11 +47,11 @@ const submitMessage = async () => {
   scrollToBottom();
 
   const response = await fetch("/prompt", {
-      method: "POST",
-      headers: {
-          "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ userMessage: message })
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ userMessage: message })
   });
 
   const data = await response.json();
@@ -168,3 +168,54 @@ if (switchDropdown) {
 document.getElementById('create').addEventListener('click', function () {
   window.location.href = "create";
 });
+
+// Function to show an error message
+function showError() {
+  errorShown = true;
+  // Create an error message element
+  const errorDiv = document.createElement('div');
+  errorDiv.style.position = 'fixed';
+  errorDiv.style.top = '0';
+  errorDiv.style.left = '0';
+  errorDiv.style.width = '100%';
+  errorDiv.style.height = '100%';
+  errorDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+  errorDiv.style.color = 'white';
+  errorDiv.style.display = 'flex';
+  errorDiv.style.alignItems = 'center';
+  errorDiv.style.justifyContent = 'center';
+  errorDiv.style.zIndex = '9999';
+  errorDiv.innerHTML = '<p>Server is down. Please try again later.</p>';
+
+  // Add the error message element to the body
+  document.body.appendChild(errorDiv);
+}
+
+// Global variable to track if an error has been shown
+let errorShown = false;
+
+// Function to ping the server
+async function pingServer() {
+  try {
+    const response = await fetch('/ping', { method: 'GET' });
+
+    if (!response.ok) {
+      showError();
+    } else {
+      // If the error was shown before and the server is back up, redirect to the login page
+      if (errorShown) {
+        redirectToLogin();
+      }
+    }
+  } catch (error) {
+    showError();
+  }
+}
+
+// Function to redirect to the login page
+function redirectToLogin() {
+  window.location.href = '/login';
+}
+
+// Call the `pingServer` function every 10 seconds
+setInterval(pingServer, 10000);

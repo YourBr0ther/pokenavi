@@ -44,7 +44,6 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * PokeCORE integration [work in progress]
 
 ### Frontend Development
-* Figure out how to stop input if not authenticated
 * Add a party system and PC system
   * Select 6 for Party
   * Check boxes showing all registered Pokemon
