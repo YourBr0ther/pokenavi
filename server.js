@@ -183,7 +183,7 @@ async function sendChatToPokemon(prompt) {
 
         runningMemoryLogs[pokedexNumber].forEach((element) => {
         });
-        console.time("1st Response");
+        console.time("Response");
         try {
             response = await openai.createChatCompletion({
                 model: "gpt-4",
@@ -199,7 +199,7 @@ async function sendChatToPokemon(prompt) {
         const output_json = response.data.choices
         const firstOutput = output_json[0].message.content
 
-        const toneFile = "You are a verifier for all Pokemon who are allowed to talk. You will review each sentence and make adjustments to make sure the input looks correct for the type of Pokemon and the Pokemon's Nature and the Pokemon's age. You will provide just the updated sentence with no headers or additional commentary."
+        const toneFile = "You will verify all text provided to you to ensure the Pokemon's nature and age are reflected correctly. The text needs to be understandable. You will provide just the updated sentence with no headers or additional commentary. Pokemon Age: 5, Pokemon Nature: Shy. Don't mention anything within these guidelines."
 
         let toneMap = [];
         let toneResponse
@@ -209,8 +209,6 @@ async function sendChatToPokemon(prompt) {
             content: toneFile,
         });
 
-        console.timeEnd("1st Response");
-        console.time("2nd Response");
         try {
             let primeToneresponse
             primeToneresponse = await openai.createChatCompletion({
@@ -223,9 +221,6 @@ async function sendChatToPokemon(prompt) {
             console.error(error);
             process.exit(1)
         }
-
-        console.timeEnd("2nd Response");
-        console.time("3rd Response");
 
         try {
             toneResponse = await openai.createChatCompletion({
@@ -248,7 +243,7 @@ async function sendChatToPokemon(prompt) {
         console.log(pokemonName + ': ' + secondOutput)
         saveMessagesToMongoDB(pokedexNumber)
         await new Promise(resolve => setTimeout(resolve, 200));
-        console.timeEnd("3rd Response");
+        console.timeEnd("Response");
         return secondOutput
 
     } catch (error) {
