@@ -29,7 +29,7 @@ async function primeChatBot(selectedPokemon) {
     if (selectedPokemon) {
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
         await loadMessagesFromMongoDB(pokedexNumber, 4096);
-        const [pkmnSheet, string2] = await createStringArrayFromJSON(selectedPokemon);
+        const pkmnSheet = await createStringArrayFromJSON(selectedPokemon);
 
         if (!runningMemoryLogs[pokedexNumber]) {
             runningMemoryLogs[pokedexNumber] = [];
@@ -91,11 +91,7 @@ function createStringArrayFromJSON(jsObject) {
         json.pokemon.gender
     ].join('');
 
-    const string2 = [
-        json.pokemon.nationalPokedexNumber.toString()
-    ];
-
-    return [string1, string2];
+    return string1
 }
 
 async function sendChatToPokemon(prompt) {
@@ -149,7 +145,6 @@ async function sendChatToPokemon(prompt) {
         });
 
         try {
-            let primeToneresponse
             primeToneresponse = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: toneMap.map(({ role, content }) => ({ role, content })),
