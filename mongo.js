@@ -1,10 +1,28 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
+const uriLoginDemo = `mongodb://${process.env.MONGODB_SERVER}:27017/loginDemo`;
+const uriInteractionHistory = `mongodb://${process.env.MONGODB_SERVER}:27017/InteractionHistory`;
+const uriPokemonList = `mongodb://${process.env.MONGODB_SERVER}/Pokemon`;
+const LoginDemoConnection = mongoose.createConnection(uriLoginDemo, { useNewUrlParser: true, useUnifiedTopology: true });
+const InteractionHistoryConnection = mongoose.createConnection(uriInteractionHistory, { useNewUrlParser: true, useUnifiedTopology: true });
+const PokemonListConnection = mongoose.createConnection(uriPokemonList, { useNewUrlParser: true, useUnifiedTopology: true });
+const createUserModel = require('./models/User');
+const User = createUserModel(LoginDemoConnection);
+const runningMemoryLogs = {}
+const interactionHistoryLogs = {}
+const conversationMemoryDuration = 7 * 24 * 60 * 60 * 1000
+const PokemonSchema = new mongoose.Schema({
+    pokemon: {
+        species: { type: String, required: true },
+        nationalPokedexNumber: { type: Number, required: true },
+    },
+});
 
 async function saveMessagesToMongoDB(pokedexNumber) {
 
     try {
 
-        const database = interactionHistoryConnection.client.db('InteractionHistory');
+        const database = InteractionHistoryConnection.client.db('InteractionHistory');
         const collection = database.collection('chats');
         let lastTwoMessages = interactionHistoryLogs[pokedexNumber].slice(-2);
         lastTwoMessages.forEach(message => {
@@ -25,7 +43,7 @@ async function saveMessagesToMongoDB(pokedexNumber) {
 async function loadMessagesFromMongoDB(pokedexNumber, tokenLimit) {
     try {
 
-        const database = interactionHistoryConnection.client.db('InteractionHistory');
+        const database = InteractionHistoryConnection.client.db('InteractionHistory');
         const collection = database.collection('chats');
         const userId = global.userId
         const cursor = collection.find({ 'pokedexNumber': pokedexNumber, 'userId': userId }).sort({ _id: -1 });
@@ -97,5 +115,10 @@ module.exports = {
     loadMessagesFromMongoDB,
     isMessageWithinDuration,
     getAllPokemon,
-    getPokemonByPokedexNumber
+    getPokemonByPokedexNumber,
+    User,
+    runningMemoryLogs,
+    interactionHistoryLogs,
+    LoginDemoConnection,
+    PokemonListConnection
   };

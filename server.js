@@ -4,8 +4,14 @@ const {
     saveMessagesToMongoDB,
     loadMessagesFromMongoDB,
     getAllPokemon,
-    getPokemonByPokedexNumber
-  } = require('./mongodb');
+    getPokemonByPokedexNumber,
+    User,
+    runningMemoryLogs,
+    interactionHistoryLogs,
+    LoginDemoConnection,
+    PokemonListConnection
+} = require('./mongo');
+
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
 const openai = new OpenAIApi(configuration);
@@ -15,28 +21,7 @@ const axios = require('axios');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const mongoose = require('mongoose');
-const PokemonSchema = new mongoose.Schema({
-    pokemon: {
-        species: { type: String, required: true },
-        nationalPokedexNumber: { type: Number, required: true },
-    },
-});
-
 let userId
-
-const uriLoginDemo = `mongodb://${process.env.MONGODB_SERVER}:27017/loginDemo`;
-const uriInteractionHistory = `mongodb://${process.env.MONGODB_SERVER}:27017/InteractionHistory`;
-const uriPokemonList = `mongodb://${process.env.MONGODB_SERVER}/Pokemon`;
-const LoginDemoConnection = mongoose.createConnection(uriLoginDemo, { useNewUrlParser: true, useUnifiedTopology: true });
-const interactionHistoryConnection = mongoose.createConnection(uriInteractionHistory, { useNewUrlParser: true, useUnifiedTopology: true });
-const PokemonListConnection = mongoose.createConnection(uriPokemonList, { useNewUrlParser: true, useUnifiedTopology: true });
-
-const createUserModel = require('./models/User');
-const User = createUserModel(LoginDemoConnection);
-const runningMemoryLogs = {}
-const interactionHistoryLogs = {}
-const conversationMemoryDuration = 7 * 24 * 60 * 60 * 1000
 
 async function primeChatBot(selectedPokemon) {
     let response;
@@ -134,7 +119,7 @@ async function sendChatToPokemon(prompt) {
         let response
         runningMemoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
-
+        
         runningMemoryLogs[pokedexNumber].forEach((element) => {
         });
         console.time("Response");
@@ -335,8 +320,6 @@ app.get('/create', (req, res) => {
 
 app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
-    console.log(userMessage)
-
     try {
         const response = await sendChatToPokemon(userMessage);
         res.json({ assistantResponse: `${response}` });
@@ -418,7 +401,7 @@ app.post('/api/submit-data', async (req, res) => {
 
 app.get('/ping', (req, res) => {
     res.status(200).send('OK');
-  });
+});
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
