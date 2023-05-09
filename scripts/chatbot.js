@@ -8,7 +8,7 @@ const {
     loadMessagesFromMongoDB,
     runningMemoryLogs,
     interactionHistoryLogs,
-} = require('./scripts/mongo');
+} = require('./scripts/db');
 
 async function primeChatBot(selectedPokemon) {
     let response;
