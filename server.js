@@ -1,8 +1,8 @@
 console.clear()
 require('dotenv').config();
-const { getAllPokemon, getPokemonByPokedexNumber, User, LoginDemoConnection, PokemonListConnection } = require('./scripts/mongo');
-const { primeChatBot, sendChatToPokemon } = require('./scripts/chatbot');
-const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames  } = require('./scripts/pokeapi');
+const { primeChatBot, sendChatToPokemon } = require(`./scripts/chatbot`);
+const { getAllPokemon, getPokemonByPokedexNumber, User, LoginDemoConnection, PokemonListConnection } = require(`./scripts/db`);
+const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames  } = require(`./scripts/pokeapi`);
 const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
