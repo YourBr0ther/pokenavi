@@ -190,16 +190,12 @@ async function sendChatToPokemon(prompt) {
     }
 }
 
-function removeNewlines(text) {
-    return text.replace(/\n|\f/g, ' ');
-}
-
 async function getPokemonEntries(species, count = 5) {
     try {
         const fetch = (await import('node-fetch')).default;
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${species.toLowerCase()}`);
         const speciesData = await response.json();
-        const entries = speciesData.flavor_text_entries.slice(0, count).map((entry) => removeNewlines(entry.flavor_text));
+        const entries = (speciesData.flavor_text_entries.slice(0, count).map((entry)).replace(/\n|\f/g, ' '))
         const NationalPokedexNumber = speciesData.id;
 
         return { entries, NationalPokedexNumber };
@@ -207,12 +203,6 @@ async function getPokemonEntries(species, count = 5) {
         console.error('Error fetching Pokémon entries:', error.message);
         return { entries: [], NationalPokedexNumber: null };
     }
-}
-
-function capitalizeAndReplace(string) {
-    string = string.replace(/-/g, ' ');
-    string = string.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    return string;
 }
 
 function isAuthenticated(req, res, next) {
@@ -290,7 +280,7 @@ app.get('/logout', (req, res) => {
 app.get('/create', (req, res) => {
     const speciesPromise = axios.get('https://pokeapi.co/api/v2/pokemon?limit=1000')
         .then(response => {
-            const speciesNames = response.data.results.map(pokemon => capitalizeAndReplace(pokemon.name));
+            const speciesNames = ((response.data.results.map(pokemon.name).replace(/-/g, ' ')).split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
             return speciesNames;
         })
         .catch(error => {
@@ -300,7 +290,7 @@ app.get('/create', (req, res) => {
 
     const naturesPromise = axios.get('https://pokeapi.co/api/v2/nature')
         .then(response => {
-            const natureNames = response.data.results.map(nature => capitalizeAndReplace(nature.name));
+            const natureNames = ((response.data.results.map(nature.name).replace(/-/g, ' ')).split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
             return natureNames;
         })
         .catch(error => {
@@ -353,7 +343,7 @@ app.post('/switch', isAuthenticated, async (req, res) => {
 app.post('/api/submit-data', async (req, res) => {
     const userId = global.userId;
 
-    const speciesName = capitalizeAndReplace(req.body.pokemon.species)
+    const speciesName = ((req.body.pokemon.species.replace(/-/g, ' ')).split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
     const pokeData = await getPokemonEntries(speciesName);
     const template = {
         system: {
