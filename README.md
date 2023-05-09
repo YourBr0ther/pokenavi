@@ -65,3 +65,4 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
  * Allow Pokemon to dream
  * Play basic music
  * Search Google via Google search or Bard [Coming soon in ChatGPT4]
+
