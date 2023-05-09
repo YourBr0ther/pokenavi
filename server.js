@@ -1,35 +1,14 @@
 console.clear()
 require('dotenv').config();
-const {
-    getAllPokemon,
-    getPokemonByPokedexNumber,
-    User,
-    LoginDemoConnection,
-    PokemonListConnection
-} = require('./scripts/mongo');
+const { getAllPokemon, getPokemonByPokedexNumber, User, LoginDemoConnection, PokemonListConnection } = require('./scripts/mongo');
 const { primeChatBot, sendChatToPokemon } = require('./scripts/chatbot');
+const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames  } = require('./scripts/pokeapi');
 const express = require("express");
 const bodyParser = require("body-parser");
-const axios = require('axios');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 let userId
-
-async function getPokemonEntries(species, count = 5) {
-    try {
-        const fetch = (await import('node-fetch')).default;
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${species.toLowerCase()}`);
-        const speciesData = await response.json();
-        const entries = (speciesData.flavor_text_entries.slice(0, count).map((entry)).replace(/\n|\f/g, ' '))
-        const NationalPokedexNumber = speciesData.id;
-
-        return { entries, NationalPokedexNumber };
-    } catch (error) {
-        console.error('Error fetching Pokémon entries:', error.message);
-        return { entries: [], NationalPokedexNumber: null };
-    }
-}
 
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
@@ -104,26 +83,9 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/create', (req, res) => {
-    const speciesPromise = axios.get('https://pokeapi.co/api/v2/pokemon?limit=1000')
-        .then(response => {
-            const speciesNames = ((response.data.results.map(pokemon.name).replace(/-/g, ' ')).split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
-            return speciesNames;
-        })
-        .catch(error => {
-            console.log(error);
-            res.status(500).send('Error retrieving Pokemon data');
-        });
 
-    const naturesPromise = axios.get('https://pokeapi.co/api/v2/nature')
-        .then(response => {
-            const natureNames = ((response.data.results.map(nature.name).replace(/-/g, ' ')).split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
-            return natureNames;
-        })
-        .catch(error => {
-            console.log(error);
-            res.status(500).send('Error retrieving Pokemon data');
-        });
-
+    const speciesPromise = getAllSpeciesNames()
+    const naturesPromise = getAllNatureNames()
     Promise.all([speciesPromise, naturesPromise])
         .then(([speciesNames, natureNames]) => {
             res.render('create', { speciesNames, natureNames });
