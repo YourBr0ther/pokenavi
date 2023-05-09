@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const fetch = require('fetch')
 const axios = require('axios');
 
 async function getPokemonEntries(species, count = 5) {
@@ -18,7 +18,7 @@ async function getPokemonEntries(species, count = 5) {
 // Function to retrieve all Pokemon species names
 async function getAllSpeciesNames() {
     try {
-        const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=1000');
+        const response = await get('https://pokeapi.co/api/v2/pokemon?limit=1000');
         const speciesNames = response.data.results.map(pokemon => pokemon.name.replace(/-/g, ' ')).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         return speciesNames;
     } catch (error) {
@@ -30,7 +30,7 @@ async function getAllSpeciesNames() {
 // Function to retrieve all nature names
 async function getAllNatureNames() {
     try {
-        const response = await axios.get('https://pokeapi.co/api/v2/nature');
+        const response = await get('https://pokeapi.co/api/v2/nature');
         const natureNames = response.data.results.map(nature => nature.name.replace(/-/g, ' ')).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         return natureNames;
     } catch (error) {
