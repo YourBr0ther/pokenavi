@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const uriLoginDemo = `mongodb://${process.env.MONGODB_SERVER}:27017/loginDemo`;
-const uriInteractionHistory = `mongodb://${process.env.MONGODB_SERVER}:27017/InteractionHistory`;
+const uriLoginDemo = `mongodb://${process.env.MONGODB_SERVER}/loginDemo`;
+const uriInteractionHistory = `mongodb://${process.env.MONGODB_SERVER}/InteractionHistory`;
 const uriPokemonList = `mongodb://${process.env.MONGODB_SERVER}/Pokemon`;
 const LoginDemoConnection = mongoose.createConnection(uriLoginDemo, { useNewUrlParser: true, useUnifiedTopology: true });
 const InteractionHistoryConnection = mongoose.createConnection(uriInteractionHistory, { useNewUrlParser: true, useUnifiedTopology: true });

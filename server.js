@@ -6,9 +6,8 @@ const {
     User,
     LoginDemoConnection,
     PokemonListConnection
-} = require('./mongo');
-const { primeChatBot, sendChatToPokemon } = require('./chatbot');
-
+} = require('./scripts/mongo');
+const { primeChatBot, sendChatToPokemon } = require('./scripts/chatbot');
 const express = require("express");
 const bodyParser = require("body-parser");
 const axios = require('axios');
