@@ -2,7 +2,6 @@ require('dotenv').config();
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
 const openai = new OpenAIApi(configuration);
-
 const { saveMessagesToMongoDB, loadMessagesFromMongoDB, runningMemoryLogs, interactionHistoryLogs } = require('./db');
 
 async function primeChatBot(selectedPokemon) {
@@ -67,7 +66,7 @@ async function sendChatToPokemon(prompt) {
         let response
         runningMemoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
-        
+
         runningMemoryLogs[pokedexNumber].forEach((element) => {
         });
         console.time("Response");
