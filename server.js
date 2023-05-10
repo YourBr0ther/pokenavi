@@ -84,10 +84,8 @@ app.get('/logout', (req, res) => {
 
 app.get('/create', (req, res) => {
 
-    const speciesPromise = getAllSpeciesNames()
-    console.log(speciesPromise)
+    const speciesPromise = getAllSpeciesNames()    
     const naturesPromise = getAllNatureNames()
-    console.log(naturesPromise)
     Promise.all([speciesPromise, naturesPromise])
         .then(([speciesNames, natureNames]) => {
             res.render('create', { speciesNames, natureNames });
@@ -137,7 +135,7 @@ app.post('/api/submit-data', async (req, res) => {
     const pokeData = await getPokemonEntries(speciesName);
     const template = {
         trainer: {
-            userId: `${userId}`
+            UserId: `${userId}`
         },
         system: {
             response: "Response text based on the user input",
@@ -166,7 +164,7 @@ app.post('/api/submit-data', async (req, res) => {
     try {
 
         const database = PokemonListConnection.client.db(`Pokemon`);
-        const collection = database.collection(`${userId}`);
+        const collection = database.collection(`PC`);
         const existingData = await collection.findOne({ 'pokemon.species': speciesName });
         const mergedData = {
             ...existingData,

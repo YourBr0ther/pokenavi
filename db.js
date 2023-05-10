@@ -76,11 +76,12 @@ async function getAllPokemon(pokedexNumber) {
 
     try {
         await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
-        const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
+        const PokemonModel = mongoose.model('PC', PokemonSchema, 'PC');
 
         if (pokedexNumber) {
             const pokemonData = await PokemonModel.findOne({
                 'pokemon.nationalPokedexNumber': Number(pokedexNumber),
+                'trainer.UserId': userId
             });
 
             if (pokemonData) {
@@ -90,7 +91,9 @@ async function getAllPokemon(pokedexNumber) {
                 return null;
             }
         } else {
-            const pokemonDocs = await PokemonModel.find();
+            const pokemonDocs = await PokemonModel.find({
+                'trainer.UserId': userId
+            });
             allPokemon = pokemonDocs.map((doc) => ({
                 species: doc.pokemon.species,
                 pokedexNumber: doc.pokemon.nationalPokedexNumber,
