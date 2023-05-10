@@ -70,42 +70,36 @@ function isMessageWithinDuration(message) {
     return currentTimestamp - messageTimestamp <= conversationMemoryDuration;
 }
 
-async function getAllPokemon() {
+async function getAllPokemon(pokedexNumber) {
     let allPokemon = [];
     const userId = global.userId;
 
     try {
         await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
         const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
-        const pokemonDocs = await PokemonModel.find();
-        allPokemon = pokemonDocs.map((doc) => ({
-            species: doc.pokemon.species,
-            pokedexNumber: doc.pokemon.nationalPokedexNumber,
-        }));
+
+        if (pokedexNumber) {
+            const pokemonData = await PokemonModel.findOne({
+                'pokemon.nationalPokedexNumber': Number(pokedexNumber),
+            });
+
+            if (pokemonData) {
+                return pokemonData;
+            } else {
+                console.log(`Pokemon with Pokedex number ${pokedexNumber} not found`);
+                return null;
+            }
+        } else {
+            const pokemonDocs = await PokemonModel.find();
+            allPokemon = pokemonDocs.map((doc) => ({
+                species: doc.pokemon.species,
+                pokedexNumber: doc.pokemon.nationalPokedexNumber,
+            }));
+            return allPokemon;
+        }
+
     } catch (err) {
         console.error(err);
-    }
-    return allPokemon;
-}
-
-async function getPokemonByPokedexNumber(pokedexNumber) {
-    const userId = global.userId;
-
-    try {
-        await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
-        const PokemonModel = mongoose.model(userId, PokemonSchema, userId);
-        const pokemonData = await PokemonModel.findOne({
-            'pokemon.nationalPokedexNumber': Number(pokedexNumber),
-        });
-
-        if (pokemonData) {
-            return pokemonData;
-        } else {
-            console.log(`Pokemon with Pokedex number ${pokedexNumber} not found`);
-            return null;
-        }
-    } catch (error) {
-        console.error(`Error getting Pokémon by Pokedex number:`, error);
         return null;
     }
 }
@@ -115,7 +109,6 @@ module.exports = {
     loadMessagesFromMongoDB,
     isMessageWithinDuration,
     getAllPokemon,
-    getPokemonByPokedexNumber,
     User,
     runningMemoryLogs,
     interactionHistoryLogs,

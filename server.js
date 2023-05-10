@@ -1,7 +1,7 @@
 console.clear()
 require('dotenv').config();
 const { primeChatBot, sendChatToPokemon } = require(`./chatbot`);
-const { getAllPokemon, getPokemonByPokedexNumber, User, LoginDemoConnection, PokemonListConnection } = require(`./db`);
+const { getAllPokemon, User, LoginDemoConnection, PokemonListConnection } = require(`./db`);
 const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames  } = require(`./pokeapi`);
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -109,7 +109,7 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
 app.post('/switch', isAuthenticated, async (req, res) => {
     try {
         const pokedexNumber = req.body.pokedexNumber;
-        const selectedPokemon = await getPokemonByPokedexNumber(pokedexNumber);
+        const selectedPokemon = await getAllPokemon(pokedexNumber);
         const selectedPokemonJson = JSON.stringify(selectedPokemon);
         global.selectedPokemon = selectedPokemonJson;
         if (!selectedPokemon) {
@@ -119,7 +119,7 @@ app.post('/switch', isAuthenticated, async (req, res) => {
         primeChatBot(selectedPokemon);
         res.json({
             assistantResponse: "Switched to new Pokémon!",
-            pokedexNumber: selectedPokemon.pokemon.NationalPokedexNumber
+            pokedexNumber: selectedPokemon.pokemon.nationalPokedexNumber
         });
     } catch (error) {
         console.log(error);
