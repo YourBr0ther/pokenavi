@@ -50,7 +50,9 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
   * Save button on selected Pokemon
 * Comment the HTML
 
-### Conscious Bot Creation [PokeCORE]
+### PokeCORE
+* Implement locations
+* 
 * Enter idle mode [?]
 * Brain [Parent]
   * Id [Instincts]
