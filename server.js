@@ -85,7 +85,9 @@ app.get('/logout', (req, res) => {
 app.get('/create', (req, res) => {
 
     const speciesPromise = getAllSpeciesNames()
+    console.log(speciesPromise)
     const naturesPromise = getAllNatureNames()
+    console.log(naturesPromise)
     Promise.all([speciesPromise, naturesPromise])
         .then(([speciesNames, natureNames]) => {
             res.render('create', { speciesNames, natureNames });
@@ -134,6 +136,9 @@ app.post('/api/submit-data', async (req, res) => {
     const speciesName = ((req.body.pokemon.species.replace(/-/g, ' ')).split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
     const pokeData = await getPokemonEntries(speciesName);
     const template = {
+        trainer: {
+            userId: `${userId}`
+        },
         system: {
             response: "Response text based on the user input",
             memory: "key-value store of things I should remember about myself and the user",
@@ -152,18 +157,21 @@ app.post('/api/submit-data', async (req, res) => {
         pokemon: {
             species: speciesName,
             entries: pokeData.entries,
-            nationalPokedexNumber: pokeData.NationalPokedexNumber
+            nationalPokedexNumber: pokeData.NationalPokedexNumber,
+            currentLocation: "Pokemon Laboratory",
+            locationExpiration: ""
         }
     };
 
     try {
 
-        const database = PokemonListConnection.db(`${userId}`);
-        const collection = database.collection('chats');
+        const database = PokemonListConnection.client.db(`Pokemon`);
+        const collection = database.collection(`${userId}`);
         const existingData = await collection.findOne({ 'pokemon.species': speciesName });
         const mergedData = {
             ...existingData,
             ...req.body,
+            trainer: { ...existingData?.trainer, ...req.body.trainer, ...template.trainer },
             system: { ...existingData?.system, ...req.body.system, ...template.system },
             pokemon: { ...existingData?.pokemon, ...req.body.pokemon, ...template.pokemon },
         };

@@ -184,14 +184,14 @@ select {
 #chat-window::before {
   content: "";
   position: absolute;
-  top: 0;
-  right: 26.7%;
-  width: 100%;
+  top: 0px;
+  right: 70%;
+  width: 30%;
   height: 100%;
   image-rendering: pixelated;
   background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');
   background-size: cover; 
-  background-position: bottom 90%;  opacity: 0.5;
+  opacity: 0.5;
   z-index: -1; 
   transform: scaleX(-1)
 }

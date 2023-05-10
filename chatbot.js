@@ -160,7 +160,8 @@ function createStringArrayFromJSON(jsObject) {
         json.pokemon.traits.join(', '),
         json.pokemon.species,
         json.pokemon.name,
-        json.pokemon.gender
+        json.pokemon.gender,
+        json.pokemon.currentLocation
     ].join('');
 
     return string1
