@@ -2,8 +2,9 @@ console.clear()
 require('dotenv').config();
 const { primeChatBot, sendChatToPokemon } = require(`./chatbot`);
 const { getAllPokemon, User, LoginDemoConnection, PokemonListConnection } = require(`./db`);
-const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames  } = require(`./pokeapi`);
-const { pickLocation  } = require(`./pokecore`);
+const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames } = require(`./pokeapi`);
+const cron = require('node-cron');
+const { updatePokemonLocations } = require(`./pokecore`);
 const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
@@ -85,7 +86,7 @@ app.get('/logout', (req, res) => {
 
 app.get('/create', (req, res) => {
 
-    const speciesPromise = getAllSpeciesNames()    
+    const speciesPromise = getAllSpeciesNames()
     const naturesPromise = getAllNatureNames()
     Promise.all([speciesPromise, naturesPromise])
         .then(([speciesNames, natureNames]) => {
@@ -190,4 +191,14 @@ app.get('/ping', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
+
+    cron.schedule('0 * * * *', async () => {
+        try {
+            await updatePokemonLocations();
+            console.log('Updated Pokemon locations')
+        } catch (error) {
+            console.error('Failed to update Pokemon locations:', error);
+        }
+    });
+
 });

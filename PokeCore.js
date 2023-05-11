@@ -3,10 +3,9 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const moment = require('moment');
 
-// Function to pick a random location for a given Pokemon type
-async function pickLocation(pokemonType, userId) {
-
-  // Define the schema for the Location collection
+// Function to update Pokemon locations if they have expired
+async function updatePokemonLocations() {
+  // Define the schema for the Location and Pokemon collections
   const LocationSchema = new mongoose.Schema({
     name: String,
     type: String
@@ -14,49 +13,57 @@ async function pickLocation(pokemonType, userId) {
     collection: 'Locations' // specify the custom collection name
   });
 
-  // Define the schema for the user collection
-  const UserSchema = new mongoose.Schema({
+  const PCSchema = new mongoose.Schema({
+    type1: String, // Updated to type1
     pokemon: {
-      currentLocation: String,
-      locationExpires: Date
+      currentLocation: { type: String, default: null },
+      locationExpires: { type: Date, default: null }
     }
+  }, {
+    collection: 'PC' // specify the custom collection name
   });
 
-  // Define the Location and User models
+  // Define the Location and Pokemon models
   const Locations = mongoose.model('Location', LocationSchema);
+  const PC = mongoose.model('PC', PCSchema); // Renamed from Pokemons to PC
 
   // Connect to the MongoDB database
   await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/Pokemon`);
 
-  // Find all locations that match the given Pokemon type (case-insensitive)
-  const locations = await Locations.find({ type: { $regex: new RegExp(pokemonType, 'i') } });
-  console.log(locations)
+  // Get all Pokemons
+  const pokemons = await PC.find(); // Changed from Pokemons to PC
 
-  // Check if the locations array is empty
-  if (locations.length === 0) {
-    throw new Error(`No locations found for Pokemon type "${pokemonType}"`);
+  // Iterate over each Pokemon
+  for (let pokemon of pokemons) {
+    // If the location has expired or doesn't exist, update it
+    if (!pokemon.pokemon.currentLocation || !pokemon.pokemon.locationExpires || moment().isAfter(pokemon.pokemon.locationExpires)) {
+      // Find all locations that match the Pokemon's type (case-insensitive)
+      const locations = await Locations.find({ type: { $regex: new RegExp(pokemon.type1, 'i') } }); // Updated to type1
+
+      // Check if the locations array is empty
+      if (locations.length === 0) {
+        throw new Error(`No locations found for Pokemon type "${pokemon.type1}"`); // Updated to type1
+      }
+
+      // Pick a random location from the list
+      const randomIndex = Math.floor(Math.random() * locations.length);
+      const randomLocation = locations[randomIndex];
+
+      // Set the expiration time for the location
+      const expirationTime = moment().add(Math.floor(Math.random() * 3) + 1, 'hours').toDate();
+
+      // Update the location and expiration time in the Pokemon's document in the database
+      const updatedPokemon = await PC.findOneAndUpdate({ _id: pokemon._id }, { // Changed from Pokemons to PC
+        'pokemon.currentLocation': randomLocation.name,
+        'pokemon.locationExpires': expirationTime
+      }, { upsert: true, new: true });
+
+      // Log the change of location
+      console.log(`Pokemon ${updatedPokemon.name} moved from ${pokemon.pokemon.currentLocation} to ${updatedPokemon.pokemon.currentLocation}`);
+    }
   }
 
-  // Pick a random location from the list
-  const randomIndex = Math.floor(Math.random() * locations.length);
-  const randomLocation = locations[randomIndex];
-
-  // Set the expiration time for the location
-  const expirationTime = moment().add(Math.floor(Math.random() * 3) + 1, 'hours').toDate();
-
-  // Save the location and expiration time to the user's document in the database
-  const user = await mongoose.model(userId, UserSchema).findOneAndUpdate({}, {
-    'pokemon.currentLocation': randomLocation.name,
-    'pokemon.locationExpires': expirationTime
-  }, { upsert: true, new: true });
-
   await mongoose.disconnect();
-
-  // Return the current location and expiration time
-  return {
-    currentLocation: user.pokemon.currentLocation,
-    locationExpires: user.pokemon.locationExpires
-  };
 }
 
 // Connection URI
@@ -115,6 +122,8 @@ async function pickLocation(pokemonType, userId) {
 //     console.log("Error connecting to MongoDB:", err);
 //   });
 
+
+
 module.exports = {
-  pickLocation
+  updatePokemonLocations
 };
