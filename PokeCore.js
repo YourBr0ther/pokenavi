@@ -63,6 +63,7 @@ const moment = require('moment');
 const uri = `mongodb://${process.env.MONGODB_SERVER}/InteractionHistory`;
 
 // Connect to the MongoDB server
+// Connect to the MongoDB server
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("Connected to MongoDB");
@@ -72,11 +73,11 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
       userId: String,
       timestamp: Date,
       content: String,
-      pokedexNumber: String
+      Integer: String
     });
 
-    // Query all chats from the "chats" collection
-    Chat.find({})
+    // Query chats from the "chats" collection that match the filter
+    Chat.find({ userId: `${userId}`, pokedexNumber: 5 })
       .then(function(chats) {
         console.log("Retrieved", chats.length, "chats:");
 
