@@ -3,7 +3,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const moment = require('moment');
 
-// Function to update Pokemon locations if they have expired
+// Function to pick a random location for a given Pokemon type
 async function updatePokemonLocations() {
   // Define the schema for the Location and Pokemon collections
   const LocationSchema = new mongoose.Schema({
@@ -14,18 +14,16 @@ async function updatePokemonLocations() {
   });
 
   const PCSchema = new mongoose.Schema({
-    type1: String, // Updated to type1
-    pokemon: {
-      currentLocation: { type: String, default: null },
-      locationExpires: { type: Date, default: null }
-    }
+    type1: String,
+    'pokemon.currentLocation': { type: String, default: null },
+    'pokemon.locationExpires': { type: Date, default: null }
   }, {
     collection: 'PC' // specify the custom collection name
   });
 
-  // Define the Location and Pokemon models
-  const Locations = mongoose.model('Location', LocationSchema);
-  const PC = mongoose.model('PC', PCSchema); // Renamed from Pokemons to PC
+  // Define the Location and Pokemon models if they haven't been defined yet
+  const Locations = mongoose.models.Location || mongoose.model('Location', LocationSchema);
+  const PC = mongoose.models.PC || mongoose.model('PC', PCSchema);
 
   // Connect to the MongoDB database
   await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/Pokemon`);
