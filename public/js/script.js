@@ -84,7 +84,6 @@ function createPokemon() {
   fetch('/create')
 }
 
-
 const switchPrompt = async () => {
 
   console.time("Switch");

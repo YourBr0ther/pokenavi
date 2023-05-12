@@ -5,48 +5,10 @@ const openai = new OpenAIApi(configuration);
 const { saveMessagesToMongoDB, loadMessagesFromMongoDB, runningMemoryLogs, interactionHistoryLogs } = require('./db');
 
 async function primeChatBot(selectedPokemon) {
-    let response;
 
-    if (selectedPokemon) {
-        const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
-        await loadMessagesFromMongoDB(pokedexNumber, 2000);
-        const pkmnSheet = await createStringArrayFromJSON(selectedPokemon);
-
-        if (!runningMemoryLogs[pokedexNumber]) {
-            runningMemoryLogs[pokedexNumber] = [];
-        }
-
-        chatHistory = runningMemoryLogs[pokedexNumber]
-
-        runningMemoryLogs[pokedexNumber].push({
-            role: "system",
-            content: pkmnSheet,
-            timestamp: new Date().toISOString(),
-        });
-        const primeRunningMemory = runningMemoryLogs[pokedexNumber].slice();
-        primeRunningMemory.push({
-            role: "system",
-            content: pkmnSheet,
-            timestamp: new Date().toISOString(),
-        });
-
-        try {
-            response = await openai.createChatCompletion({
-                model: "gpt-4",
-                messages: primeRunningMemory.map(({ role, content }) => ({ role, content })),
-                temperature: 0.7,
-                max_tokens: 100,
-            });
-            console.log("Ready to receive requests");
-        } catch (error) {
-            console.error(error);
-            process.exit(1);
-        }
-    } else {
-        console.log("No selected pokemon");
-        process.exit(1);
-    }
-
+    const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
+    await loadMessagesFromMongoDB(pokedexNumber, 4000);
+    chatHistory = runningMemoryLogs[pokedexNumber]
     return chatHistory
 }
 
@@ -66,12 +28,19 @@ async function sendChatToPokemon(prompt) {
         }
 
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
+
+        const pkmnSheet = await createStringArrayFromJSON(selectedPokemon);
+        runningMemoryLogs[pokedexNumber].push({
+            role: "system",
+            content: pkmnSheet,
+            timestamp: new Date().toISOString(),
+        });
         const trainerName = selectedPokemon.trainer.name;
         console.log(trainerName + ': ' + prompt)
         let response
         runningMemoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
-        trimmedMemory = runningMemoryLogs[pokedexNumber].slice(-1).filter(({ content }) => content !== undefined && content !== '');
+        trimmedMemory = runningMemoryLogs[pokedexNumber].filter(({ content }) => content !== undefined && content !== '');
         console.time("Response");
         try {
             response = await openai.createChatCompletion({
@@ -159,24 +128,22 @@ function createStringArrayFromJSON(jsObject) {
         !json.trainer
     ) {
         console.error("Error: The JSON object does not have the expected structure.");
-        return ["Invalid JSON", "Invalid JSON"];
+        return "Invalid JSON";
     }
 
-    const string1 = [
-        json.system.rules.join(', '),
-        json.trainer.name,
-        json.trainer.gender,
-        json.pokemon.hobby,
-        json.pokemon.entries.join(', '),
-        json.pokemon.age,
-        json.pokemon.traits.join(', '),
-        json.pokemon.species,
-        json.pokemon.name,
-        json.pokemon.gender,
-        json.pokemon.currentLocation
-    ].join('');
+    const string1 = `Trainer Name: ${json.trainer.name}\n` +
+                    `Trainer Gender: ${json.trainer.gender}\n` +
+                    `System Rules: ${json.system.rules.join(', ')}\n` +
+                    `Pokemon's Hobby: ${json.pokemon.hobby}\n` +
+                    `Pokemon's Entries: ${json.pokemon.entries.join('. ')}\n` +
+                    `Pokemon's Age: ${json.pokemon.age}\n` +
+                    `Pokemon's Traits: ${json.pokemon.traits.join(', ')}\n` +
+                    `Pokemon's Species: ${json.pokemon.species}\n` +
+                    `Pokemon's Name: ${json.pokemon.name}\n` +
+                    `Pokemon's Gender: ${json.pokemon.gender}\n` +
+                    `Pokemon's Current Location: ${json.pokemon.currentLocation}`;
 
-    return string1
+    return string1;
 }
 
 module.exports = {
