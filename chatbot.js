@@ -29,15 +29,15 @@ async function primeChatBot(selectedPokemon) {
             content: pkmnSheet,
             timestamp: new Date().toISOString(),
         });
+
         try {
             response = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: primeRunningMemory.map(({ role, content }) => ({ role, content })),
                 temperature: 0.7,
-                max_tokens: 25,
+                max_tokens: 100,
             });
             console.log("Ready to receive requests");
-            //return response;
         } catch (error) {
             console.error(error);
             process.exit(1);
@@ -71,19 +71,21 @@ async function sendChatToPokemon(prompt) {
         let response
         runningMemoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
-
-        runningMemoryLogs[pokedexNumber].forEach((element) => {
-        });
+        trimmedMemory = runningMemoryLogs[pokedexNumber].slice(-50).filter(({ content }) => content !== undefined && content !== '');
         console.time("Response");
+
+        for (let item of trimmedMemory) {
+            console.dir(item, { depth: null });
+          }
         try {
             response = await openai.createChatCompletion({
                 model: "gpt-4",
-                messages: runningMemoryLogs[pokedexNumber].map(({ role, content }) => ({ role, content })), // Only send messages for this Pokemon
+                messages: trimmedMemory.map(({ role, content }) => ({ role, content })),
                 temperature: 0.7,
-                max_tokens: 25,
+                max_tokens: 100,
             });
         } catch (error) {
-            console.log("Failing")
+            console.log("Failing: first Response")
             console.error(error)
             process.exit(1)
         }
@@ -105,7 +107,7 @@ async function sendChatToPokemon(prompt) {
                 model: "gpt-4",
                 messages: toneMap.map(({ role, content }) => ({ role, content })),
                 temperature: 0.7,
-                max_tokens: 25,
+                max_tokens: 100,
             });
         } catch (error) {
             console.error(error);
@@ -120,7 +122,7 @@ async function sendChatToPokemon(prompt) {
                 max_tokens: 100,
             });
         } catch (error) {
-            console.log("Failing")
+            console.log("Failing: Tone")
             console.error(error)
             process.exit(1)
         }
