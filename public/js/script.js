@@ -96,39 +96,31 @@ const switchPrompt = async () => {
     body: JSON.stringify({ pokedexNumber: pokedexNumber })
   });
 
-  const data = await response.json();
-  console.log(data)
-  const assistantResponse = data.assistantResponse || `Switched to ${data.pokedexNumber}`;
-
-  const pokemonImg = document.getElementById("sprite");
-  const chatWindow = document.getElementById("chat-window"); // Get the chat-window element
-  const cacheBuster = new Date().getTime();
-
-  if (pokedexNumber === "133") {
-    pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/pokemon/versions/generation-iii/firered-leafgreen/shiny/133.png`;
-  } else {
-    pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokedexNumber}.png?${cacheBuster}`;
+  if (!response.ok) {
+    console.error('Error switching Pokémon:', response.statusText);
+    return;
   }
 
-  chatMessages.innerHTML = "";
+  const data = await response.json();
 
-  updateChatWindowBgImage(pokemonImg.src);
+  // Clear current chat history in the chat box
+  chatMessages.innerHTML = '';
 
+  // Load chat history from the response
+  const chatHistory = data.chatHistory;
+  chatHistory.forEach((message) => {
+    // Assuming 'sender' field in your DB denotes if the message is from the user or the system
+    if (message.sender === 'user') {
+      addUserMessage(message.text);
+    } else if (message.sender === 'system') {
+      addSystemMessage(message.text);
+    }
+  });
 
-  const liAssistant = document.createElement("li");
-  liAssistant.textContent = `${assistantResponse}`;
-  chatMessages.appendChild(liAssistant);
-
-  scrollToBottom();
-
-  const delay = ms => new Promise(res => setTimeout(res, ms));
-  await delay(3000);
-
-  submitButton.disabled = false;
-};
+  submitButton.disabled = false; // Re-enable the submit button
+}
 
 function updateChatWindowBgImage(imageUrl) {
-  const chatWindow = document.getElementById("chat-window");
   const newStyleSheet = document.createElement("style");
   newStyleSheet.innerHTML = `
     #chat-window::before {

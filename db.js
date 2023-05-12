@@ -8,8 +8,8 @@ const InteractionHistoryConnection = mongoose.createConnection(uriInteractionHis
 const PokemonListConnection = mongoose.createConnection(uriPokemonList, { useNewUrlParser: true, useUnifiedTopology: true });
 const createUserModel = require('./models/User');
 const User = createUserModel(LoginDemoConnection);
-const runningMemoryLogs = {}
-const interactionHistoryLogs = {}
+let runningMemoryLogs = {}
+let interactionHistoryLogs = {}
 const conversationMemoryDuration = 7 * 24 * 60 * 60 * 1000
 const PokemonSchema = new mongoose.Schema({
     pokemon: {
@@ -58,6 +58,7 @@ async function loadMessagesFromMongoDB(pokedexNumber, tokenLimit) {
 
         interactionHistoryLogs[pokedexNumber] = filteredResults.filter(isMessageWithinDuration);
         runningMemoryLogs[pokedexNumber] = interactionHistoryLogs[pokedexNumber].slice();
+
     } catch (error) {
         console.error(`Error loading interaction history for Pokemon #${pokedexNumber} and user ${userId} from MongoDB:`, error);
     }

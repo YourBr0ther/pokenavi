@@ -9,6 +9,7 @@ async function primeChatBot(selectedPokemon) {
 
     if (selectedPokemon) {
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
+        console.log(interactionHistoryLogs)
         await loadMessagesFromMongoDB(pokedexNumber, 4096);
         const pkmnSheet = await createStringArrayFromJSON(selectedPokemon);
 
