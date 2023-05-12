@@ -29,7 +29,7 @@ async function sendChatToPokemon(prompt) {
 
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
 
-        const pkmnSheet = await createStringArrayFromJSON(selectedPokemon);
+        const pkmnSheet = createStringArrayFromJSON(selectedPokemon);
         runningMemoryLogs[pokedexNumber].push({
             role: "system",
             content: pkmnSheet,
