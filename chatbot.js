@@ -92,51 +92,60 @@ async function sendChatToPokemon(prompt) {
         const output_json = response.data.choices
         const firstOutput = output_json[0].message.content
 
-        const toneFile = "You will verify all text provided to you to ensure the Pokemon's nature. The text needs to be understandable. You will provide just the updated sentence with no headers or additional commentary."
+        // const toneFile = "You will verify all text provided to you to ensure the Pokemon's nature. The text needs to be understandable. You will provide just the updated sentence with no headers or additional commentary."
 
-        let toneMap = [];
-        let toneResponse
+        // let toneMap = [];
+        // let toneResponse
 
-        toneMap.push({
-            role: "system",
-            content: toneFile,
-        });
+        // toneMap.push({
+        //     role: "system",
+        //     content: toneFile,
+        // });
 
-        try {
-            primeToneresponse = await openai.createChatCompletion({
-                model: "gpt-4",
-                messages: toneMap.map(({ role, content }) => ({ role, content })),
-                temperature: 0.7,
-                max_tokens: 100,
-            });
-        } catch (error) {
-            console.error(error);
-            process.exit(1)
-        }
+        // try {
+        //     primeToneresponse = await openai.createChatCompletion({
+        //         model: "gpt-4",
+        //         messages: toneMap.map(({ role, content }) => ({ role, content })),
+        //         temperature: 0.7,
+        //         max_tokens: 100,
+        //     });
+        // } catch (error) {
+        //     console.error(error);
+        //     process.exit(1)
+        // }
 
-        try {
-            toneResponse = await openai.createChatCompletion({
-                model: "gpt-4",
-                messages: [...toneMap, { role: "user", content: firstOutput }],
-                temperature: 0.7,
-                max_tokens: 100,
-            });
-        } catch (error) {
-            console.log("Failing: Tone")
-            console.error(error)
-            process.exit(1)
-        }
-        const secondOutput_json = toneResponse.data.choices
-        const secondOutput = secondOutput_json[0].message.content
+        // try {
+        //     toneResponse = await openai.createChatCompletion({
+        //         model: "gpt-4",
+        //         messages: [...toneMap, { role: "user", content: firstOutput }],
+        //         temperature: 0.7,
+        //         max_tokens: 100,
+        //     });
+        // } catch (error) {
+        //     console.log("Failing: Tone")
+        //     console.error(error)
+        //     process.exit(1)
+        // }
+        // const secondOutput_json = toneResponse.data.choices
+        // const secondOutput = secondOutput_json[0].message.content
 
-        runningMemoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
-        interactionHistoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
+        // runningMemoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
+        // interactionHistoryLogs[pokedexNumber].push({ role: "system", content: secondOutput, timestamp: new Date().toISOString() });
+        // const pokemonName = selectedPokemon.pokemon.name
+        // console.log(pokemonName + ': ' + secondOutput)
+        // saveMessagesToMongoDB(pokedexNumber)
+        // await new Promise(resolve => setTimeout(resolve, 200));
+        // console.timeEnd("Response");
+        // return secondOutput
+
+        runningMemoryLogs[pokedexNumber].push({ role: "system", content: firstOutput, timestamp: new Date().toISOString() });
+        interactionHistoryLogs[pokedexNumber].push({ role: "system", content: firstOutput, timestamp: new Date().toISOString() });
         const pokemonName = selectedPokemon.pokemon.name
-        console.log(pokemonName + ': ' + secondOutput)
+        console.log(pokemonName + ': ' + firstOutput)
         saveMessagesToMongoDB(pokedexNumber)
         await new Promise(resolve => setTimeout(resolve, 200));
         console.timeEnd("Response");
-        return secondOutput
+        return firstOutput
 
     } catch (error) {
         console.error("Error in sendChatToPokemon:", error);
