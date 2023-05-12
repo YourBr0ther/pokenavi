@@ -84,7 +84,10 @@ function createPokemon() {
   fetch('/create')
 }
 
+
 const switchPrompt = async () => {
+
+  console.time("Switch");
   submitButton.disabled = true;
   const pokedexNumber = document.getElementById("switch").value;
   const response = await fetch("/switch", {
@@ -115,6 +118,7 @@ const switchPrompt = async () => {
 
   // Load chat history from the response
   const chatHistory = data.chatHistory;
+  chatHistory.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
   chatHistory.forEach((message) => {
     if (message.role === 'user') {
       addUserMessage(message.content);
@@ -126,6 +130,8 @@ const switchPrompt = async () => {
   });
 
   submitButton.disabled = false; // Re-enable the submit button
+  scrollToBottom();
+  console.timeEnd("Switch");
 }
 
 function updateChatWindowBgImage(imageUrl) {
