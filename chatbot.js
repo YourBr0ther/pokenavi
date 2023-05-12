@@ -73,10 +73,6 @@ async function sendChatToPokemon(prompt) {
         interactionHistoryLogs[pokedexNumber].push({ role: "user", content: prompt, timestamp: new Date().toISOString() });
         trimmedMemory = runningMemoryLogs[pokedexNumber].slice(-50).filter(({ content }) => content !== undefined && content !== '');
         console.time("Response");
-
-        for (let item of trimmedMemory) {
-            console.dir(item, { depth: null });
-          }
         try {
             response = await openai.createChatCompletion({
                 model: "gpt-4",
