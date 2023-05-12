@@ -13,7 +13,7 @@ const {
   } = require(`./db`);
 const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames } = require(`./pokeapi`);
 const cron = require('node-cron');
-const { updatePokemonLocations } = require(`./pokecore`);
+const { updatePokemonLocations } = require(`./thepokecore`);
 const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
