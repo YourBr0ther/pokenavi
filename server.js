@@ -4,11 +4,9 @@ const { primeChatBot, sendChatToPokemon } = require(`./chatbot`);
 const {  
  
     getAllPokemon, 
-    User, 
-    loadMessagesFromMongoDB, 
-    LoginDemoConnection, 
+    User,
+    LoginDemoConnection,
     PokemonListConnection, 
-    interactionHistoryLogs, 
     runningMemoryLogs 
   } = require(`./db`);
 const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames } = require(`./pokeapi`);
@@ -129,7 +127,6 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
 app.post('/switch', isAuthenticated, async (req, res) => {
     try {
         const pokedexNumber = req.body.pokedexNumber;
-        runningMemoryLogs[pokedexNumber] = [];
         const selectedPokemon = await getAllPokemon(pokedexNumber);
         const selectedPokemonJson = JSON.stringify(selectedPokemon);
         global.selectedPokemon = selectedPokemonJson;
@@ -137,12 +134,12 @@ app.post('/switch', isAuthenticated, async (req, res) => {
             res.status(404).json({ error: "Pokémon not found" });
             return;
         }
-        
-        const chatHistory = primeChatBot(selectedPokemon);
+        chatHistory = await primeChatBot(selectedPokemon);
+        chatHistory.pop()
         res.json({
             assistantResponse: "Switched to new Pokémon!",
-            pokedexNumber: pokedexNumber,
-            chatHistory: chatHistory // include chat history in the response
+            'pokedexNumber': pokedexNumber,
+            chatHistory: chatHistory
         });
     } catch (error) {
         console.log(error);

@@ -57,7 +57,11 @@ async function loadMessagesFromMongoDB(pokedexNumber, tokenLimit) {
         });
 
         interactionHistoryLogs[pokedexNumber] = filteredResults.filter(isMessageWithinDuration);
+        //interactionHistoryLogs[pokedexNumber] = filteredResults;
+        //console.log('Pokedex Number: ' + pokedexNumber)
+        //console.log(results[0])
         runningMemoryLogs[pokedexNumber] = interactionHistoryLogs[pokedexNumber].slice();
+        //console.log(runningMemoryLogs[pokedexNumber])
 
     } catch (error) {
         console.error(`Error loading interaction history for Pokemon #${pokedexNumber} and user ${userId} from MongoDB:`, error);
@@ -111,7 +115,6 @@ async function getAllPokemon(pokedexNumber) {
 module.exports = {
     saveMessagesToMongoDB,
     loadMessagesFromMongoDB,
-    isMessageWithinDuration,
     getAllPokemon,
     User,
     runningMemoryLogs,

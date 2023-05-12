@@ -9,13 +9,15 @@ async function primeChatBot(selectedPokemon) {
 
     if (selectedPokemon) {
         const pokedexNumber = selectedPokemon.pokemon.nationalPokedexNumber;
-        console.log(interactionHistoryLogs)
-        await loadMessagesFromMongoDB(pokedexNumber, 4096);
+        await loadMessagesFromMongoDB(pokedexNumber, 2000);
         const pkmnSheet = await createStringArrayFromJSON(selectedPokemon);
 
         if (!runningMemoryLogs[pokedexNumber]) {
             runningMemoryLogs[pokedexNumber] = [];
         }
+
+        chatHistory = runningMemoryLogs[pokedexNumber]
+
         runningMemoryLogs[pokedexNumber].push({
             role: "system",
             content: pkmnSheet,
@@ -35,7 +37,7 @@ async function primeChatBot(selectedPokemon) {
                 max_tokens: 25,
             });
             console.log("Ready to receive requests");
-            return response;
+            //return response;
         } catch (error) {
             console.error(error);
             process.exit(1);
@@ -44,6 +46,8 @@ async function primeChatBot(selectedPokemon) {
         console.log("No selected pokemon");
         process.exit(1);
     }
+
+    return chatHistory
 }
 
 async function sendChatToPokemon(prompt) {

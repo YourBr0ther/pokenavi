@@ -57,7 +57,7 @@ async function updatePokemonLocations() {
       }, { upsert: true, new: true });
 
       // Log the change of location
-      console.log(`Pokemon ${updatedPokemon.name} moved from ${pokemon.pokemon.currentLocation} to ${updatedPokemon.pokemon.currentLocation}`);
+      console.log(`Pokemon ${updatedPokemon.pokemon.name} moved from ${pokemon.pokemon.currentLocation} to ${updatedPokemon.pokemon.currentLocation}`);
     }
   }
 

@@ -87,7 +87,6 @@ function createPokemon() {
 const switchPrompt = async () => {
   submitButton.disabled = true;
   const pokedexNumber = document.getElementById("switch").value;
-  console.log(pokedexNumber)
   const response = await fetch("/switch", {
     method: "POST",
     headers: {
@@ -102,6 +101,14 @@ const switchPrompt = async () => {
   }
 
   const data = await response.json();
+  const pokemonImg = document.getElementById("sprite");
+  const cacheBuster = new Date().getTime();
+
+  if (pokedexNumber === "133") {
+    pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/pokemon/versions/generation-iii/firered-leafgreen/shiny/133.png`;
+  } else {
+    pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokedexNumber}.png?${cacheBuster}`;
+  }
 
   // Clear current chat history in the chat box
   chatMessages.innerHTML = '';
@@ -109,11 +116,12 @@ const switchPrompt = async () => {
   // Load chat history from the response
   const chatHistory = data.chatHistory;
   chatHistory.forEach((message) => {
-    // Assuming 'sender' field in your DB denotes if the message is from the user or the system
-    if (message.sender === 'user') {
-      addUserMessage(message.text);
-    } else if (message.sender === 'system') {
-      addSystemMessage(message.text);
+    if (message.role === 'user') {
+      addUserMessage(message.content);
+    } else if (message.role === 'system') {
+      addSystemMessage(message.content);
+    } else {
+      console.log("error")
     }
   });
 
