@@ -5,10 +5,10 @@ A new way to interact with Pokemon from your previous games
 I want to create a way for us to use Pokemon as our personal assistant using PokeDex entries, Pokemon hobbies, and personality traits. Eventually with ChatGPT4, I will be able to add some additonal features to create a pusedo consciousness. I also eventually want to make it where you can import Pokemon directly from Pk files from PkHex. This would add an additional level of uniqueness that generic Pokemon created via the web app won't be able to mimic.
 
 ### Examples
-* [Login](/example/Login.png)
-* [Homepage](/example/Homepage.png)
-* [Chat](/example/Chat.png)
-* [Creation](/example/Creation.png)
+* [Login](/pictures/Login.png)
+* [Homepage](/pictures/Homepage.png)
+* [Chat](/pictures/Chat.png)
+* [Creation](/pictures/Creation.png)
 
 ### Requirements
  * [NodeJS](https://nodejs.org/en)
