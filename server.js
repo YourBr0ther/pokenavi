@@ -210,13 +210,13 @@ app.get('/ping', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 
-   // cron.schedule('0 * * * *', async () => {
-        // try {
-           // await updatePokemonLocations();
-        //    console.log('Updated Pokemon locations')
-      //  } catch (error) {
-          //  console.error('Failed to update Pokemon locations:', error);
-     //   }
- //   });
+   cron.schedule('0 * * * *', async () => {
+        try {
+           await updatePokemonLocations();
+           console.log('Updated Pokemon locations')
+       } catch (error) {
+           console.error('Failed to update Pokemon locations:', error);
+       }
+   });
 
 });

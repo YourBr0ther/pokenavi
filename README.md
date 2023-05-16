@@ -24,7 +24,7 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
     git clone https://github.com/YourBr0ther/PokeNavi
     cd PokeNavi
     npm install
-    copy .env-template and name it .env
+    copy .env-template and rename it .env
 
 ### Add your OpenAI key and Mongo key to the .env file using this format
     OPENAI_API_KEY=XXXX
