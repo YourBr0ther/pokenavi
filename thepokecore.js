@@ -25,8 +25,10 @@ async function updatePokemonLocations() {
   const Locations = mongoose.models.Location || mongoose.model('Location', LocationSchema);
   const PC = mongoose.models.PC || mongoose.model('PC', PCSchema);
 
-  // Connect to the MongoDB database
-  await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/Pokemon`);
+  // connect to the MongoDB database at the top level of your code
+  mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/Pokemon`)
+    .then(() => console.log('Connected to MongoDB successfully!'))
+    .catch(err => console.error('Failed to connect to MongoDB:', err));
 
   // Get all Pokemons
   const pokemons = await PC.find(); // Changed from Pokemons to PC

@@ -27,7 +27,7 @@ async function sendToC(userPrompt, oAnswer, RAnswer, EAnswer) {
             model: "gpt-4",
             messages: promptThoughts.map(({ role, content }) => ({ role, content })),
             temperature: 0.7,
-            max_tokens: 100,
+            max_tokens: 50,
         });
     } catch (error) {
         console.log("Failing: Cognition Prompt")
@@ -63,7 +63,7 @@ async function sendToO(userPrompt) {
             model: "gpt-4",
             messages: promptThoughts.map(({ role, content }) => ({ role, content })),
             temperature: 0.7,
-            max_tokens: 100,
+            max_tokens: 50,
         });
     } catch (error) {
         console.log("Failing: Observation Prompt")
@@ -100,7 +100,7 @@ async function sendToR(userPrompt) {
             model: "gpt-4",
             messages: promptThoughts.map(({ role, content }) => ({ role, content })),
             temperature: 0.7,
-            max_tokens: 100,
+            max_tokens: 50,
         });
     } catch (error) {
         console.log("Failing: Reflection Prompt")
@@ -136,7 +136,7 @@ async function sendToE(userPrompt) {
             model: "gpt-4",
             messages: promptThoughts.map(({ role, content }) => ({ role, content })),
             temperature: 0.7,
-            max_tokens: 100,
+            max_tokens: 50,
         });
     } catch (error) {
         console.log("Failing: Experience Prompt")
@@ -154,7 +154,7 @@ async function sendToE(userPrompt) {
 async function main() {
 
     console.time("Response")
-    const userPrompt = "Thanks!";
+    const userPrompt = "Hey there! What are you up too, Maggie?";
     const oAnswer = await sendToO(userPrompt);
     const RAnswer = await sendToR(userPrompt);
     const EAnswer = await sendToE(userPrompt);
