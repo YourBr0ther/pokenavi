@@ -13,7 +13,7 @@
         "sizes": "512x512"
       }
     ],
-    "start_url": "login.ejs",
+    "start_url": "/login",
     "display": "standalone",
     "theme_color": "#000000",
     "background_color": "#D3D3D3"
