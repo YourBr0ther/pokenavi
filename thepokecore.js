@@ -14,7 +14,8 @@ async function updatePokemonLocations() {
   });
 
   const PCSchema = new mongoose.Schema({
-    type1: String,
+    'pokemon.name': String,
+    'pokemon.type1': String,
     'pokemon.currentLocation': { type: String, default: null },
     'pokemon.locationExpires': { type: Date, default: null }
   }, {
@@ -38,11 +39,12 @@ async function updatePokemonLocations() {
     // If the location has expired or doesn't exist, update it
     if (!pokemon.pokemon.currentLocation || !pokemon.pokemon.locationExpires || moment().isAfter(pokemon.pokemon.locationExpires)) {
       // Find all locations that match the Pokemon's type (case-insensitive)
-      const locations = await Locations.find({ type: { $regex: new RegExp(pokemon.type1, 'i') } }); // Updated to type1
+      const locations = await Locations.find({ type: pokemon.pokemon.type1});
+      console.log(locations)
 
       // Check if the locations array is empty
       if (locations.length === 0) {
-        throw new Error(`No locations found for Pokemon type "${pokemon.type1}"`); // Updated to type1
+        throw new Error(`No locations found for Pokemon type "${pokemon.pokemon.type1}" "${pokemon.pokemon.name}" `); // Updated to type1
       }
 
       // Pick a random location from the list
@@ -59,7 +61,7 @@ async function updatePokemonLocations() {
       }, { upsert: true, new: true });
 
       // Log the change of location
-      console.log(`Pokemon ${updatedPokemon.pokemon.pokemon.name} moved from ${pokemon.pokemon.currentLocation} to ${updatedPokemon.pokemon.currentLocation}`);
+      console.log(`Pokemon ${pokemon.pokemon.name} moved from ${pokemon.pokemon.currentLocation} to ${updatedPokemon.pokemon.currentLocation}`);
     }
   }
 

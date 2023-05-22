@@ -235,7 +235,7 @@ app.get('/ping', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 
-    cron.schedule('*/15 * * * *', async () => {
+    cron.schedule('*/60 * * * *', async () => {
         try {
             await updatePokemonLocations();
             console.log('Updated Pokemon locations');
