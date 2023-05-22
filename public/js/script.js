@@ -3,8 +3,12 @@ const menuButton = document.getElementById("menu");
 const createButton = document.getElementById("create");
 const userMessage = document.getElementById("prompt");
 const chatMessages = document.getElementById("chat-messages");
+document.addEventListener('DOMContentLoaded', populateDropdown);
 
-function populateDropdown(pokemonList) {
+async function populateDropdown() {
+  const response = await fetch('/getActivePokemon');
+  const data = await response.json();
+  const pokemonList = data.allPokemon;
   const dropdown = document.getElementById('switch');
   dropdown.innerHTML = '';
 
@@ -14,10 +18,10 @@ function populateDropdown(pokemonList) {
   dropdown.add(defaultOption);
 
   for (const pokemon of pokemonList) {
-    const option = document.createElement('option');
-    option.value = pokemon.pokedexNumber;
-    option.text = `${pokemon.species}`;
-    dropdown.add(option);
+      const option = document.createElement('option');
+      option.value = pokemon.pokedexNumber;
+      option.text = `${pokemon.species}`;
+      dropdown.add(option);
   }
 }
 
@@ -221,6 +225,10 @@ async function pingServer() {
 function redirectToLogin() {
   window.location.href = '/login';
 }
+
+document.getElementById('inventoryButton').addEventListener('click', function() {
+  window.open('inventory', 'Pokemon Inventory', 'width=600,height=400');
+});
 
 // Call the `pingServer` function every 10 seconds
 setInterval(pingServer, 10000);

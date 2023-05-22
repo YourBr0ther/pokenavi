@@ -15,7 +15,11 @@ const PokemonSchema = new mongoose.Schema({
     pokemon: {
         species: { type: String, required: true },
         nationalPokedexNumber: { type: Number, required: true },
+        isActive: { type: Boolean, default: false }  // Added this line
     },
+    trainer: {
+        UserId: { type: String, required: true },
+    }
 });
 
 async function saveMessagesToMongoDB(pokedexNumber) {
@@ -108,10 +112,58 @@ async function getAllPokemon(pokedexNumber) {
     }
 }
 
+async function getActivePokemon() {
+    let activePokemon = [];
+    const userId = global.userId;  // replace this with actual userId
+
+    try {
+        await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
+        const PokemonModel = mongoose.model('PC', PokemonSchema, 'PC');
+
+        const pokemonDocs = await PokemonModel.find({
+            'trainer.UserId': userId,
+            'pokemon.isActive': true
+        });
+
+        activePokemon = pokemonDocs.map((doc) => ({
+            species: doc.pokemon.species,
+            pokedexNumber: doc.pokemon.nationalPokedexNumber,
+        }));
+
+        console.log(activePokemon)
+        return activePokemon;
+
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
+}
+
+async function updateActivePokemon(pokedexNumbers, userId) {
+    try {
+        await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}:27017/Pokemon`);
+        const PokemonModel = mongoose.model('PC', PokemonSchema, 'PC');
+
+        // First, set all Pokemon for the user to inactive
+        await PokemonModel.updateMany({ 'trainer.UserId': userId }, { 'pokemon.isActive': false });
+
+        // Then, set the specified Pokemon to active
+        for (let pokedexNumber of pokedexNumbers) {
+            await PokemonModel.updateOne({ 'pokemon.nationalPokedexNumber': pokedexNumber, 'trainer.UserId': userId }, { 'pokemon.isActive': true });
+        }
+
+        console.log(`Successfully updated active Pokemon for user ${userId}`);
+    } catch (err) {
+        console.error(`Error updating active Pokemon for user ${userId}:`, err);
+    }
+}
+
 module.exports = {
     saveMessagesToMongoDB,
     loadMessagesFromMongoDB,
     getAllPokemon,
+    updateActivePokemon,
+    getActivePokemon,
     User,
     runningMemoryLogs,
     interactionHistoryLogs,

@@ -1,14 +1,16 @@
 console.clear()
 require('dotenv').config();
 const { primeChatBot, sendChatToPokemon } = require(`./chatbot`);
-const {  
- 
-    getAllPokemon, 
+const {
+
+    getAllPokemon,
+    updateActivePokemon,
+    getActivePokemon,
     User,
     LoginDemoConnection,
-    PokemonListConnection, 
-    runningMemoryLogs 
-  } = require(`./db`);
+    PokemonListConnection,
+    runningMemoryLogs
+} = require(`./db`);
 const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames } = require(`./pokeapi`);
 const cron = require('node-cron');
 const { updatePokemonLocations } = require(`./thepokecore`);
@@ -109,15 +111,15 @@ app.post('/prompt', isAuthenticated, async (req, res) => {
     const userMessage = req.body.userMessage;
     try {
         const response = await sendChatToPokemon(userMessage);
-        
+
         // save the user and assistant messages in runningMemoryLogs
         const pokedexNumber = JSON.parse(global.selectedPokemon).pokemon.nationalPokedexNumber;
         if (!runningMemoryLogs[pokedexNumber]) {
             runningMemoryLogs[pokedexNumber] = [];
         }
-        runningMemoryLogs[pokedexNumber].push({text: userMessage, role: 'user', timestamp: new Date()});
-        runningMemoryLogs[pokedexNumber].push({text: response, role: 'assistant', timestamp: new Date()});
-        
+        runningMemoryLogs[pokedexNumber].push({ text: userMessage, role: 'user', timestamp: new Date() });
+        runningMemoryLogs[pokedexNumber].push({ text: response, role: 'assistant', timestamp: new Date() });
+
         res.json({ assistantResponse: `${response}` });
     } catch (error) {
         res.status(500).json({ error: "An error occurred while processing the request" });
@@ -177,7 +179,8 @@ app.post('/api/submit-data', async (req, res) => {
             entries: pokeData.entries,
             nationalPokedexNumber: pokeData.NationalPokedexNumber,
             currentLocation: "Pokemon Laboratory",
-            locationExpiration: ""
+            locationExpiration: "",
+            isActive: "false"
         }
     };
 
@@ -203,6 +206,31 @@ app.post('/api/submit-data', async (req, res) => {
     }
 });
 
+app.get('/inventory', async function (req, res) {
+    let allPokemon = await getAllPokemon();
+    res.render('inventory', { allPokemon: allPokemon });
+});
+
+app.post('/updateActivePokemon', async function(req, res) {
+    try {
+        const activePokedexNumbers = req.body;
+        const userId = global.userId; // You need to replace this with the actual user ID
+    
+        // Call the function to update the active Pokemon in the database
+        await updateActivePokemon(activePokedexNumbers, userId);
+    
+        res.sendStatus(200);
+    } catch(err) {
+        console.error(err);
+        res.status(500).send('An error occurred while updating active Pokemon.');
+    }
+});
+
+app.get('/getActivePokemon', async function (req, res) {
+    let activePokemon = await getActivePokemon();
+    res.json({ allPokemon: activePokemon });
+});
+
 app.get('/ping', (req, res) => {
     res.status(200).send('OK');
 });
@@ -210,13 +238,13 @@ app.get('/ping', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 
-    cron.schedule('*/15 * * * *', async () => {
-      try {
-        await updatePokemonLocations();
-        console.log('Updated Pokemon locations');
-      } catch (error) {
-        console.error('Failed to update Pokemon locations:', error);
-      }
-    });
-    
+    // cron.schedule('*/15 * * * *', async () => {
+    //     try {
+    //         await updatePokemonLocations();
+    //         console.log('Updated Pokemon locations');
+    //     } catch (error) {
+    //         console.error('Failed to update Pokemon locations:', error);
+    //     }
+    // });
+
 });

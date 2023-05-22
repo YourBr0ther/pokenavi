@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pokemon Inventory</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <style>
+    #pokemonTable img.active {
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        transition: box-shadow 0.3s ease-in-out;
+    }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h2>Pokemon PC</h2>
+    <table id="pokemonTable">
+      <% let rowCount = 0; %>
+      <% for (let i=0; i < allPokemon.length; i++) { %>
+        <% if (i % 10 === 0) { %>
+          <% rowCount++; %>
+          <tr>
+        <% } %>
+        <td>
+          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/<%= allPokemon[i].pokedexNumber %>.png" class="<%= allPokemon[i].isActive ? 'active' : '' %>" data-pokedex-number="<%= allPokemon[i].pokedexNumber %>">
+        </td>
+        <% if ((i + 1) % 10 === 0 || i === allPokemon.length - 1) { %>
+          </tr>
+        <% } %>
+      <% } %>
+    </table>
+    <button id="submit" class="btn btn-primary">Submit</button>
+  </div>  
+  <script src="js/inventoryScript.js"></script>
+</body>
+</html>
