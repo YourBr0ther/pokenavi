@@ -55,7 +55,7 @@ async function updatePokemonLocations() {
       const expirationTime = moment().add(Math.floor(Math.random() * 3) + 1, 'hours').toDate();
 
       // Update the location and expiration time in the Pokemon's document in the database
-      const updatedPokemon = await PC.findOneAndUpdate({ _id: pokemon._id }, { // Changed from Pokemons to PC
+      const updatedPokemon = await PC.findOneAndUpdate({ _id: pokemon._id }, {
         'pokemon.currentLocation': randomLocation.name,
         'pokemon.locationExpires': expirationTime
       }, { upsert: true, new: true });
