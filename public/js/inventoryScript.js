@@ -1,14 +1,18 @@
 document.addEventListener('DOMContentLoaded', (event) => {
   document.getElementById('pokemonTable').addEventListener('click', function (e) {
-    if (e.target && e.target.nodeName == 'IMG') {
-      if (e.target.classList.contains('active')) {
-        // If the clicked sprite is active, deactivate it
-        e.target.classList.remove('active');
+    if (e.target && e.target.nodeName === 'IMG') {
+      const targetImg = e.target;
+
+      if (targetImg.classList.contains('active')) {
+        // If the clicked sprite is active, deactivate it and remove the shadow
+        targetImg.classList.remove('active');
+        targetImg.style.boxShadow = '';
       } else {
-        let activeImages = document.querySelectorAll('#pokemonTable img.active');
+        const activeImages = document.querySelectorAll('#pokemonTable img.active');
         if (activeImages.length < 6) {
-          // If the clicked sprite is not active, and there are less than 6 active sprites, activate it
-          e.target.classList.add('active');
+          // If the clicked sprite is not active and there are less than 6 active sprites, activate it and apply the shadow
+          targetImg.classList.add('active');
+          targetImg.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
         } else {
           // If there are already 6 active sprites, show an error message
           alert('You can select no more than 6 Pokemon.');
@@ -43,7 +47,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // Refresh the main window
         console.log('reloading')
         window.opener.location.reload();
-      })
+      });
 
   });
 
@@ -72,5 +76,3 @@ function applyShadowToActivePokemon(activePokemon) {
     }
   });
 }
-
-
