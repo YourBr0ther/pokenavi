@@ -109,7 +109,6 @@ const switchPrompt = async () => {
   const data = await response.json();
   const pokemonImg = document.getElementById("sprite");
   const cacheBuster = new Date().getTime();
-
   if (pokedexNumber === "133") {
     pokemonImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/pokemon/versions/generation-iii/firered-leafgreen/shiny/133.png`;
   } else {
@@ -118,6 +117,8 @@ const switchPrompt = async () => {
 
   // Clear current chat history in the chat box
   chatMessages.innerHTML = '';
+
+  updateChatWindowBgImage(pokemonImg.src);
 
   // Load chat history from the response
   const chatHistory = data.chatHistory;
