@@ -39,13 +39,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       .then((response) => response.json())
       .then((data) => {
         alert('Active Pokemon updated successfully!');
-
-        // Close the inventory window
-        console.log('closing window')
         window.close();
-
-        // Refresh the main window
-        console.log('reloading')
         window.opener.location.reload();
       });
 
@@ -72,7 +66,6 @@ function applyShadowToActivePokemon(activePokemon) {
     if (isActive) {
       img.classList.add('active');
       img.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
-      console.log(`Applied shadow to Pokemon with Pokedex Number: ${pokedexNumber}`);
     }
   });
 }

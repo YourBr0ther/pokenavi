@@ -129,8 +129,6 @@ async function getActivePokemon() {
             species: doc.pokemon.species,
             pokedexNumber: doc.pokemon.nationalPokedexNumber,
         }));
-
-        console.log(activePokemon)
         return activePokemon;
 
     } catch (err) {
