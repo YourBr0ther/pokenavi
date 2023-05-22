@@ -44,15 +44,9 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * PokeCORE integration [work in progress]
 
 ### Frontend Development
-* Add a party system and PC system
-  * Select 6 for Party
-  * Check boxes showing all registered Pokemon
-  * Save button on selected Pokemon
 * Comment the HTML
 
-### PokeCORE
-* Implement locations
-* 
+### PokeCORE 
 * Enter idle mode [?]
 * Brain [Parent]
   * Id [Instincts]
