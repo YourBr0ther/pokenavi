@@ -211,19 +211,20 @@ app.get('/inventory', async function (req, res) {
     res.render('inventory', { allPokemon: allPokemon });
 });
 
-app.post('/updateActivePokemon', async function(req, res) {
+app.post('/updateActivePokemon', async function (req, res) {
     try {
         const activePokedexNumbers = req.body;
         const userId = global.userId; // You need to replace this with the actual user ID
-    
+
         // Call the function to update the active Pokemon in the database
         await updateActivePokemon(activePokedexNumbers, userId);
-    
-        res.sendStatus(200);
-    } catch(err) {
-        console.error(err);
-        res.status(500).send('An error occurred while updating active Pokemon.');
-    }
+
+        res.json({ message: 'Active Pokemon updated successfully' }); // Send a JSON response
+    } catch {}
+    // catch(err) {
+    //     console.error(err);
+    //     res.status(500).send('An error occurred while updating active Pokemon.');
+    // }
 });
 
 app.get('/getActivePokemon', async function (req, res) {
