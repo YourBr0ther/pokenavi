@@ -2,16 +2,10 @@ console.clear()
 require('dotenv').config();
 const mongoose = require('mongoose');
 const moment = require('moment');
+const Locations = require('./models/location');
 
 // Function to pick a random location for a given Pokemon type
 async function updatePokemonLocations() {
-  // Define the schema for the Location and Pokemon collections
-  const LocationSchema = new mongoose.Schema({
-    name: String,
-    type: String
-  }, {
-    collection: 'Locations' // specify the custom collection name
-  });
 
   const PCSchema = new mongoose.Schema({
     'pokemon.name': String,
@@ -23,7 +17,6 @@ async function updatePokemonLocations() {
   });
 
   // Define the Location and Pokemon models if they haven't been defined yet
-  const Locations = mongoose.models.Location || mongoose.model('Location', LocationSchema);
   const PC = mongoose.models.PC || mongoose.model('PC', PCSchema);
 
   // connect to the MongoDB database at the top level of your code
