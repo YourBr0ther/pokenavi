@@ -1,0 +1,685 @@
+[{
+  "_id": {
+    "$oid": "645afb658b370de631f9f30c"
+  },
+  "name": "Volcano Island",
+  "type": "Fire"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f30d"
+  },
+  "name": "Scorching Desert",
+  "type": "Fire"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f30e"
+  },
+  "name": "Inferno Factory",
+  "type": "Fire"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f30f"
+  },
+  "name": "Dragon's Lair",
+  "type": "Dragon"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f310"
+  },
+  "name": "Mystic Forest",
+  "type": "Fairy"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f311"
+  },
+  "name": "Electric Power Plant",
+  "type": "Electric"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f312"
+  },
+  "name": "Crystal Caves",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f313"
+  },
+  "name": "Poison Ivy Garden",
+  "type": "Grass"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f314"
+  },
+  "name": "Stormy Seas",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f315"
+  },
+  "name": "Frozen Tundra",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f316"
+  },
+  "name": "Dark Forest",
+  "type": "Dark"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f317"
+  },
+  "name": "Grand Library",
+  "type": "Psychic"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f318"
+  },
+  "name": "Ancient Ruins",
+  "type": "Ghost"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f319"
+  },
+  "name": "Abandoned Mine",
+  "type": "Ground"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f31a"
+  },
+  "name": "Towering Mountains",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f31b"
+  },
+  "name": "Misty Swamp",
+  "type": "Poison"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f31c"
+  },
+  "name": "Sunflower Fields",
+  "type": "Grass"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f31d"
+  },
+  "name": "Crystal Lake",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f31e"
+  },
+  "name": "Glacier Bay",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f31f"
+  },
+  "name": "Haunted Mansion",
+  "type": "Ghost"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f320"
+  },
+  "name": "Spooky Graveyard",
+  "type": "Ghost"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f321"
+  },
+  "name": "Coral Reef",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f322"
+  },
+  "name": "Enchanted Garden",
+  "type": "Fairy"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f323"
+  },
+  "name": "Enchanted River",
+  "type": "Fairy"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f324"
+  },
+  "name": "Lunar Plains",
+  "type": "Psychic"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f325"
+  },
+  "name": "Magma Chamber",
+  "type": "Fire"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f326"
+  },
+  "name": "Dark Cave",
+  "type": "Dark"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f327"
+  },
+  "name": "Shimmering Sands",
+  "type": "Ground"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f328"
+  },
+  "name": "Sky Temple",
+  "type": "Flying"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f329"
+  },
+  "name": "Rainforest Canopy",
+  "type": "Bug"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f32a"
+  },
+  "name": "Crystal Mountains",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f32b"
+  },
+  "name": "Northern Lights",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f32c"
+  },
+  "name": "Emerald Forest",
+  "type": "Grass"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f32d"
+  },
+  "name": "Sapphire Coast",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f32e"
+  },
+  "name": "Inferno Volcano",
+  "type": "Fire"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f32f"
+  },
+  "name": "Thundering Canyon",
+  "type": "Electric"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f330"
+  },
+  "name": "Poisonous Bog",
+  "type": "Poison"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f331"
+  },
+  "name": "Frosty Glacier",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f332"
+  },
+  "name": "Shadowy Swamp",
+  "type": "Dark"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f333"
+  },
+  "name": "Dreamy Wonderland",
+  "type": "Fairy"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f334"
+  },
+  "name": "Lush Jungle",
+  "type": "Grass"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f335"
+  },
+  "name": "Aquamarine Bay",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f336"
+  },
+  "name": "Glimmering Caverns",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f337"
+  },
+  "name": "Celestial Observatory",
+  "type": "Psychic"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f338"
+  },
+  "name": "Haunted Forest",
+  "type": "Ghost"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f339"
+  },
+  "name": "Mysterious Temple",
+  "type": "Dragon"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f33a"
+  },
+  "name": "Ancient Battlefield",
+  "type": "Steel"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f33b"
+  },
+  "name": "Magnetic Mine",
+  "type": "Electric"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f33c"
+  },
+  "name": "Sparkling Lagoon",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f33d"
+  },
+  "name": "Crystal Castle",
+  "type": "Fairy"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f33e"
+  },
+  "name": "Smoky Mountain Range",
+  "type": "Fire"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f33f"
+  },
+  "name": "Underground Caverns",
+  "type": "Ground"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f340"
+  },
+  "name": "Toxic Jungle",
+  "type": "Poison"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f341"
+  },
+  "name": "Chilly Wasteland",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f342"
+  },
+  "name": "Dark Dimension",
+  "type": "Dark"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f343"
+  },
+  "name": "Mystic Garden",
+  "type": "Psychic"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f344"
+  },
+  "name": "Sky Haven",
+  "type": "Flying"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f345"
+  },
+  "name": "Butterfly Garden",
+  "type": "Bug"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f346"
+  },
+  "name": "Dazzling Diamond Mines",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f347"
+  },
+  "name": "Iceberg Bay",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f348"
+  },
+  "name": "Volcanic Plateau",
+  "type": "Fire"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f349"
+  },
+  "name": "Thunderstorm Valley",
+  "type": "Electric"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f34a"
+  },
+  "name": "Snowy Summit",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f34b"
+  },
+  "name": "Shadowy Castle",
+  "type": "Ghost"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f34c"
+  },
+  "name": "Enchanted Valley",
+  "type": "Fairy"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f34d"
+  },
+  "name": "Meadowlands",
+  "type": "Grass"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f34e"
+  },
+  "name": "Sapphire River",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f34f"
+  },
+  "name": "Crystal Plateau",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f350"
+  },
+  "name": "Psychic Academy",
+  "type": "Psychic"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f351"
+  },
+  "name": "Ghostly Graveyard",
+  "type": "Ghost"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f352"
+  },
+  "name": "Dragon's Den",
+  "type": "Dragon"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f353"
+  },
+  "name": "Iron Forge",
+  "type": "Steel"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f354"
+  },
+  "name": "Electric City",
+  "type": "Electric"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f355"
+  },
+  "name": "Ocean Trench",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f356"
+  },
+  "name": "Firefly Fields",
+  "type": "Bug"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f357"
+  },
+  "name": "Shimmering Salt Flats",
+  "type": "Ground"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f358"
+  },
+  "name": "Flying Fortress",
+  "type": "Flying"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f359"
+  },
+  "name": "Mountain Pass",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f35a"
+  },
+  "name": "Toxic Swamp",
+  "type": "Poison"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f35b"
+  },
+  "name": "Volcanic Canyon",
+  "type": "Fire"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f35c"
+  },
+  "name": "Stormy Skies",
+  "type": "Electric"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f35d"
+  },
+  "name": "Frozen Ocean",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f35e"
+  },
+  "name": "Dark Castle",
+  "type": "Dark"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f35f"
+  },
+  "name": "Fairy Tale Garden",
+  "type": "Fairy"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f360"
+  },
+  "name": "Grassy Plains",
+  "type": "Grass"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f361"
+  },
+  "name": "Sapphire Falls",
+  "type": "Water"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f362"
+  },
+  "name": "Crystal Forest",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f363"
+  },
+  "name": "Mind Palace",
+  "type": "Psychic"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f364"
+  },
+  "name": "Haunted Mansion",
+  "type": "Ghost"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f365"
+  },
+  "name": "Dragon's Nest",
+  "type": "Dragon"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f366"
+  },
+  "name": "Steelworks",
+  "type": "Steel"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f367"
+  },
+  "name": "Thunderous Mountains",
+  "type": "Electric"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f368"
+  },
+  "name": "Iceberg Fields",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f369"
+  },
+  "name": "Gloomy Woods",
+  "type": "Dark"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f36a"
+  },
+  "name": "Mystic Falls",
+  "type": "Psychic"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f36b"
+  },
+  "name": "Fairy Forest",
+  "type": "Fairy"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f36c"
+  },
+  "name": "Grasslands",
+  "type": "Grass"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f36d"
+  },
+  "name": "Crystal River",
+  "type": "Rock"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f36e"
+  },
+  "name": "Ghastly Graveyard",
+  "type": "Ghost"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f36f"
+  },
+  "name": "Dragon's Lair",
+  "type": "Dragon"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f370"
+  },
+  "name": "Steel City",
+  "type": "Steel"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f371"
+  },
+  "name": "Thunderbolt Bay",
+  "type": "Electric"
+},{
+  "_id": {
+    "$oid": "645afb658b370de631f9f372"
+  },
+  "name": "Icy Tundra",
+  "type": "Ice"
+},{
+  "_id": {
+    "$oid": "646bb16ed558506ae5c27c1e"
+  },
+  "name": "Park",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c2a"
+  },
+  "name": "Suburban Parks",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c2b"
+  },
+  "name": "Forests",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c2c"
+  },
+  "name": "Plains",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c2d"
+  },
+  "name": "Ranch",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c2e"
+  },
+  "name": "Urban City Streets",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c2f"
+  },
+  "name": "Mountains",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c30"
+  },
+  "name": "Seashore",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c31"
+  },
+  "name": "Caves",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c32"
+  },
+  "name": "Residential Homes",
+  "type": "Normal"
+},{
+  "_id": {
+    "$oid": "646bb36fd558506ae5c27c33"
+  },
+  "name": "Shopping Centers",
+  "type": "Normal"
+}]

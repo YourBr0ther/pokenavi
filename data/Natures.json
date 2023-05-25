@@ -1,0 +1,151 @@
+[{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3727"
+  },
+  "Nature": "Adamant",
+  "Increased Stat": "Attack"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3728"
+  },
+  "Nature": "Bashful",
+  "Increased Stat": "Neutral"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3729"
+  },
+  "Nature": "Bold",
+  "Increased Stat": "Defense"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e372a"
+  },
+  "Nature": "Brave",
+  "Increased Stat": "Attack"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e372b"
+  },
+  "Nature": "Calm",
+  "Increased Stat": "Sp. Def"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e372c"
+  },
+  "Nature": "Careful",
+  "Increased Stat": "Sp. Def"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e372d"
+  },
+  "Nature": "Docile",
+  "Increased Stat": "Neutral"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e372e"
+  },
+  "Nature": "Gentle",
+  "Increased Stat": "Sp. Def"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e372f"
+  },
+  "Nature": "Hardy",
+  "Increased Stat": "Neutral"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3730"
+  },
+  "Nature": "Hasty",
+  "Increased Stat": "Speed"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3731"
+  },
+  "Nature": "Impish",
+  "Increased Stat": "Defense"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3732"
+  },
+  "Nature": "Jolly",
+  "Increased Stat": "Speed"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3733"
+  },
+  "Nature": "Lax",
+  "Increased Stat": "Defense"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3734"
+  },
+  "Nature": "Lonely",
+  "Increased Stat": "Attack"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3735"
+  },
+  "Nature": "Mild",
+  "Increased Stat": "Sp. Atk"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3736"
+  },
+  "Nature": "Modest",
+  "Increased Stat": "Sp. Atk"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3737"
+  },
+  "Nature": "Naive",
+  "Increased Stat": "Speed"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3738"
+  },
+  "Nature": "Naughty",
+  "Increased Stat": "Attack"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e3739"
+  },
+  "Nature": "Quiet",
+  "Increased Stat": "Sp. Atk"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e373a"
+  },
+  "Nature": "Quirky",
+  "Increased Stat": "Neutral"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e373b"
+  },
+  "Nature": "Rash",
+  "Increased Stat": "Sp. Atk"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e373c"
+  },
+  "Nature": "Relaxed",
+  "Increased Stat": "Defense"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e373d"
+  },
+  "Nature": "Sassy",
+  "Increased Stat": "Sp. Def"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e373e"
+  },
+  "Nature": "Serious",
+  "Increased Stat": "Neutral"
+},{
+  "_id": {
+    "$oid": "645bdaac9fc8d678386e373f"
+  },
+  "Nature": "Timid",
+  "Increased Stat": "Speed"
+}]
