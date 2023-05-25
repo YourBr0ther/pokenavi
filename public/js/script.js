@@ -228,7 +228,7 @@ function redirectToLogin() {
 }
 
 document.getElementById('inventoryButton').addEventListener('click', function() {
-  window.open('inventory', 'Pokemon Inventory', 'width=600,height=400');
+  window.open('inventory', 'Pokemon Inventory', 'width=430,height=545');
 });
 
 // Call the `pingServer` function every 10 seconds
