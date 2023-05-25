@@ -44,6 +44,10 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * PokeCORE integration [work in progress]
 
 ### Frontend Development
+* Redesign the UI using icons
+* Create custom 'click sounds'
+* Allow changing of nicknames and resetting passwords
+* Adding security questions
 * Comment the HTML
 
 ### PokeCORE 

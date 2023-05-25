@@ -18,6 +18,7 @@ const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+
 let userId
 
 function isAuthenticated(req, res, next) {
@@ -79,12 +80,34 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword });
+    const { username, password, passwordConfirm, securityQuestion, securityAnswer } = req.body;
 
-    await user.save();
-    res.redirect('/login');
+    // validate password confirmation
+    if (password !== passwordConfirm) {
+        // respond with an error
+        return res.status(400).send('Passwords do not match');
+    }
+
+    // hash the password and the security answer
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedAnswer = await bcrypt.hash(securityAnswer, 10);
+
+    // create a new user object
+    const user = new User({
+        username, 
+        password: hashedPassword,
+        securityQuestion,
+        securityAnswer: hashedAnswer
+    });
+
+    // handle saving the user in a try/catch block
+    try {
+        await user.save();
+        res.redirect('/login');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error registering new user, please try again.');
+    }
 });
 
 app.get('/logout', (req, res) => {

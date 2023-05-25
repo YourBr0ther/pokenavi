@@ -58,9 +58,6 @@ async function getPokemonTypes(pokemonName) {
         if (pokemonData.types[1]) {
             type2 = pokemonData.types[1].type.name;
         }
-
-        console.log(type1)
-        console.log(type2)
         return { type1, type2 };
     } catch (error) {
         console.error('Error retrieving Pokemon type data:', error.message);

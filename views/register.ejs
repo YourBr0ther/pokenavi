@@ -47,7 +47,7 @@
 
     .title {
       text-shadow:
-        -1px -1px 0 #e7f3f4,  
+        -1px -1px 0 #e7f3f4,
         1px -1px 0 #e7f3f4,
         -1px 1px 0 #e7f3f4,
         1px 1px 0 #e7f3f4;
@@ -163,6 +163,13 @@
           <input class="textbox" type="text" name="username" id="username" required />
           <label class="input-text" for="password">Password:</label>
           <input class="textbox" type="password" name="password" id="password" required />
+          <label class="input-text" for="passwordConfirm">Confirm Password:</label>
+          <input class="textbox" type="password" name="passwordConfirm" id="passwordConfirm" required />
+          <label class="input-text" for="securityQuestion">Security Question:</label>
+          <input class="textbox" type="text" name="securityQuestion" id="securityQuestion" required />
+          <label class="input-text" for="securityAnswer">Answer:</label>
+          <input class="textbox" type="text" name="securityAnswer" id="securityAnswer" required />
+
           <button type="submit">Register</button>
         </form>
         <div class="register">Already have an account? <a href="/login">Login</a></div>
