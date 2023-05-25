@@ -2,6 +2,7 @@ const axios = require('axios');
 
 async function getPokemonEntries(species, count = 5) {
     try {
+        species = species.replace(/ /g, "-");
         const response = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${species.toLowerCase()}`);
         const speciesData = response.data;
         const uniqueEntries = new Set();
@@ -43,8 +44,33 @@ async function getAllNatureNames() {
     }
 }
 
+async function getPokemonTypes(pokemonName) {
+    try {
+        pokemonName = pokemonName.replace(/ /g, "-");
+        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemonName.toLowerCase()}`);
+        const pokemonData = response.data;
+        let type1 = null, type2 = null;
+
+        if (pokemonData.types[0]) {
+            type1 = pokemonData.types[0].type.name;
+        }
+
+        if (pokemonData.types[1]) {
+            type2 = pokemonData.types[1].type.name;
+        }
+
+        console.log(type1)
+        console.log(type2)
+        return { type1, type2 };
+    } catch (error) {
+        console.error('Error retrieving Pokemon type data:', error.message);
+        return { type1: null, type2: null };
+    }
+}
+
 module.exports = {
     getPokemonEntries,
     getAllSpeciesNames,
-    getAllNatureNames
+    getAllNatureNames,
+    getPokemonTypes
 };

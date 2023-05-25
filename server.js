@@ -11,7 +11,7 @@ const {
     PokemonListConnection,
     runningMemoryLogs
 } = require(`./db`);
-const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames } = require(`./pokeapi`);
+const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames,getPokemonTypes } = require(`./pokeapi`);
 const cron = require('node-cron');
 const { updatePokemonLocations } = require(`./thepokecore`);
 const express = require("express");
@@ -155,6 +155,7 @@ app.post('/api/submit-data', async (req, res) => {
 
     const speciesName = ((req.body.pokemon.species.replace(/-/g, ' ')).split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
     const pokeData = await getPokemonEntries(speciesName);
+    const pokeTypes = await getPokemonTypes(speciesName)
     const template = {
         trainer: {
             UserId: `${userId}`
@@ -177,6 +178,8 @@ app.post('/api/submit-data', async (req, res) => {
         pokemon: {
             species: speciesName,
             entries: pokeData.entries,
+            type1: pokeTypes.type1,
+            type2: pokeTypes.type2,
             nationalPokedexNumber: pokeData.NationalPokedexNumber,
             currentLocation: "Pokemon Laboratory",
             locationExpiration: "",

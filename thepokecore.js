@@ -66,6 +66,7 @@ async function updatePokemonLocations() {
   }
 
   await mongoose.disconnect();
+  console.log('Disconected from MongoDB successfully!')
 }
 
 // Connection URI
