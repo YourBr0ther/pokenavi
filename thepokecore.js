@@ -39,29 +39,29 @@ async function updatePokemonLocations() {
     // If the location has expired or doesn't exist, update it
     if (!pokemon.pokemon.currentLocation || !pokemon.pokemon.locationExpires || moment().isAfter(pokemon.pokemon.locationExpires)) {
       // Find all locations that match the Pokemon's type (case-insensitive)
-      const locations = await Locations.find({ type: pokemon.pokemon.type1});
-      console.log(locations)
+      const locations = await Locations.find({ type: pokemon.pokemon.type1 });
 
       // Check if the locations array is empty
       if (locations.length === 0) {
-        throw new Error(`No locations found for Pokemon type "${pokemon.pokemon.type1}" "${pokemon.pokemon.name}" `); // Updated to type1
+        console.warn(`No locations found for Pokemon type "${pokemon.pokemon.type1}" "${pokemon.pokemon.name}", setting to default location.`);
+        pokemon.pokemon.currentLocation = 'Pokemon Labratory';
+      } else {
+        // Pick a random location from the list
+        const randomIndex = Math.floor(Math.random() * locations.length);
+        const randomLocation = locations[randomIndex];
+
+        // Set the expiration time for the location
+        const expirationTime = moment().add(Math.floor(Math.random() * 3) + 1, 'hours').toDate();
+
+        // Update the location and expiration time in the Pokemon's document in the database
+        const updatedPokemon = await PC.findOneAndUpdate({ _id: pokemon._id }, {
+          'pokemon.currentLocation': randomLocation.name,
+          'pokemon.locationExpires': expirationTime
+        }, { upsert: true, new: true });
+
+        // Log the change of location
+        console.log(`Pokemon ${pokemon.pokemon.name} moved from ${pokemon.pokemon.currentLocation} to ${updatedPokemon.pokemon.currentLocation}`);
       }
-
-      // Pick a random location from the list
-      const randomIndex = Math.floor(Math.random() * locations.length);
-      const randomLocation = locations[randomIndex];
-
-      // Set the expiration time for the location
-      const expirationTime = moment().add(Math.floor(Math.random() * 3) + 1, 'hours').toDate();
-
-      // Update the location and expiration time in the Pokemon's document in the database
-      const updatedPokemon = await PC.findOneAndUpdate({ _id: pokemon._id }, {
-        'pokemon.currentLocation': randomLocation.name,
-        'pokemon.locationExpires': expirationTime
-      }, { upsert: true, new: true });
-
-      // Log the change of location
-      console.log(`Pokemon ${pokemon.pokemon.name} moved from ${pokemon.pokemon.currentLocation} to ${updatedPokemon.pokemon.currentLocation}`);
     }
   }
 
