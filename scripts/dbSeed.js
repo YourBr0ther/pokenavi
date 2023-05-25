@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const Location = require('./models/location');
-const Nature = require('./models/nature');
+const Location = require('./models/Location.js');
+const Nature = require('./models/Natures.js');
 
-const locationData = require('./data/locations.json');
-const natureData = require('./data/natures.json');
+const locationData = require('./data/Locations.json');
+const natureData = require('./data/Natures.json');
 
 async function seedDB() {
   try {

@@ -2,7 +2,7 @@ console.clear()
 require('dotenv').config();
 const mongoose = require('mongoose');
 const moment = require('moment');
-const Locations = require('./models/location');
+const Locations = require('../models/Location.js');
 
 // Function to pick a random location for a given Pokemon type
 async function updatePokemonLocations() {

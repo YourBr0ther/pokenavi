@@ -1,8 +1,7 @@
 console.clear()
 require('dotenv').config();
-const { primeChatBot, sendChatToPokemon } = require(`./chatbot`);
+const { primeChatBot, sendChatToPokemon } = require(`./scripts/chatgpt.js`);
 const {
-
     getAllPokemon,
     updateActivePokemon,
     getActivePokemon,
@@ -10,10 +9,10 @@ const {
     LoginDemoConnection,
     PokemonListConnection,
     runningMemoryLogs
-} = require(`./db`);
-const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames,getPokemonTypes } = require(`./pokeapi`);
+} = require(`./scripts/mondb.js`);
+const { getPokemonEntries, getAllSpeciesNames, getAllNatureNames,getPokemonTypes } = require(`./scripts/pokeapi.js`);
 const cron = require('node-cron');
-const { updatePokemonLocations } = require(`./thepokecore`);
+const { updatePokemonLocations } = require(`./scripts/thepokecore.js`);
 const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
