@@ -8,3 +8,25 @@ window.onload = function() {
       }
   });
 }
+
+document.addEventListener('DOMContentLoaded', populateActivePokemon);
+
+async function populateActivePokemon() {
+  const response = await fetch('/getActivePokemon');
+  const data = await response.json();
+  const pokemonList = data.allPokemon;
+  const list = document.getElementById('switch');
+  list.innerHTML = '';
+
+  const defaultOption = document.createElement('li');
+  defaultOption.setAttribute('data-value', '');
+  defaultOption.textContent = "Pokémon";
+  list.appendChild(defaultOption);
+
+  for (const pokemon of pokemonList) {
+    const listItem = document.createElement('li');
+    listItem.setAttribute('data-value', pokemon.pokedexNumber);
+    listItem.textContent = pokemon.species;
+    list.appendChild(listItem);
+  }
+}

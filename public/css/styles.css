@@ -82,3 +82,52 @@ ul#switch li:hover {
 #chat-panel.open #settings-panel {
     transform: translateX(250px);
 }
+
+#bottom-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #f4f4f4;
+  padding: 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+#bottom-panel-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.slide-panel.open #bottom-panel-container {
+  transform: translateX(250px); /* Adjust the value based on your sliding panel width */
+}
+
+#input-panel {
+  background-color: white;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+#input-panel input[type="text"] {
+  flex: 1;
+  padding: 8px;
+  margin-right: 10px;
+}
+
+#input-panel button {
+  padding: 8px 16px;
+  transition: width 0.3s ease;
+}
+
+.slide-panel.open #input-panel button {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}

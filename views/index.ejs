@@ -1,8 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <link rel="stylesheet" type="text/css" href="./css/styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PokeNavi</title>
+  <link rel="shortcut icon" type="image/png"
+    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
+  <link rel="icon" type="image/png" sizes="32x32"
+    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
+  <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -12,12 +22,11 @@
     </button>
     <div id="content" class="content">
       <ul id="switch" class="button">
-        <li data-value="">Pokémon</li>
         <% for (let i=0; i < allPokemon.length; i++) { %>
           <li data-value="<%= allPokemon[i].pokedexNumber %>">
             <%= allPokemon[i].species %>
           </li>
-          <% } %>
+        <% } %>
       </ul>
     </div>
     <div id="settings-panel">
@@ -25,9 +34,12 @@
       <img src="./images/logout.png" id=logout-button alt="Logout">
     </div>
   </div>
-
-
-
+  <div id="bottom-panel">
+    <div id="input-panel">
+      <input type="text" placeholder="Enter text">
+      <button>Submit</button>
+    </div>
+  </div>
   <script src="./js/script.js"></script>
 </body>
 
