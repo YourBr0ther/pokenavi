@@ -131,3 +131,20 @@ ul#switch li:hover {
   padding: 0;
   overflow: hidden;
 }
+
+#switch li.selected {
+  background-color: #200404; /* Adjust the background color as desired */
+  font-weight: bold; /* Adjust the font weight as desired */
+}
+
+.chat-messages {
+  /* your styles here */
+}
+
+.user {
+  background-color: lightblue;
+}
+
+.system {
+  background-color: lightgray;
+}
