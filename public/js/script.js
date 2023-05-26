@@ -231,5 +231,20 @@ document.getElementById('inventoryButton').addEventListener('click', function() 
   window.open('inventory', 'Pokemon Inventory', 'width=430,height=545');
 });
 
+let logoutTimer;
+
+function resetLogoutTimer() {
+  clearTimeout(logoutTimer);
+  logoutTimer = setTimeout(logOut, 600000); // Auto-logout after 10 minutes of inactivity
+}
+
+window.onload = resetLogoutTimer;
+document.onmousemove = resetLogoutTimer;
+document.onmousedown = resetLogoutTimer; // catches touchscreen presses
+document.ontouchstart = resetLogoutTimer;
+document.onclick = resetLogoutTimer;     // catches touchpad clicks
+document.onscroll = resetLogoutTimer;    // catches scrolling with arrow keys
+document.onkeypress = resetLogoutTimer;
+
 // Call the `pingServer` function every 10 seconds
 setInterval(pingServer, 10000);
