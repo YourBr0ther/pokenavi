@@ -245,7 +245,10 @@ app.post('/updateActivePokemon', async function (req, res) {
         await updateActivePokemon(activePokedexNumbers, userId);
 
         res.json({ message: 'Active Pokemon updated successfully' }); // Send a JSON response
-    } catch {}
+    } catch (error) {
+        console.error('Error updating active Pokemon:', error);
+        res.status(500).json({ message: 'Error updating active Pokemon' });
+    }
 });
 
 app.get('/getActivePokemon', async function (req, res) {

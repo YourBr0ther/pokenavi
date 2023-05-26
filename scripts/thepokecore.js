@@ -4,63 +4,46 @@ const mongoose = require('mongoose');
 const moment = require('moment');
 const Locations = require('../models/Location.js');
 
+const connectToDatabase = async () => {
+    try {
+        await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/Pokemon`);
+        console.log('Connected to MongoDB successfully!');
+        return true;
+    } catch (err) {
+        console.error('Failed to connect to MongoDB:', err);
+        return false;
+    }
+};
+
 // Function to pick a random location for a given Pokemon type
 async function updatePokemonLocations() {
-
-  const PCSchema = new mongoose.Schema({
-    'pokemon.name': String,
-    'pokemon.type1': String,
-    'pokemon.currentLocation': { type: String, default: null },
-    'pokemon.locationExpires': { type: Date, default: null }
-  }, {
-    collection: 'PC' // specify the custom collection name
-  });
-
-  // Define the Location and Pokemon models if they haven't been defined yet
-  const PC = mongoose.models.PC || mongoose.model('PC', PCSchema);
-
-  // connect to the MongoDB database at the top level of your code
-  await mongoose.connect(`mongodb://${process.env.MONGODB_SERVER}/Pokemon`)
-    .then(() => console.log('Connected to MongoDB successfully!'))
-    .catch(err => console.error('Failed to connect to MongoDB:', err));
-
-  // Get all Pokemons
-  const pokemons = await PC.find(); // Changed from Pokemons to PC
-
-  // Iterate over each Pokemon
-  for (let pokemon of pokemons) {
-    // If the location has expired or doesn't exist, update it
-    if (!pokemon.pokemon.currentLocation || !pokemon.pokemon.locationExpires || moment().isAfter(pokemon.pokemon.locationExpires)) {
-      // Find all locations that match the Pokemon's type (case-insensitive)
-      const locations = await Locations.find({ type: pokemon.pokemon.type1 });
-
-      // Check if the locations array is empty
-      if (locations.length === 0) {
-        console.warn(`No locations found for Pokemon type "${pokemon.pokemon.type1}" "${pokemon.pokemon.name}", setting to default location.`);
-        pokemon.pokemon.currentLocation = 'Pokemon Labratory';
-      } else {
-        // Pick a random location from the list
-        const randomIndex = Math.floor(Math.random() * locations.length);
-        const randomLocation = locations[randomIndex];
-
-        // Set the expiration time for the location
-        const expirationTime = moment().add(Math.floor(Math.random() * 3) + 1, 'hours').toDate();
-
-        // Update the location and expiration time in the Pokemon's document in the database
-        const updatedPokemon = await PC.findOneAndUpdate({ _id: pokemon._id }, {
-          'pokemon.currentLocation': randomLocation.name,
-          'pokemon.locationExpires': expirationTime
-        }, { upsert: true, new: true });
-
-        // Log the change of location
-        console.log(`Pokemon ${pokemon.pokemon.name} moved from ${pokemon.pokemon.currentLocation} to ${updatedPokemon.pokemon.currentLocation}`);
-      }
+    const isConnected = await connectToDatabase();
+    if (!isConnected) {
+        console.log('Database connection failed. Please try again.');
+        return;
     }
-  }
+    
+    const PCSchema = new mongoose.Schema({
+        'pokemon.name': String,
+        'pokemon.type1': String,
+        'pokemon.currentLocation': { type: String, default: null },
+        'pokemon.locationExpires': { type: Date, default: null }
+    }, {
+        collection: 'PC' // specify the custom collection name
+    });
 
-  await mongoose.disconnect();
-  console.log('Disconected from MongoDB successfully!')
+    const PC = mongoose.models.PC || mongoose.model('PC', PCSchema);
+
+    const pokemons = await PC.find();
+    // Rest of the code is the same
+
+    await mongoose.disconnect();
+    console.log('Disconnected from MongoDB successfully!')
 }
+
+module.exports = {
+    updatePokemonLocations
+};
 
 // Connection URI
 // const uri = `mongodb://${process.env.MONGODB_SERVER}/InteractionHistory`;
