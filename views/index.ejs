@@ -1,67 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-    crossorigin="anonymous" />
-  <title>PokeNavi</title>
-  <link rel="shortcut icon" type="image/png"
-    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
-  <link rel="icon" type="image/png" sizes="32x32"
-    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
-  <link rel="icon" type="image/png" sizes="16x16"
-    href="https://raw.githubusercontent.com/PokeAPI/sprites/fe9b71b303647573cd61f92d9a43fd32a47d9c7d/sprites/items/poke-radar.png">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DynaPuff">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" type="text/css" href="./css/styles.css">
 </head>
 
 <body>
-  <div class="container">
-    <div class="inv-container">
-      <div class="title-box">
-        <div class="title">PokeNavi</div>
-        <img class="sprite" id="sprite"
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png">
-      </div>
-      <div>
-        <div class="btn-group">
-
-          <select class="button" id="switch">
-            <option value="">Pokémon</option>
-            <% for (let i=0; i < allPokemon.length; i++) { %>
-              <option value="<%= allPokemon[i].pokedexNumber %>">
-                <%= allPokemon[i].species %>
-              </option>
-              <% } %>
-          </select>
-          <button class="button" id="create">Create</button>
-          <button class="button" id="menu">Logout</button>
-        </div>
-        <p class="inv-p" style="clear:both"></p>
-        <div class="bordered-window" id="chat-window">
-          <div class="chat-messages" id="chat-messages" style="overflow-y:scroll">Welcome to PokeNavi! Select a
-            Pokemon from the drop-down to begin</div>
-        </div>
-      </div>
-      <div class="input-container">
-        <input class="text-input" type="text" id="prompt" />
-        <button class="button" type="submit" id="submit">Submit</button>
-      </div>
+  <div id="chat-panel" class="slide-panel">
+    <button id="toggle-button">
+      <img src="./images/menu.png" alt="Menu" />
+    </button>
+    <div id="content" class="content">
+      <ul id="switch" class="button">
+        <li data-value="">Pokémon</li>
+        <% for (let i=0; i < allPokemon.length; i++) { %>
+          <li data-value="<%= allPokemon[i].pokedexNumber %>">
+            <%= allPokemon[i].species %>
+          </li>
+          <% } %>
+      </ul>
     </div>
-    <button id="inventoryButton" class="button">Open PC</button>
-  </div>
+    <div id="settings-panel">
+      <img src="./images/settings.png" id=settings-button alt="Settings">
+      <img src="./images/logout.png" id=logout-button alt="Logout">
+    </div>
   </div>
 
-  <audio id="myAudio">
-    <source src="sounds/ping.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
-  <script src="js/script.js"></script>
+
+
+  <script src="./js/script.js"></script>
 </body>
 
 </html>
