@@ -45,8 +45,11 @@ async function sendChatToPokemon(prompt) {
             response = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: trimmedMemory.map(({ role, content }) => ({ role, content })),
-                temperature: 0.7,
+                temperature: 0.9,
                 max_tokens: 100,
+                frequency_penalty: 1.86,
+                presence_penalty: 1.8,
+                top_p: 1
             });
         } catch (error) {
             console.log("Failing: first Response")
