@@ -14,9 +14,12 @@ At the very bottom of the Side Panel, there will be a Settings Button and a Logo
 
 ## Menu
 The menu button will contain the following options:
+* Pokemon Creation/Import
 * Trainer Name Change
 * Pokemon Name Change
 * Password Change
 * Inventory System for the Pokemon
 * Change Profile Icon
+
+
 
