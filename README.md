@@ -41,6 +41,7 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * Successfully import the 80 bytes into PokeNavi
 
 ### Backend Development
+* Model the ChatGPT stuff after SillyTavern
 * PokeCORE integration [work in progress]
 
 ### Frontend Development
@@ -51,7 +52,7 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 * Comment the HTML
 
 ### PokeCORE 
-* Enter idle mode [?]
+* Enter idle mode with rotation or button press
 * Brain [Parent]
   * Id [Instincts]
   * Ego [Reality]

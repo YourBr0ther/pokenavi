@@ -185,8 +185,7 @@ select {
   content: "";
   position: absolute;
   top: 0px;
-  right: 70%;
-  width: 30%;
+  align-items: center;
   height: 100%;
   image-rendering: pixelated;
   background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');

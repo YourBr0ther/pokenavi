@@ -20,6 +20,3 @@ The menu button will contain the following options:
 * Password Change
 * Inventory System for the Pokemon
 * Change Profile Icon
-
-
-
