@@ -43,6 +43,7 @@ I want to create a way for us to use Pokemon as our personal assistant using Pok
 ### Backend Development
 * Model the ChatGPT stuff after SillyTavern
 * PokeCORE integration [work in progress]
+* Restructure the URLs so they follow a normal scheme
 
 ### Frontend Development
 * Redesign the UI using icons

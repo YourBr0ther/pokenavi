@@ -183,16 +183,19 @@ select {
 
 #chat-window::before {
   content: "";
-  position: absolute;
-  top: 0px;
-  align-items: center;
-  height: 100%;
   image-rendering: pixelated;
   background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');
-  background-size: cover; 
+  background-size: 500px 500px;
+  background-repeat: no-repeat;
   opacity: 0.5;
-  z-index: -1; 
-  transform: scaleX(-1)
+  z-index: -1;
+  transform: scaleX(-1);
+  position: absolute; /* Added */
+  top: 0;            /* Added */
+  left: 0;           /* Added */
+  width: 100%;       /* Added */
+  height: 100%;      /* Added */
+  background-position: center; /* Added */
 }
 
 .text-input {
