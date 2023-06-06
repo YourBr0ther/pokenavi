@@ -1,8 +1,9 @@
 import React from 'react'
+import styles from './page.module.css'
 
 const GetPokeNavi = () => {
   return (
-    <div>Get PokeNavi</div>
+    <div className={styles.container}>Get PokeNavi</div>
   )
 }
 
