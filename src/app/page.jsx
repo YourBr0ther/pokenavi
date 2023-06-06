@@ -1,8 +1,7 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+import styles from './globals.css'
 
 export default function Home() {
   return (
-    <div>PokeNavi | A new way to interact with your team</div>
+    <div className={styles.container}>PokeNavi | A new way to interact with your team</div>
   )
 }
