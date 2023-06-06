@@ -3,6 +3,6 @@ import styles from './page.module.css'
 
 export default function Home() {
   return (
-    <div>Home</div>
+    <div>PokeNavi | A new way to interact with your team</div>
   )
 }
