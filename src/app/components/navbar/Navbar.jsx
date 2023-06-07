@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import React from 'react'
+import styles from "./navbar.module.css"
+import Image from 'next/image'
+
 
 const links = [
   {
@@ -31,9 +34,12 @@ const links = [
 
 const Navbar = () => {
   return (
-    <div>
-      <Link href="/">PokeNavi</Link>
+    <div className={styles.container}>
       <div>
+        <Image src="/poke-radar-512.png" alt="PokeRadar" width={32} height={32}></Image>
+        <Link href="/">PokeNavi</Link>
+      </div>
+      <div className={styles.links}>
         {links.map((link) => (
           <Link key={link.id} href={link.url}>
             {link.title}
@@ -43,6 +49,5 @@ const Navbar = () => {
     </div>
   )
 }
-
 
 export default Navbar
