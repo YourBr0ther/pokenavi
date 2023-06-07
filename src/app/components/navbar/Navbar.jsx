@@ -28,6 +28,12 @@ const links = [
     title: "About",
     url: "/about"
 
+  },
+  {
+    id: 5,
+    title: "Dashboard",
+    url: "/dashboard"
+
   }
 
 ]
