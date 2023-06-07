@@ -1,3 +1,46 @@
 .container {
-    background-color: green;
+    display: flex;
+    align-items: left;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.title {
+    font-size: 60px;
+  
+  }
+
+.content {
+    display: flex;
+    align-items: center;
+    gap: 80px
+}
+
+.form {
+    flex:1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px
+
+}
+
+.input, .textArea{
+    padding: 20px;
+    background-color:transparent;
+    border: none;
+    outline: none;
+    color: #bbb;
+    border: 3px solid #BBB;
+    font-size: 20px;
+    font-weight: bold
+}
+
+.submit {
+    padding: 20px;
+    border: none;
+    background-color: #d04040;
+    color:white;
+    cursor: pointer;
+    border-radius: 5px;
+    max-width: max-content;
 }
