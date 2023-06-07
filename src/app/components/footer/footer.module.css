@@ -1,0 +1,20 @@
+.container {
+    background-color: red;
+}
+
+.footerbar {
+    display: flex;
+    align-items: center; 
+    gap: 500px;
+}
+
+.copyright {
+
+}
+
+.social {
+    display: flex;
+    align-items: center;
+gap: 10px;
+
+}
