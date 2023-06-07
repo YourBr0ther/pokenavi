@@ -6,9 +6,32 @@
 
 }
 
+.logo {
+    height: 32px;
+    width: 32px;
+    image-rendering: pixelated;
+
+}
+
+.title {
+    font-size: 40px;
+    font-weight: 200;
+}
+
 .links {
     display:flex;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
 }
+
+.signin {
+    padding: 5px;
+    border: none;
+    background-color: #d04040;
+    color:white;
+    cursor: pointer;
+    border-radius: 5px;
+    max-width: max-content;
+
+  }

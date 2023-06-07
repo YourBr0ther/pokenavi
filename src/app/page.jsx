@@ -5,12 +5,12 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <div className={styles.item}>
-         <div>Continue the Adventure with your favorite sidekicks</div>
-         <div>PokeNavi, a new way to interact with your favorite Pokemon using artifical intelligence to bring them to life.</div>
-         <button className={styles.button}> Sign Up </button>
+         <h1 className={styles.title}>Continue the adventure together.</h1>
+         <p className={styles.desc}>PokeNavi, a new way to interact with your favorite Pokemon using artifical intelligence to bring them to life.</p>
+         <button className={styles.signup}>Sign Up</button>
       </div>
       <div className={styles.item}>
-        <Image className={styles.img} src="" alt="homepage.png"></Image>
+        <Image className={styles.img} src="/homepage.gif" alt="a lovely beach paradise" width={430} height={240}></Image>
       </div>
     </div>
   )

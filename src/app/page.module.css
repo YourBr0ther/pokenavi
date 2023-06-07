@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   gap: 100px;
+
 }
 
 .item {
@@ -10,11 +11,37 @@
   flex-direction: column;
   gap: 50px;
 
+}
+
+.title {
+  font-size: 72px;
+  background: linear-gradient(to bottom, #d04040, #7fa9d0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+}
+
+.desc {
+  font-size: 24px;
+  font-weight: 300;
 
 }
 
 .img {
   width: 100%;
   height: 500px;
+  object-fit: cover;
+  border: 5px;
+  border-radius: 20px;
+}
+
+.signup {
+  padding: 20px;
+  border: none;
+  background-color: #d04040;
+  color:white;
+  cursor: pointer;
+  border-radius: 5px;
+  max-width: max-content;
 
 }

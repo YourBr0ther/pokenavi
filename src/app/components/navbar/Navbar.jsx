@@ -36,8 +36,8 @@ const Navbar = () => {
   return (
     <div className={styles.container}>
       <div>
-        <Image src="/poke-radar-512.png" alt="PokeRadar" width={32} height={32}></Image>
-        <Link href="/">PokeNavi</Link>
+        <Image className={styles.logo} src="/poke-radar-512.png" alt="PokeRadar" width={32} height={32}></Image>
+        <Link className={styles.title} href="/">PokeNavi</Link>
       </div>
       <div className={styles.links}>
         {links.map((link) => (
@@ -45,6 +45,7 @@ const Navbar = () => {
             {link.title}
           </Link>
         ))}
+        <div><button className={styles.signin}>Sign In</button></div>
       </div>
     </div>
   )
