@@ -22,11 +22,11 @@ interface StatsModalProps {
       spDefense: number;
       speed: number;
     };
-  };
+  } | null;
 }
 
 const StatsModal: React.FC<StatsModalProps> = ({ isOpen, onClose, pokemonData }) => {
-  if (!isOpen) return null;
+  if (!isOpen || !pokemonData) return null;
 
   return (
     <div className={styles.modalOverlay}>

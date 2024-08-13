@@ -15,7 +15,23 @@ interface PlayerInfo {
   gender: string;
   pokemonName?: string;
   pokemonSpecies?: string;
+  nickname?: string;
+  species?: string;
+  level?: number;
+  type1?: string;
+  type2?: string;
+  ability?: string;
+  nature?: string;
+  stats?: {
+    hp: number;
+    attack: number;
+    defense: number;
+    spAttack: number;
+    spDefense: number;
+    speed: number;
+  };
 }
+
 
 export default function Home() {
   const [showOverlay, setShowOverlay] = useState(false);
@@ -78,30 +94,14 @@ export default function Home() {
         if (jsonData) {
           setPlayerInfo((prevInfo) => ({
             ...prevInfo,
-            pokemonName: jsonData.Nickname,
-            pokemonSpecies: jsonData.Species.Name,
+            pokemonName: jsonData.Nickname || prevInfo?.pokemonName,
+            pokemonSpecies: jsonData.Species.Name || prevInfo?.pokemonSpecies,
+            nickname: jsonData.Nickname || prevInfo?.nickname,
+            species: jsonData.Species.Name || prevInfo?.species,
             name: prevInfo?.name || '',
             gender: prevInfo?.gender || '',
           }));
-
-          setPokemonData({
-            nickname: jsonData.Nickname,
-            species: jsonData.Species.Name,
-            level: jsonData.Level,
-            type1: jsonData.Type1,
-            type2: jsonData.Type2,
-            ability: jsonData.Ability,
-            nature: jsonData.Nature,
-            stats: {
-              hp: jsonData.Stats.HP,
-              attack: jsonData.Stats.Attack,
-              defense: jsonData.Stats.Defense,
-              spAttack: jsonData.Stats.SpAttack,
-              spDefense: jsonData.Stats.SpDefense,
-              speed: jsonData.Stats.Speed,
-            }
-          });
-
+         
           setText((prevText) => [
             ...prevText,
             `Ah! It looks like you've transferred in a ${jsonData.Species.Name} named ${jsonData.Nickname}.`,
