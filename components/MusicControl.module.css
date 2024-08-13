@@ -1,0 +1,24 @@
+.startButton {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background-color: transparent;
+    border: 2px solid black;
+    font-size: 20px;
+    cursor: pointer;
+    color: black;
+    font-family: 'Pokemon Classic', sans-serif;
+  }
+  
+  .stopButton {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: black;
+    font-family: 'Pokemon Classic', sans-serif;
+  }
+  

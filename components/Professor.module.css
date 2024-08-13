@@ -1,0 +1,13 @@
+.professorContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: -100px; /* Add some margin below the professor image */
+  }
+  
+  .professorImage {
+    width: 400px; /* Adjust size as needed */
+    height: auto;
+    image-rendering: pixelated; /* Ensures pixel-perfect rendering */
+  }
+  
