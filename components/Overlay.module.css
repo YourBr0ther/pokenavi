@@ -1,0 +1,34 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dimmed background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'Pokemon Classic', sans-serif;
+    color: black;
+    width: 80%;
+    max-width: 300px;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-family: 'Pokemon Classic', sans-serif;
+    margin-top: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+  }
+  

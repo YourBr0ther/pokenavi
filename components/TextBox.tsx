@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './TextBox.module.css';
 
-const TextBox = ({ text }: { text: string[] }) => {
+const TextBox = ({ text, onTextComplete }: { text: string[], onTextComplete: () => void }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [lineIndex, setLineIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
@@ -11,49 +11,51 @@ const TextBox = ({ text }: { text: string[] }) => {
   const [showIndicator, setShowIndicator] = useState(false);
   const [cooldown, setCooldown] = useState(false);
 
-  const currentLine = text[lineIndex];
-
-  useEffect(() => {
-    if (isTyping && charIndex < currentLine.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText((prev) => prev + currentLine.charAt(charIndex));
-        setCharIndex(charIndex + 1);
-      }, 50); // Adjust typing speed here
-      return () => clearTimeout(timeout);
-    } else if (charIndex >= currentLine.length) {
-      setShowIndicator(true); // Show the indicator only when all text is displayed
-    }
-  }, [charIndex, isTyping, currentLine]);
-
   const handleClick = () => {
-    if (cooldown) return; // Ignore clicks during cooldown
+    if (cooldown) return; // Prevent rapid-fire clicking
+
+    // Play click sound
+    const audio = new Audio('/sounds/advancedtext.mp3');
+    audio.volume = 0.03; // Set the volume to 50%
+    audio.play().catch(error => {
+      console.error('Failed to play click sound:', error);
+    });
 
     setCooldown(true); // Activate cooldown
-    const audio = new Audio('/sounds/advancedtext.mp3');
-    audio.volume = 0.5; // Set the volume to 50%
-    audio.play(); // Play sound effect immediately on click
-
     setTimeout(() => {
-      setCooldown(false); // Reset cooldown after 500ms
-    }, 500);
+      setCooldown(false); // Reset cooldown after 100ms
+    }, 100);
 
     if (isTyping) {
       // Finish current chunk immediately
-      setDisplayedText(currentLine);
+      setDisplayedText(text[lineIndex]);
       setIsTyping(false);
-      setShowIndicator(true); // Show the indicator after finishing the text
+      setShowIndicator(true);
     } else if (lineIndex < text.length - 1) {
       // Advance to the next line of text
       setDisplayedText('');
       setLineIndex(lineIndex + 1);
       setCharIndex(0);
       setIsTyping(true);
-      setShowIndicator(false); // Hide the indicator while typing the next chunk
+      setShowIndicator(false);
     } else {
       // All text has been displayed
       setShowIndicator(false);
+      onTextComplete();
     }
   };
+
+  useEffect(() => {
+    if (isTyping && charIndex < text[lineIndex].length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText((prev) => prev + text[lineIndex].charAt(charIndex));
+        setCharIndex(charIndex + 1);
+      }, 50);
+      return () => clearTimeout(timeout);
+    } else if (charIndex >= text[lineIndex].length) {
+      setShowIndicator(true);
+    }
+  }, [charIndex, isTyping, text, lineIndex]);
 
   return (
     <div className={styles.textBox} onClick={handleClick}>

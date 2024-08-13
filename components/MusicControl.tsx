@@ -1,34 +1,35 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import styles from './MusicControl.module.css';
 
 const MusicControl = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
   const musicRef = useRef<HTMLAudioElement | null>(null);
 
-  const startMusic = () => {
+  const toggleMusic = () => {
     if (!musicRef.current) {
       musicRef.current = new Audio('/sounds/intro.mp3');
-      musicRef.current.volume = 0.5; // Adjust volume as needed
+      musicRef.current.volume = 0.03; // Set volume to 25%
       musicRef.current.loop = true; // Loop the music
+    }
+
+    if (isPlaying) {
+      musicRef.current.pause();
+      musicRef.current.currentTime = 0;
+      setIsPlaying(false);
+    } else {
       musicRef.current.play().catch(error => {
         console.error('Failed to play audio:', error);
       });
-    }
-  };
-
-  const stopMusic = () => {
-    if (musicRef.current) {
-      musicRef.current.pause();
-      musicRef.current.currentTime = 0;
+      setIsPlaying(true);
     }
   };
 
   return (
-    <>
-      <button className={styles.startButton} onClick={startMusic}>Start Music</button>
-      <button className={styles.stopButton} onClick={stopMusic}>X</button>
-    </>
+    <button className={styles.musicButton} onClick={toggleMusic}>
+      {isPlaying ? "X" : "O"}
+    </button>
   );
 };
 
