@@ -1,0 +1,51 @@
+@font-face {
+  font-family: 'Pokemon Classic';
+  src: url('/fonts/PokemonClassic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.textBox {
+  position: fixed;
+  bottom: 5px; /* 5-pixel padding from the bottom */
+  left: 5px;   /* 5-pixel padding from the left */
+  right: 5px;  /* 5-pixel padding from the right */
+  max-width: calc(100% - 10px); /* Ensures the box doesn't exceed the screen width */
+  height: 18vh; /* 18% of the viewport height */
+  border: 4px solid black; /* Black border */
+  background-color: #fff; /* White background for the text box */
+  color: black; /* Black text color */
+  font-family: 'Pokemon Classic', sans-serif; /* Use the Pokemon Classic font */
+  padding: 10px; /* 10-pixel padding on all sides */
+  box-sizing: border-box; /* Ensures padding is included in width/height calculations */
+  border-radius: 15px; /* Rounds the corners */
+  cursor: pointer;
+  user-select: none; /* Prevents text selection */
+  -webkit-user-select: none; /* Ensures compatibility with Safari */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures text is towards the top */
+}
+
+.textBox p {
+  margin: 0;
+  font-size: 15px; /* Increased font size by 5% */
+  line-height: 1.5;
+  user-select: none; /* Prevents text selection */
+  -webkit-user-select: none; /* Ensures compatibility with Safari */
+  flex-grow: 1; /* Allows the paragraph to take up the space at the top */
+}
+
+.indicator {
+  font-size: 20px;
+  color: black;
+  animation: fade 1s infinite;
+  margin-right: 10px; /* Small margin from the right edge */
+  align-self: flex-end; /* Position the indicator at the bottom right */
+  opacity: 0;
+}
+
+@keyframes fade {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
